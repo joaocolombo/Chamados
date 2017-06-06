@@ -52,6 +52,7 @@ namespace API
             loggerFactory.AddDebug();
 
             app.UseMvc();
+            
         }
     }
 }

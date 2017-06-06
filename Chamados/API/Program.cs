@@ -20,7 +20,9 @@ namespace API
                 .UseApplicationInsights()
                 .Build();
 
+            
             host.Run();
+
         }
     }
 }
