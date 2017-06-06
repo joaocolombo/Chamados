@@ -20,6 +20,11 @@ namespace Domain.Services
             return _iChamadoRepository.Alterar(chamado);
         }
 
+        public Chamado BuscarPorId(int codigo)
+        {
+            return _iChamadoRepository.BuscarPorId(codigo);
+        }
+
         public void Finalizar(Chamado chamado)
         {
             chamado.Status = "Finalizado";
@@ -29,6 +34,7 @@ namespace Domain.Services
         public int Inserir(Chamado chamado)
         {
             //validar
+            chamado.Status="Aberto";
             return _iChamadoRepository.Inserir(chamado);
         }
 

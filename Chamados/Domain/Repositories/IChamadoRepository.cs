@@ -6,5 +6,6 @@ namespace Domain.Repositories
     {
         Chamado Alterar(Chamado chamado);
         int Inserir(Chamado chamado);
+        Chamado BuscarPorId(int codigo);
     }
 }

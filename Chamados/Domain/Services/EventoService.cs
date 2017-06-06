@@ -20,7 +20,6 @@ namespace Domain.Services
             var _evento = _iEventoRepository.Adicionar(chamado, evento);
             chamado.Eventos.Add(_evento);
             return chamado;
-
         }
 
         public Evento Alterar(Evento evento)
@@ -33,12 +32,25 @@ namespace Domain.Services
             return _iEventoRepository.Alterar(evento);
         }
 
+        public void Encaminhar(Evento evento, Atendente atendente, Chamado chamado)
+        {
+            //finalizar evento anterior
+            evento.Descricao +=" Encaminhado para o Atendente " + atendente.Nome;
+            Adicionar(chamado, evento);
+        }
+
+        public void EncaminharN2(Evento evento, Chamado chamado)
+        {
+            //finalizar evento anterior
+            evento.Descricao += " Encaminhado para a Fila do N2";
+            Adicionar(chamado, evento);
+        }
+
         public Evento Finalizar(Evento evento)
         {
             evento.Status = "Finalizado";
             evento.Encerrado = DateTime.Now;
             return _iEventoRepository.Alterar(evento);
-
         }
     }
 }

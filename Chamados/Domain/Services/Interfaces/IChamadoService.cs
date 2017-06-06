@@ -7,6 +7,7 @@ namespace Domain.Services.Interfaces
         int Inserir(Chamado chamado);
         Chamado Alterar(Chamado chamado);
         void Finalizar(Chamado chamado);
+        Chamado BuscarPorId(int codigo);
         string Teste();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection.Metadata;
 
 namespace Domain.Entities
 {
@@ -7,5 +8,7 @@ namespace Domain.Entities
         public string Status { get; set; }
         public DateTime Abertura { get; set; }
         public DateTime Encerrado { get; set; }
+        public Atendente Atendente { get; set; }
+        public string Descricao { get; set; }
     }
 }

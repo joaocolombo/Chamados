@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Services;
 using Domain.Services.Interfaces;
@@ -21,14 +22,14 @@ namespace API.Controllers
         [HttpGet]
         public string Get()
         {
-            return "123";
+            return _iChamadoService.Teste();
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public Chamado Get(int id)
         {
-            return "value";
+            return _iChamadoService.BuscarPorId(id);
         }
 
         // POST api/values

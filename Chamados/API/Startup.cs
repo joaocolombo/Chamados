@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities;
+using Domain.Repositories;
 using Domain.Services;
 using Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Data.Repositories;
 
 namespace API
 {
@@ -36,11 +38,10 @@ namespace API
             services.AddOptions();
           //  services.Configure<Chamado>(Configuration);
 
-
-
             services.AddMvc();
 
             services.AddScoped<IChamadoService, ChamadoService>();
+            services.AddScoped<IChamadoRepository, ChamadoRepository>();
 
         }
 
