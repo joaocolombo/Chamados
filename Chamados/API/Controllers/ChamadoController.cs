@@ -23,14 +23,14 @@ namespace API.Controllers
             _iChamadoService = iChamadoService;
         }
 
-        //GET: api/Chamado
+        //GET: api/Chamado/BuscarPorStatus/aberto
         [HttpGet("BuscarPorStatus/{status}", Name="GetPorStatus")]
-        public string GetPorStatus(string status)
+        public IEnumerable<Chamado> GetPorStatus(string status)
         {
-            return "acerto miseravi"+status;
+            return _iChamadoService.BuscarPorStatus(status);
         }
 
-        // GET: api/Chamado/5
+        // GET: api/Chamado/BuscarPorId/5
         [HttpGet("BuscarPorId/{id}", Name = "Get")]
         public Chamado Get(int id)
         {
@@ -41,15 +41,15 @@ namespace API.Controllers
         [HttpPost]
         public void Post([FromBody]Chamado value)
         {
-
             var x = value;
-
         }
         
-        // PUT: api/Chamado/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        // PUT: api/Chamado/Encerrar/5
+        [HttpPut("Encerrar/{id}")]
+        public void PutFinalizar(int id, [FromBody]Chamado value)
         {
+            var x = id;
+            var corpo = value;
         }
         
         // DELETE: api/ApiWithActions/5
