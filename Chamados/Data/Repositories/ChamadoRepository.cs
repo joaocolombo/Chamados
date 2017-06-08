@@ -47,7 +47,7 @@ namespace Data.Repositories
 
         public Chamado Alterar(Chamado chamado)
         {
-            throw new NotImplementedException();
+            return chamado;
         }
 
         public IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, string status)
@@ -84,7 +84,12 @@ namespace Data.Repositories
 
         public int Inserir(Chamado chamado)
         {
-            throw new NotImplementedException();
+            return 10;
+        }
+
+        public Chamado AdicionarEvento(Chamado chamado, Evento evento)
+        {
+            return chamado;
         }
     }
 }

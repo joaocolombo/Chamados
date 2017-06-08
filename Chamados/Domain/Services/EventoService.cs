@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Domain.Entities;
 using Domain.Repositories;
 using Domain.Services.Interfaces;
@@ -8,42 +9,41 @@ namespace Domain.Services
     public class EventoService : IEventoService
     {
         private readonly IEventoRepository _iEventoRepository;
+        private readonly IChamadoService _iChamadoService;
 
-        public EventoService(IEventoRepository iEventoRepository)
+        public EventoService(IEventoRepository iEventoRepository, IChamadoService iChamadoService)
         {
             _iEventoRepository = iEventoRepository;
+            _iChamadoService = iChamadoService;
         }
 
         public Chamado Adicionar(Chamado chamado, Evento evento)
         {
             //validar
+            var c = _iChamadoService.BuscarPorId(chamado.Codigo);
+            if (!c.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault().Status.Equals("ENCERRADO"))
+            {
+                throw new Exception("Ultimo evento não foi encerrao");
+            }
             var _evento = _iEventoRepository.Adicionar(chamado, evento);
             chamado.Eventos.Add(_evento);
             return chamado;
         }
 
-        public Evento Alterar(Evento evento)
+        public Evento AlterarDescricao(Evento evento, string descricao)
         {
+            evento = _iEventoRepository.BuscarPorId(evento.Codigo);
             if (evento.Status.Equals("Finalizado"))
             {
                 throw new Exception("Evento ja foi finalizado");
             }
-            //validar
+            evento.Descricao = descricao;
+            if (evento.Descricao.Equals(""))
+            {
+                throw new Exception("Descricao em branco");
+            }
+
             return _iEventoRepository.Alterar(evento);
-        }
-
-        public void Encaminhar(Evento evento, Atendente atendente, Chamado chamado)
-        {
-            //finalizar evento anterior
-            evento.Descricao +=" Encaminhado para o Atendente " + atendente.Nome;
-            Adicionar(chamado, evento);
-        }
-
-        public void EncaminharN2(Evento evento, Chamado chamado)
-        {
-            //finalizar evento anterior
-            evento.Descricao += " Encaminhado para a Fila do N2";
-            Adicionar(chamado, evento);
         }
 
         public Evento Finalizar(Evento evento)

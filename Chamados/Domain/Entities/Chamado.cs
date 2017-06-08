@@ -9,9 +9,12 @@ namespace Domain.Entities
         public int Codigo { get; set; }
         public string Status { get; set; }
         public List<Evento> Eventos { get; set; }
-        private Atendente atendente;
+        public Filial Filial { get; set; }
+        public string Assunto { get; set; }
+        public List<Categoria> Categorias { get; set; }
         public string Nivel => Atendente.Nivel;
 
+        private Atendente atendente;
         public Atendente Atendente
         {
             get

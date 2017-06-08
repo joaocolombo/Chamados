@@ -6,5 +6,7 @@ namespace Domain.Repositories
     {
         Evento Alterar(Evento evento);
         Evento Adicionar(Chamado chamado, Evento evento);
+        Evento BuscarPorId(int codigo);
+
     }
 }

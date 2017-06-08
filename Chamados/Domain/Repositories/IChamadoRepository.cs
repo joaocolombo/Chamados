@@ -11,5 +11,7 @@ namespace Domain.Repositories
         IEnumerable<Chamado> BuscarPorStatus(string status);
         IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, string status);
         IEnumerable<Chamado> BuscarPorFilial(Filial filial);
+        Chamado AdicionarEvento(Chamado chamado, Evento evento);
+   
     }
 }
