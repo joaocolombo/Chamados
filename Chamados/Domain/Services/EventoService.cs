@@ -46,6 +46,11 @@ namespace Domain.Services
             return _iEventoRepository.Alterar(evento);
         }
 
+        public Evento BuscarPorId(int codigo)
+        {
+            throw new NotImplementedException();
+        }
+
         public Evento Finalizar(Evento evento)
         {
             evento.Status = "Finalizado";

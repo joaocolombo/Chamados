@@ -18,8 +18,9 @@ namespace Domain.Services
 
         private void VerificaUltimoEventoFinalizado(Chamado chamado)
         {
-            var c = _iChamadoRepository.BuscarPorId(chamado.Codigo);
-            if (!c.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault().Status.Equals("ENCERRADO"))
+
+            var evento = chamado.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
+            if (evento.Status.Equals("ENCERRADO"))
             {
                 throw new Exception("O chamado não pode ser alterado pois o ultimo evento não foi encerrado");
             }
@@ -27,7 +28,7 @@ namespace Domain.Services
 
         private void VerificaAtendenteCorrente(Chamado chamado, Atendente atendente)
         {
-            if (chamado.Atendente!=atendente)
+            if (chamado.Atendente.Nome!=atendente.Nome)
             {
                 throw new Exception("O chamado so pode ser alterado pelo seu atendente");
             }
@@ -37,6 +38,7 @@ namespace Domain.Services
         {
             VerificaAtendenteCorrente(chamado, atendente);
             chamado = _iChamadoRepository.BuscarPorId(chamado.Codigo);
+            VerificaUltimoEventoFinalizado(chamado);
             chamado.Assunto = assunto;
             if (chamado.Assunto.Equals(""))
             {
@@ -49,8 +51,9 @@ namespace Domain.Services
         {
             VerificaAtendenteCorrente(chamado, atendente);
             chamado = _iChamadoRepository.BuscarPorId(chamado.Codigo);
+            VerificaUltimoEventoFinalizado(chamado);
             chamado.Categorias = categorias;
-            if (categorias.Any())
+            if (!categorias.Any())
             {
                 throw new Exception("O Chamado precisa uma categoria");
             }
@@ -61,7 +64,8 @@ namespace Domain.Services
         {
             VerificaAtendenteCorrente(chamado, atendente);
             chamado = _iChamadoRepository.BuscarPorId(chamado.Codigo);
-            if (chamado.Eventos.Any())
+            VerificaUltimoEventoFinalizado(chamado);
+            if (!chamado.Eventos.Any())
             {
                 throw new Exception("Já Existe evento para esse chamado, não é possivel alterar");
             }
@@ -105,18 +109,27 @@ namespace Domain.Services
         {
             var erro = "";
             chamado.Status = "Aberto";
-            if (chamado.Categorias.Any())
+            if (chamado.Categorias==null)
             {
                 erro = "O Chamado precisa de pelomenos uma categoria.";
             }
-            if (chamado.Assunto.Equals(""))
+            else if (!chamado.Categorias.Any())
+            {
+                erro = "O Chamado precisa de pelomenos uma categoria.";
+            }
+            if (String.IsNullOrEmpty(chamado.Assunto))
             {
                 erro += " O Chamado precisa de um assunto.";
             }
-            if (chamado.Eventos.Any())
+            if (chamado.Eventos==null)
+            {
+                erro += " O Chamado precisa de um evendo"; 
+            }
+            else if (!chamado.Eventos.Any())
             {
                 erro += " O Chamado precisa de um evendo";
             }
+
             if (chamado.Filial == null)
             {
                 erro += " O Chamado precisa de uma Filial";
