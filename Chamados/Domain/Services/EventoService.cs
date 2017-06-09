@@ -48,7 +48,7 @@ namespace Domain.Services
 
         public Evento BuscarPorId(int codigo)
         {
-            throw new NotImplementedException();
+            return _iEventoRepository.BuscarPorId(codigo);
         }
 
         public Evento Finalizar(Evento evento)
