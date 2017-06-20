@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using System.Collections.Generic;
+using Domain.Entities;
 
 namespace Domain.Repositories
 {
@@ -7,6 +8,7 @@ namespace Domain.Repositories
         Evento Alterar(Evento evento);
         Evento Adicionar(Chamado chamado, Evento evento);
         Evento BuscarPorId(int codigo);
+        string InserirPorChamado(IEnumerable<Evento> eventos);
 
     }
 }

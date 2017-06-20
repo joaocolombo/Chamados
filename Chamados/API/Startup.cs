@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Data.Repositories;
+using FakeRepository;
 
 namespace API
 {
@@ -42,6 +43,7 @@ namespace API
 
             services.AddScoped<IChamadoService, ChamadoService>();
             services.AddScoped<IChamadoRepository, ChamadoRepository>();
+            services.AddScoped<IEventoRepository, EventoRepository>();
 
         }
 

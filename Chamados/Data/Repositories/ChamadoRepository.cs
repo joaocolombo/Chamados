@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.SqlClient;
 using Domain.Entities;
 using Domain.Repositories;
 
@@ -8,6 +9,13 @@ namespace Data.Repositories
 {
     public class ChamadoRepository : IChamadoRepository
     {
+        private readonly IEventoRepository _iEventoRepository;
+
+        public ChamadoRepository(IEventoRepository iEventoRepository)
+        {
+            _iEventoRepository = iEventoRepository;
+        }
+
         private Chamado CriarChamado()
         {
             var codigo = 6;
@@ -84,7 +92,47 @@ namespace Data.Repositories
 
         public int Inserir(Chamado chamado)
         {
-            return 10;
+
+            var sql = chamado.Categorias.Aggregate(@"BEGIN TRAN
+                        DECLARE @CODIGO_CHAMADO INT
+                        INSERT INTO [CHAMADOS].[dbo].[CHAMADO]
+                       ([CODIGO_FILIAL]
+                       ,[ASSUNTO]
+                       ,[STATUS])
+                        VALUES
+                       (@CODIGO_FILIAL
+                       ,@ASSUNTO
+                       ,@STATUS)
+                     SET @CODIGO_CHAMADO =(SELECT SCOPE_IDENTITY ())
+                       ", (current, categoria) => current + (@"
+                        INSERT INTO [CHAMADOS].[dbo].[CHAMADO_CATEGORIA]
+						([CODIGO_CHAMADO]
+						,[CODIGO_CATEGORIA])
+						VALUES
+						(@CODIGO_CHAMADO
+						," + categoria.Codigo + @")
+                        "));
+            sql += _iEventoRepository.InserirPorChamado(chamado.Eventos);
+    
+            sql += "COMMIT SELECT @CODIGO_CHAMADO";
+            try
+            {
+            var comando = new SqlCommand(sql);
+            comando.Parameters.AddWithValue("@CODIGO_FILIAL", chamado.Filial.Codigo);
+            comando.Parameters.AddWithValue("@ASSUNTO", chamado.Assunto);
+            comando.Parameters.AddWithValue("@STATUS", chamado.Status);
+            var dr =ChamadosDb.DataReader(comando);
+            dr.Read();
+            var retorno =Convert.ToInt32(dr[0]); 
+            ChamadosDb.CloseConnection();
+            return retorno;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
 
         public Chamado AdicionarEvento(Chamado chamado, Evento evento)
