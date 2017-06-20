@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Domain.Entities;
 using Domain.Repositories;
@@ -44,6 +45,11 @@ namespace Domain.Services
             }
 
             return _iEventoRepository.Alterar(evento);
+        }
+
+        public IEnumerable<Evento> BuscarEventosPorChamado(int codigoChamado)
+        {
+            return _iEventoRepository.BuscarEventosPorChamado(codigoChamado);
         }
 
         public Evento BuscarPorId(int codigo)

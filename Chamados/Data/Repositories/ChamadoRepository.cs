@@ -10,51 +10,37 @@ namespace Data.Repositories
     public class ChamadoRepository : IChamadoRepository
     {
         private readonly IEventoRepository _iEventoRepository;
+        private readonly IFilialRepository _iFilialRepository;
 
-        public ChamadoRepository(IEventoRepository iEventoRepository)
+        public ChamadoRepository(IEventoRepository iEventoRepository, IFilialRepository iFilialRepository)
         {
             _iEventoRepository = iEventoRepository;
+            _iFilialRepository = iFilialRepository;
         }
 
-        private Chamado CriarChamado()
-        {
-            var codigo = 6;
-            var a1 = new Atendente() { Nome = "Joao", Nivel = "N2" };
-            var a2 = new Atendente() { Nome = "Douglas", Nivel = "N1" };
-            var e1 = new Evento()
-            {
-                Abertura = DateTime.Now.AddDays(-2),
-                Atendente = a2,
-                Descricao = "evento1",
-                Encerrado = DateTime.Now.AddDays(-1),
-                Status = "ENCERRADO"
-            };
-            var e2 = new Evento()
-            {
-                Abertura = DateTime.Now.AddDays(-1),
-                Atendente = a2,
-                Descricao = "Encaminhado N2",
-                Encerrado = DateTime.Now,
-                Status = "ENCERRADO"
-            };
-            var e3 = new Evento()
-            {
-                Abertura = DateTime.Now,
-                Atendente = a1,
-                Descricao = "evento 3",
-                Status = "ABERTO"
-            };
-            List<Evento> lista = new List<Evento>();
-            lista.Add(e1);
-            lista.Add(e2);
-            lista.Add(e3);
-
-            return new Chamado() { Codigo = codigo, Eventos = lista, Status = "ABERTO"};
-
-        }
 
         public Chamado Alterar(Chamado chamado)
         {
+            var sql = @"BEGIN TRAN
+                           UPDATE [CHAMADOS].[dbo].[CHAMADO]
+                           SET [CODIGO_FILIAL] =@CODIGO_FILIAL
+                              ,[ASSUNTO] = @ASSUNTO
+                              ,[STATUS] = @STATUS
+                         WHERE [CODIGO]=@CODIGO
+                        
+                        DELETE FROM [CHAMADOS].[dbo].[CHAMADO_CATEGORIA]
+                      WHERE @CODIGO
+                        ";
+            CategoriaRepository.InserirSql(chamado);
+            sql += " COMMIT";
+
+            var comando = new SqlCommand(sql);
+            comando.Parameters.AddWithValue("@CODIGO_FILIAL", chamado.Filial.Codigo);
+            comando.Parameters.AddWithValue("@ASSUNTO", chamado.Assunto);
+            comando.Parameters.AddWithValue("@STATUS", chamado.Status);
+            comando.Parameters.AddWithValue("@CODIGO", chamado.Codigo);
+            ChamadosDb.ExecuteQueries(comando);
+
             return chamado;
         }
 
@@ -70,30 +56,43 @@ namespace Data.Repositories
 
         public Chamado BuscarPorId(int codigo)
         {
-            return CriarChamado();
-            
+            var sql = @"SELECT [CODIGO]
+                              ,[CODIGO_FILIAL]
+                              ,[ASSUNTO]
+                              ,[STATUS]
+                          FROM[CHAMADOS].[dbo].[CHAMADO]
+                        WHERE [CODIGO] = @CODIGO";
+
+            var comando = new SqlCommand(sql);
+            comando.Parameters.AddWithValue("@CODIGO",codigo);
+            var dr = ChamadosDb.DataReader(comando);
+            dr.Read();
+            var chamado = new Chamado
+            {
+                Codigo = Convert.ToInt32(dr[0]),
+                Assunto = dr[2].ToString(),
+                Status = dr[3].ToString(),
+                Filial = _iFilialRepository.BuscarPorCodigo(dr[1].ToString()),
+                Eventos = _iEventoRepository.BuscarEventosPorChamado(codigo),
+                Categorias = CategoriaRepository.
+
+            };
+            chamado.Codigo = codigo;
+
+            ChamadosDb.CloseConnection();
+
+            return chamado;
+
         }
 
         public IEnumerable<Chamado> BuscarPorStatus(string status)
         {
-            List<Chamado> listaChamados = new List<Chamado>
-            {
-                CriarChamado(),
-                CriarChamado(),
-                CriarChamado(),
-                CriarChamado()
-            };
-
-            listaChamados = listaChamados.Where(x => x.Status.Equals(status.ToUpper())).ToList();
-
-            return listaChamados;
-
+            throw new NotImplementedException();
         }
 
         public int Inserir(Chamado chamado)
         {
-
-            var sql = chamado.Categorias.Aggregate(@"BEGIN TRAN
+            var sql = @"BEGIN TRAN
                         DECLARE @CODIGO_CHAMADO INT
                         INSERT INTO [CHAMADOS].[dbo].[CHAMADO]
                        ([CODIGO_FILIAL]
@@ -104,14 +103,8 @@ namespace Data.Repositories
                        ,@ASSUNTO
                        ,@STATUS)
                      SET @CODIGO_CHAMADO =(SELECT SCOPE_IDENTITY ())
-                       ", (current, categoria) => current + (@"
-                        INSERT INTO [CHAMADOS].[dbo].[CHAMADO_CATEGORIA]
-						([CODIGO_CHAMADO]
-						,[CODIGO_CATEGORIA])
-						VALUES
-						(@CODIGO_CHAMADO
-						," + categoria.Codigo + @")
-                        "));
+                       ";
+            sql += CategoriaRepository.InserirSql(chamado);
             sql += _iEventoRepository.InserirPorChamado(chamado.Eventos);
     
             sql += "COMMIT SELECT @CODIGO_CHAMADO";
@@ -135,9 +128,5 @@ namespace Data.Repositories
 
         }
 
-        public Chamado AdicionarEvento(Chamado chamado, Evento evento)
-        {
-            return chamado;
-        }
     }
 }

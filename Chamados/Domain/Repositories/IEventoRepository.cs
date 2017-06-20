@@ -9,6 +9,7 @@ namespace Domain.Repositories
         Evento Adicionar(Chamado chamado, Evento evento);
         Evento BuscarPorId(int codigo);
         string InserirPorChamado(IEnumerable<Evento> eventos);
+        List<Evento> BuscarEventosPorChamado(int codigoChamado);
 
     }
 }

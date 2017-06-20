@@ -1,4 +1,6 @@
-﻿using Domain.Entities;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Domain.Entities;
 
 namespace Domain.Services.Interfaces
 {
@@ -8,6 +10,7 @@ namespace Domain.Services.Interfaces
         Evento Finalizar(Evento evento);
         Evento AlterarDescricao (Evento evento, string String);
         Evento BuscarPorId(int codigo);
+        IEnumerable<Evento> BuscarEventosPorChamado(int codigoChamado);
 
 
 
