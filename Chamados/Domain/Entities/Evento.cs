@@ -11,5 +11,6 @@ namespace Domain.Entities
         public DateTime Encerrado { get; set; }
         public Atendente Atendente { get; set; }
         public string Descricao { get; set; }
+
     }
 }

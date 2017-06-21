@@ -22,16 +22,19 @@ namespace Data.Repositories
         public Chamado Alterar(Chamado chamado)
         {
             var sql = @"BEGIN TRAN
+                        DECLARE @CODIGO_CHAMADO INT
+                        SET @CODIGO_CHAMADO =@CODIGO
                            UPDATE [CHAMADOS].[dbo].[CHAMADO]
                            SET [CODIGO_FILIAL] =@CODIGO_FILIAL
                               ,[ASSUNTO] = @ASSUNTO
                               ,[STATUS] = @STATUS
+                              ,[FINALIZADO] =@FINALIZADO
                          WHERE [CODIGO]=@CODIGO
                         
                         DELETE FROM [CHAMADOS].[dbo].[CHAMADO_CATEGORIA]
-                      WHERE @CODIGO
+                      WHERE [CODIGO_CHAMADO]=@CODIGO
                         ";
-            CategoriaRepository.InserirSql(chamado);
+            sql += CategoriaRepository.InserirSql(chamado);
             sql += " COMMIT";
 
             var comando = new SqlCommand(sql);
@@ -39,6 +42,7 @@ namespace Data.Repositories
             comando.Parameters.AddWithValue("@ASSUNTO", chamado.Assunto);
             comando.Parameters.AddWithValue("@STATUS", chamado.Status);
             comando.Parameters.AddWithValue("@CODIGO", chamado.Codigo);
+            comando.Parameters.AddWithValue("@FINALIZADO", chamado.Finalizado);
             ChamadosDb.ExecuteQueries(comando);
 
             return chamado;
@@ -60,28 +64,39 @@ namespace Data.Repositories
                               ,[CODIGO_FILIAL]
                               ,[ASSUNTO]
                               ,[STATUS]
+                              ,[FINALIZADO]
                           FROM[CHAMADOS].[dbo].[CHAMADO]
                         WHERE [CODIGO] = @CODIGO";
 
-            var comando = new SqlCommand(sql);
-            comando.Parameters.AddWithValue("@CODIGO",codigo);
-            var dr = ChamadosDb.DataReader(comando);
-            dr.Read();
-            var chamado = new Chamado
+            try
             {
-                Codigo = Convert.ToInt32(dr[0]),
-                Assunto = dr[2].ToString(),
-                Status = dr[3].ToString(),
-                Filial = _iFilialRepository.BuscarPorCodigo(dr[1].ToString()),
-                Eventos = _iEventoRepository.BuscarEventosPorChamado(codigo),
-                Categorias = CategoriaRepository.
+                var comando = new SqlCommand(sql);
+                comando.Parameters.AddWithValue("@CODIGO", codigo);
+                var dr = ChamadosDb.DataReader(comando);
+                dr.Read();
+                var chamado = new Chamado
+                {
+                    Codigo = Convert.ToInt32(dr[0]),
+                    Assunto = dr[2].ToString(),
+                    Status = dr[3].ToString(),
+                    Filial = _iFilialRepository.BuscarPorCodigo(dr[1].ToString()),
+                    Eventos = _iEventoRepository.BuscarEventosPorChamado(codigo),
+                    Categorias = CategoriaRepository.BuscarCategoriasPorChamado(codigo),
+                    Finalizado = Convert.ToBoolean(dr[4])
 
-            };
-            chamado.Codigo = codigo;
+                };
+                chamado.Codigo = codigo;
 
-            ChamadosDb.CloseConnection();
+                ChamadosDb.CloseConnection();
 
-            return chamado;
+                return chamado;
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
         }
 
@@ -97,28 +112,31 @@ namespace Data.Repositories
                         INSERT INTO [CHAMADOS].[dbo].[CHAMADO]
                        ([CODIGO_FILIAL]
                        ,[ASSUNTO]
-                       ,[STATUS])
+                       ,[STATUS]
+                       ,[FINALIZADO])
                         VALUES
                        (@CODIGO_FILIAL
                        ,@ASSUNTO
-                       ,@STATUS)
+                       ,@STATUS
+                       ,@FINALIZADO)
                      SET @CODIGO_CHAMADO =(SELECT SCOPE_IDENTITY ())
                        ";
             sql += CategoriaRepository.InserirSql(chamado);
             sql += _iEventoRepository.InserirPorChamado(chamado.Eventos);
-    
+
             sql += "COMMIT SELECT @CODIGO_CHAMADO";
             try
             {
-            var comando = new SqlCommand(sql);
-            comando.Parameters.AddWithValue("@CODIGO_FILIAL", chamado.Filial.Codigo);
-            comando.Parameters.AddWithValue("@ASSUNTO", chamado.Assunto);
-            comando.Parameters.AddWithValue("@STATUS", chamado.Status);
-            var dr =ChamadosDb.DataReader(comando);
-            dr.Read();
-            var retorno =Convert.ToInt32(dr[0]); 
-            ChamadosDb.CloseConnection();
-            return retorno;
+                var comando = new SqlCommand(sql);
+                comando.Parameters.AddWithValue("@CODIGO_FILIAL", chamado.Filial.Codigo);
+                comando.Parameters.AddWithValue("@ASSUNTO", chamado.Assunto);
+                comando.Parameters.AddWithValue("@STATUS", chamado.Status);
+                comando.Parameters.AddWithValue("@FINALIZADO", chamado.Finalizado);
+                var dr = ChamadosDb.DataReader(comando);
+                dr.Read();
+                var retorno = Convert.ToInt32(dr[0]);
+                ChamadosDb.CloseConnection();
+                return retorno;
             }
             catch (Exception e)
             {

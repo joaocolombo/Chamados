@@ -44,6 +44,8 @@ namespace API
             services.AddScoped<IChamadoService, ChamadoService>();
             services.AddScoped<IChamadoRepository, ChamadoRepository>();
             services.AddScoped<IEventoRepository, EventoRepository>();
+            services.AddScoped<IEventoService, EventoService>();
+            services.AddScoped<IFilialService, FilialService>();
             services.AddScoped<IFilialRepository, FilialRepository>();
 
         }

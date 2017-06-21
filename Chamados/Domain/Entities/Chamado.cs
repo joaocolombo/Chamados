@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
 
@@ -12,19 +13,30 @@ namespace Domain.Entities
         public Filial Filial { get; set; }
         public string Assunto { get; set; }
         public List<Categoria> Categorias { get; set; }
+        private bool finalizado;
+
+        public bool Finalizado
+        {
+            get { return finalizado; }
+            set
+            {
+                if (Finalizado)
+                {
+                    throw new Exception("Chamado ja finalizado nao pode ser reaberto");
+                }
+                finalizado = value;
+            }
+        }
+
         public string Nivel => Atendente.Nivel;
 
-        private Atendente atendente;
         public Atendente Atendente
         {
             get
             {
-                if (Eventos.Any())
-                {
-                    var a = Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
-                    return a.Atendente;
-                }
-                return null;
+                if (!Eventos.Any()) return null;
+                var a = Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
+                return a.Atendente;
             }
         }
 

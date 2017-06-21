@@ -10,9 +10,32 @@ namespace Data.Repositories
 {
     public class EventoRepository : IEventoRepository
     {
-        public Evento Adicionar(Chamado chamado, Evento evento)
+        public void Adicionar(Chamado chamado, Evento evento)
         {
-            throw new NotImplementedException();
+            var sql = @"INSERT INTO [CHAMADOS].[dbo].[EVENTO]
+                                   ([CODIGO_STATUS]
+                                   ,[ABERTURA]
+                                   ,[ENCERRAMENTO]
+                                   ,[ATENDENTE]
+                                   ,[DESCRICAO]
+                                   ,[CODIGO_CHAMADO]
+                                   ,[FINALIZADO])
+                             VALUES
+                                   (SELECT CODIGO FROM STATUS_EVENTO WHERE DESCRICAO ='@STATUS'
+                                   ,@ABERTURA
+                                   ,@ENCERRAMENTO
+                                   ,@ATENDENTE, 
+                                   ,@DESCRICAO, 
+                                   ,@CODIGO_CHAMADO)";
+            var comando = new SqlCommand(sql);
+            comando.Parameters.AddWithValue("@STATUS", evento.Status);
+            comando.Parameters.AddWithValue("@ABERTURA", evento.Abertura);
+            comando.Parameters.AddWithValue("@ENCERRAMENTO", evento.Encerrado);
+            comando.Parameters.AddWithValue("@ATENDENTE", evento.Atendente);
+            comando.Parameters.AddWithValue("@DESCRICAO", evento.Descricao);
+            comando.Parameters.AddWithValue("@CODIGO_CHAMADO", chamado.Codigo);
+            var dr = ChamadosDb.DataReader(comando);
+            dr.Read();
         }
 
         public Evento Alterar(Evento evento)
@@ -23,7 +46,7 @@ namespace Data.Repositories
         public List<Evento> BuscarEventosPorChamado(int codigoChamado)
         {
             var sql = @"SELECT [CODIGO]
-                      ,[STATUS]
+                      ,[CODIGO_STATUS]
                       ,[ABERTURA]
                       ,[ENCERRAMENTO]
                       ,[ATENDENTE]
@@ -68,18 +91,19 @@ namespace Data.Repositories
                 }
 
                 result = result + (@" INSERT INTO[CHAMADOS].[dbo].[EVENTO]
-                ([STATUS]
+                ([CODIGO_STATUS]
                 ,[ABERTURA]
                 ,[ENCERRAMENTO]
                 ,[ATENDENTE]
                 ,[DESCRICAO]
                 ,[CODIGO_CHAMADO])
                 VALUES
-                ('" + evento.Status + "', \n '" + evento.Abertura +
-                                   "', \n '" + evento.Encerrado +
-                                   "', \n'" + evento.Atendente.Nome + "', \n'" + evento.Descricao + @"', 
-                    @CODIGO_CHAMADO)
-                ");
+                ((SELECT CODIGO FROM EVENTO_STATUS WHERE DESCRICAO ='" + evento.Status + "'), \n '" + evento.Abertura +
+                                    "', \n '" + evento.Encerrado +
+                                    "', \n'" + evento.Atendente.Nome +
+                                    "', \n'" + evento.Descricao +
+                    "',@CODIGO_CHAMADO) \n" +
+                                   " ");
             }
             return result;
         }

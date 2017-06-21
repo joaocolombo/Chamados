@@ -1,17 +1,8 @@
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
 using Domain.Services.Interfaces;
-using System.Runtime.Serialization.Json;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.VisualStudio.Web.CodeGeneration.Utils.Messaging;
 using Newtonsoft.Json;
 
 namespace API.Controllers
@@ -60,13 +51,14 @@ namespace API.Controllers
         {
             return _iChamadoService.BuscarPorId(id);
         }
-        //Inserir
+        //Inserir OK 21/06
         [HttpPost]
         public int Inserir([FromBody]Chamado value)
         {
+           
             return _iChamadoService.Inserir(value);
         }
-        //Alterar
+        //Alterar OK 21/06
         [HttpPut("Finalizar")]
         public void Finalizar([FromBody]List<object> value)
         {

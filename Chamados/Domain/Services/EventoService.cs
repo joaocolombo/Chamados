@@ -22,19 +22,26 @@ namespace Domain.Services
         {
             //validar
             var c = _iChamadoService.BuscarPorId(chamado.Codigo);
-            if (!c.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault().Status.Equals("ENCERRADO"))
+            var finalizado =Finalizar(c.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());
+
+            foreach (var e  in chamado.Eventos)
             {
-                throw new Exception("Ultimo evento não foi encerrao");
+                if (e.Codigo==finalizado.Codigo)
+                {
+                    e.Encerrado=finalizado.Encerrado;
+                }
             }
-            var _evento = _iEventoRepository.Adicionar(chamado, evento);
-            chamado.Eventos.Add(_evento);
-            return chamado;
+            
+              _iEventoRepository.Adicionar(c, evento);
+            c.Eventos.Add(evento);
+            return c;
         }
 
         public Evento AlterarDescricao(Evento evento, string descricao)
         {
             evento = _iEventoRepository.BuscarPorId(evento.Codigo);
-            if (evento.Status.Equals("Finalizado"))
+            
+            if (evento.Encerrado==DateTime.MinValue)
             {
                 throw new Exception("Evento ja foi finalizado");
             }
@@ -59,7 +66,7 @@ namespace Domain.Services
 
         public Evento Finalizar(Evento evento)
         {
-            evento.Status = "Finalizado";
+            evento.Status="FINALIZADO";
             evento.Encerrado = DateTime.Now;
             return _iEventoRepository.Alterar(evento);
         }
