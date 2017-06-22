@@ -46,7 +46,7 @@ namespace API.Controllers
             return _iChamadoService.BuscarPorFilial(filial);
         }
 
-        [HttpGet("BuscarPorId/{id}", Name = "Get")]
+        [HttpGet("BuscarPorId/{id}")]
         public Chamado Get(int id)
         {
             return _iChamadoService.BuscarPorId(id);
@@ -55,7 +55,6 @@ namespace API.Controllers
         [HttpPost]
         public int Inserir([FromBody]Chamado value)
         {
-           
             return _iChamadoService.Inserir(value);
         }
         //Alterar OK 21/06
@@ -94,9 +93,6 @@ namespace API.Controllers
             var atendente = JsonConvert.DeserializeObject<Atendente>(value[2].ToString());
             return _iChamadoService.AlterarCategoria(chamado, categorias, atendente);
         }
-
-        //void EncaminharN2(Evento evento, Chamado chamado);
-        //void Encaminhar(Evento evento, Atendente atendente, Chamado chamado);
 
     }
 }

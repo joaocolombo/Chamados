@@ -6,7 +6,7 @@ namespace Domain.Services.Interfaces
 {
     public interface IEventoService
     {
-        Chamado Adicionar(Chamado chamado, Evento evento);
+        Evento Adicionar(Chamado chamado, Atendente atendente, Evento evento);
         Evento Finalizar(Evento evento);
         Evento AlterarDescricao (Evento evento, string String);
         Evento BuscarPorId(int codigo);

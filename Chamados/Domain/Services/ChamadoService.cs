@@ -150,6 +150,10 @@ namespace Domain.Services
             {
                 throw new Exception(erro);
             }
+            foreach (var evento in chamado.Eventos)
+            {
+                evento.Abertura=DateTime.Now;
+            }
             return _iChamadoRepository.Inserir(chamado);
         }
 

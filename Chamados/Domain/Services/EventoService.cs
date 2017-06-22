@@ -18,30 +18,42 @@ namespace Domain.Services
             _iChamadoService = iChamadoService;
         }
 
-        public Chamado Adicionar(Chamado chamado, Evento evento)
+        private void ValidarAtendenteCorrente(Atendente atendente, Evento evento)
         {
-            //validar
-            var c = _iChamadoService.BuscarPorId(chamado.Codigo);
-            var finalizado =Finalizar(c.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());
-
-            foreach (var e  in chamado.Eventos)
+            if (atendente.Nome != evento.Atendente.Nome)
             {
-                if (e.Codigo==finalizado.Codigo)
-                {
-                    e.Encerrado=finalizado.Encerrado;
-                }
+                throw new Exception("O Evento não pode ser adicionado/alterado por esse atendente");
             }
-            
-              _iEventoRepository.Adicionar(c, evento);
-            c.Eventos.Add(evento);
-            return c;
+        }
+        
+
+        public Evento Adicionar(Chamado chamado, Atendente atendente, Evento evento)
+        {
+            var erro = "";
+            ValidarAtendenteCorrente(atendente, evento);
+            if (string.IsNullOrEmpty(evento.Descricao))
+            {
+                erro = "Necessario preencher uma descricao";
+            }
+            if (string.IsNullOrEmpty(evento.Status))
+            {
+                erro += "Necessario selecionar um status";
+            }
+            if (!string.IsNullOrEmpty(erro))
+            {
+                throw new Exception(erro);
+            }
+            var c = _iChamadoService.BuscarPorId(chamado.Codigo);
+            Finalizar(c.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());
+            evento.Abertura = DateTime.Now;
+            return _iEventoRepository.Adicionar(c, evento);
         }
 
         public Evento AlterarDescricao(Evento evento, string descricao)
         {
             evento = _iEventoRepository.BuscarPorId(evento.Codigo);
-            
-            if (evento.Encerrado==DateTime.MinValue)
+
+            if (evento.Encerrado == DateTime.MinValue)
             {
                 throw new Exception("Evento ja foi finalizado");
             }
@@ -66,7 +78,6 @@ namespace Domain.Services
 
         public Evento Finalizar(Evento evento)
         {
-            evento.Status="FINALIZADO";
             evento.Encerrado = DateTime.Now;
             return _iEventoRepository.Alterar(evento);
         }
