@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Data.SqlClient;
+using System.Threading;
+using Dapper;
 using Domain.Entities;
 using Domain.Repositories;
 
@@ -61,42 +63,31 @@ namespace Data.Repositories
         public Chamado BuscarPorId(int codigo)
         {
             var sql = @"SELECT [CODIGO]
-                              ,[CODIGO_FILIAL]
                               ,[ASSUNTO]
                               ,[STATUS]
                               ,[FINALIZADO]
+                              ,'-'as '-'
+                              ,[CODIGO_FILIAL] AS CODIGO
                           FROM[CHAMADOS].[dbo].[CHAMADO]
                         WHERE [CODIGO] = @CODIGO";
 
-            try
-            {
-                var comando = new SqlCommand(sql);
-                comando.Parameters.AddWithValue("@CODIGO", codigo);
-                var dr = ChamadosDb.DataReader(comando);
-                dr.Read();
-                var chamado = new Chamado
+
+            var chamado = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
+                (ch, fi) =>
                 {
-                    Codigo = Convert.ToInt32(dr[0]),
-                    Assunto = dr[2].ToString(),
-                    Status = dr[3].ToString(),
-                    Filial = _iFilialRepository.BuscarPorCodigo(dr[1].ToString()),
-                    Eventos = _iEventoRepository.BuscarEventosPorChamado(codigo),
-                    Categorias = CategoriaRepository.BuscarCategoriasPorChamado(codigo),
-                    Finalizado = Convert.ToBoolean(dr[4])
+                    ch.Filial = fi;
+                    return ch;
+                },
+             new { CODIGO = codigo }, splitOn:"-").FirstOrDefault();
+            var eventos = _iEventoRepository.BuscarEventosPorChamado(codigo);
+            var categorias = CategoriaRepository.BuscarCategoriasPorChamado(codigo);
+            var filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
+            chamado.Filial = filial;
+            chamado.Eventos = eventos;
+            chamado.Categorias = categorias;
 
-                };
-                chamado.Codigo = codigo;
+            return chamado;
 
-                ChamadosDb.CloseConnection();
-
-                return chamado;
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
 
         }
 

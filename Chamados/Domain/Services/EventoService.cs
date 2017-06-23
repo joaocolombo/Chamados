@@ -26,8 +26,7 @@ namespace Domain.Services
             }
         }
         
-
-        public Evento Adicionar(Chamado chamado, Atendente atendente, Evento evento)
+        public Evento Adicionar(Chamado chamado, Evento evento, Atendente atendente)
         {
             var erro = "";
             ValidarAtendenteCorrente(atendente, evento);
@@ -44,19 +43,25 @@ namespace Domain.Services
                 throw new Exception(erro);
             }
             var c = _iChamadoService.BuscarPorId(chamado.Codigo);
+            if (c.Finalizado)
+            {
+                throw new Exception("Chamado ja finalizado");
+            }
             Finalizar(c.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());
             evento.Abertura = DateTime.Now;
             return _iEventoRepository.Adicionar(c, evento);
         }
 
-        public Evento AlterarDescricao(Evento evento, string descricao)
+        public Evento AlterarDescricao(Evento evento, string descricao, Atendente atendente)
         {
             evento = _iEventoRepository.BuscarPorId(evento.Codigo);
-
-            if (evento.Encerrado == DateTime.MinValue)
+            if (evento.Encerrado != DateTime.MinValue)
             {
                 throw new Exception("Evento ja foi finalizado");
             }
+
+            ValidarAtendenteCorrente(atendente,evento);
+
             evento.Descricao = descricao;
             if (evento.Descricao.Equals(""))
             {

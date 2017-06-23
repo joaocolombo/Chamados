@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.ComTypes;
+using Dapper;
 using Domain.Entities;
 using Domain.Repositories;
 
@@ -67,41 +69,78 @@ namespace Data.Repositories
             return evento;
         }
 
+        public List<Evento> BuscarEventosPorChamado(Evento e)
+        {
+            var sql = @"SELECT [CODIGO]
+                      ,(SELECT DESCRICAO FROM EVENTO_STATUS WHERE CODIGO = [CODIGO_STATUS]) AS STATUS
+                      ,[ABERTURA]
+                      ,[ENCERRAMENTO]
+                      ,[DESCRICAO]
+                      ,[ATENDENTE] AS NOME
+                  FROM [CHAMADOS].[dbo].[EVENTO]
+                WHERE [CODIGO_CHAMADO] =(SELECT CODIGO_CHAMADO FROM EVENTO WHERE CODIGO =@CODIGO)";
+
+
+            var eventos = ChamadosDb.Conecection().Query<Evento, Atendente, Evento>(sql, (ev, at) =>
+            {
+                ev.Atendente = at;
+                return ev;
+            }, new {CODIGO= e.Codigo}, splitOn: "NOME").ToList();
+
+            foreach (var evento in eventos)
+                evento.Atendente = AtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
+
+            return eventos;
+
+        }
         public List<Evento> BuscarEventosPorChamado(int codigoChamado)
         {
             var sql = @"SELECT [CODIGO]
-                      ,SELECT DESCRICAO FROM Z[CODIGO_STATUS]
+                        , (SELECT DESCRICAO FROM EVENTO_STATUS WHERE CODIGO = [CODIGO_STATUS])STATUS
                       ,[ABERTURA]
                       ,[ENCERRAMENTO]
-                      ,[ATENDENTE]
                       ,[DESCRICAO]
-                      ,[CODIGO_CHAMADO]
+                      ,[ATENDENTE] AS NOME
                   FROM [CHAMADOS].[dbo].[EVENTO]
-                WHERE [CODIGO_CHAMADO] =@CODIGO_CHAMADO";
-            var comando = new SqlCommand(sql);
-            comando.Parameters.AddWithValue("@CODIGO_CHAMADO", codigoChamado);
-            var dr = ChamadosDb.DataReader(comando);
-            List<Evento> eventos = new List<Evento>();
-            while (dr.Read())
+                WHERE [CODIGO_CHAMADO]  =@CODIGO";
+
+
+            var eventos = ChamadosDb.Conecection().Query<Evento, Atendente, Evento>(sql, (ev, at) =>
             {
-                eventos.Add(new Evento()
-                {
-                    Codigo = Convert.ToInt32(dr[0]),
-                    Status = dr[1].ToString(),
-                    Abertura = Convert.ToDateTime(dr[2]),
-                    Encerrado = Convert.ToDateTime(dr[3]),
-                    Atendente = AtendenteRepository.BuscarAtendente(dr[4].ToString()),
-                    Descricao = dr[5].ToString()
-                });
-            }
-            ChamadosDb.CloseConnection();
+                ev.Atendente = at;
+                return ev;
+            }, new { CODIGO = codigoChamado }, splitOn: "NOME").ToList();
+
+            foreach (var evento in eventos)
+                evento.Atendente = AtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
 
             return eventos;
+
         }
 
         public Evento BuscarPorId(int codigo)
         {
-            throw new NotImplementedException();
+
+            var sql = @"SELECT[CODIGO]
+                        , (SELECT DESCRICAO FROM EVENTO_STATUS WHERE CODIGO = [CODIGO_STATUS])STATUS
+                        ,[ABERTURA]
+                        ,[ENCERRAMENTO]
+                        ,[DESCRICAO]
+                        ,[ATENDENTE] AS NOME
+                            FROM[CHAMADOS].[dbo].[EVENTO]
+                            WHERE CODIGO = @CODIGO";
+            var evento = ChamadosDb.Conecection().Query<Evento,Atendente, Evento> (sql, (ev, at) =>
+            {
+                ev.Atendente = at;
+                return ev;
+            },
+            new { CODIGO = codigo }, splitOn: "NOME").FirstOrDefault();
+
+
+            evento.Atendente = AtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
+            return evento;
+
+
         }
 
         public string InserirPorChamado(IEnumerable<Evento> eventos)

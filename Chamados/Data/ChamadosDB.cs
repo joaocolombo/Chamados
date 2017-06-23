@@ -13,6 +13,12 @@ namespace Data
             con.Open();
         }
 
+        public static SqlConnection Conecection()
+        {
+            OpenConection();
+            return con;
+        }
+
 
         public static void CloseConnection()
         {

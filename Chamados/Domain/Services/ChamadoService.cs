@@ -11,16 +11,18 @@ namespace Domain.Services
     {
         private readonly IChamadoRepository _iChamadoRepository;
 
+
         public ChamadoService(IChamadoRepository iChamadoRepository)
         {
             _iChamadoRepository = iChamadoRepository;
+
         }
 
         private void VerificaUltimoEventoFinalizado(Chamado chamado)
         {
 
             var evento = chamado.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
-            if (evento.Encerrado==DateTime.MinValue)
+            if (evento.Encerrado == DateTime.MinValue)
             {
                 throw new Exception("O chamado não pode ser alterado pois o ultimo evento não foi encerrado");
             }
@@ -28,7 +30,7 @@ namespace Domain.Services
 
         private void VerificaAtendenteCorrente(Chamado chamado, Atendente atendente)
         {
-            if (chamado.Atendente.Nome!=atendente.Nome)
+            if (chamado.Atendente.Nome != atendente.Nome)
             {
                 throw new Exception("O chamado so pode ser alterado pelo seu atendente");
             }
@@ -115,13 +117,14 @@ namespace Domain.Services
             c.Status = "FINALIZADO";
             c.Finalizado = true;
             _iChamadoRepository.Alterar(c);
+
         }
 
         public int Inserir(Chamado chamado)
         {
             var erro = "";
             chamado.Status = "ABERTO";
-            if (chamado.Categorias==null)
+            if (chamado.Categorias == null)
             {
                 erro = "O Chamado precisa de pelomenos uma categoria.";
             }
@@ -133,9 +136,9 @@ namespace Domain.Services
             {
                 erro += " O Chamado precisa de um assunto.";
             }
-            if (chamado.Eventos==null)
+            if (chamado.Eventos == null)
             {
-                erro += " O Chamado precisa de um evendo"; 
+                erro += " O Chamado precisa de um evendo";
             }
             else if (!chamado.Eventos.Any())
             {
@@ -152,7 +155,7 @@ namespace Domain.Services
             }
             foreach (var evento in chamado.Eventos)
             {
-                evento.Abertura=DateTime.Now;
+                evento.Abertura = DateTime.Now;
             }
             return _iChamadoRepository.Inserir(chamado);
         }

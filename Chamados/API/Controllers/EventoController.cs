@@ -30,15 +30,23 @@ namespace API.Controllers
             var chamado = JsonConvert.DeserializeObject<Chamado>(value[0].ToString());
             var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
             var evento = JsonConvert.DeserializeObject<Evento>(value[2].ToString());
-            return _iEventoService.Adicionar(chamado, atendente, evento);
+            return _iEventoService.Adicionar(chamado,  evento, atendente);
 
         }
 
-        // GET: api/Evento/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpPut("AlterarDescricao/{descricao}")]
+        public Evento AlterarDescricao([FromBody] List<object> value, string descricao)
         {
-            return "value";
+            var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
+            var evento = JsonConvert.DeserializeObject<Evento>(value[0].ToString());
+            return _iEventoService.AlterarDescricao(evento, descricao, atendente);
+        }
+
+        // GET: api/Evento/5
+        [HttpGet("BuscarPorId/{id}")]
+        public Evento Get(int id)
+        {
+            return _iEventoService.BuscarPorId(id);
         }
         
         // POST: api/Evento
