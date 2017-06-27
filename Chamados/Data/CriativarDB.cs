@@ -2,14 +2,13 @@
 
 namespace Data
 {
-    public static class ChamadosDb
+    public class CriativarDB
     {
-        
         private static SqlConnection con;
 
         private static void OpenConection()
         {
-            con = new SqlConnection("Server=10.1.0.4;Database=Chamados;User Id=joao.colombo;Password=991240;");
+            con = new SqlConnection("Server=10.1.0.4;Database=CRIATIVAR;User Id=joao.colombo;Password=991240;");
             con.Open();
         }
 

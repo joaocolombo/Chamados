@@ -20,11 +20,11 @@ namespace API.Controllers
         }
 
         //Buscar
-        [HttpGet("BuscarPorAtendente/{atendente}/{status}")]
-        public IEnumerable<Chamado> BuscarPorAtendente(string nome, string status)
+        [HttpGet("BuscarPorAtendente/{atendente}/{finalizado}")]
+        public IEnumerable<Chamado> BuscarPorAtendente(string atendente, bool finalizado)
         {
-            var atendente = new Atendente() {Nome = nome};
-            return _iChamadoService.BuscarPorAtendente(atendente,status);
+            var a = new Atendente() {Nome = atendente };
+            return _iChamadoService.BuscarPorAtendente(a, finalizado);
         }
 
         [HttpGet("BuscarPorStatus/{status}", Name = "GetPorStatus")]

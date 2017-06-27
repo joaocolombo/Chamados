@@ -13,7 +13,7 @@ namespace Domain.Services.Interfaces
         void Finalizar(Chamado chamado, Atendente atendente);
         Chamado BuscarPorId(int codigo);
         IEnumerable<Chamado> BuscarPorStatus(string status);
-        IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, string status);
+        IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente,bool finalizado);
         IEnumerable<Chamado> BuscarPorFilial(Filial filial);
         void EncaminharN2(Evento evento, Chamado chamado);
         void Encaminhar(Evento evento, Atendente atendente, Chamado chamado);

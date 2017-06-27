@@ -1,0 +1,59 @@
+﻿@using Domain.Entities
+@model Domain.Entities.Chamado
+
+@{
+    var filiais = ViewBag.Filiais as SelectList;
+}
+
+<header class="slidePanel-header">
+    <div class="slidePanel-actions" aria-label="actions" role="group">
+        <button type="button" class="btn btn-pure slidePanel-close actions-top icon md-close" aria-hidden="true"></button>
+    </div>
+    <h1>Novo Chamado</h1>
+</header>
+
+
+<div class="slidePanel-inner">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="panel">
+                    <div class="panel-body">
+                        <form asp-controller="Home" asp-action="Novo" method="POST">
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger", role = "alert" })
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Assunto, new { @class = "form-control-label" })
+                                @Html.TextBoxFor(model => model.Assunto, new { @class = "form-control form-control-lg" })
+                                @* @Html.ValidationMessageFor(model => model.Descricao, null, new { @class = "form-control-feedback" })*@
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Filial">Filial</label>
+                                @Html.DropDownListFor(model => model.Filial.Codigo, filiais, new { @class = "form-control form-control-lg" })
+                                @*     @Html.ValidationMessageFor(model => model.Filial, null, new { @class = "form-control-feedback" })*@
+                            </div>
+
+                            @*<div class="form-group">
+                                    @Html.LabelFor(model => model.Colecao, new { @class = "form-control-label" })
+                                    @Html.DropDownListFor(model => model.Colecao, Enumerable.Empty<SelectListItem>(), new { @class = "form-control form-control-lg", data_plugin = "select2Ajax", data_ajax__url = "//api.bischoffgroup.com.br/lnx/colecoes/obter" })
+                                    @Html.ValidationMessageFor(model => model.Colecao, null, new { @class = "form-control-feedback" })
+                                </div>*@
+
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Salvar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<script type="text/javascript">
+        $(document).ready(function () {
+            window.$.validator.unobtrusive.parse("form");
+        });
+    </script>*@

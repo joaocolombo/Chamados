@@ -9,7 +9,7 @@ namespace Domain.Repositories
         int Inserir(Chamado chamado);
         Chamado BuscarPorId(int codigo);
         IEnumerable<Chamado> BuscarPorStatus(string status);
-        IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, string status);
+        IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, bool finalizado);
         IEnumerable<Chamado> BuscarPorFilial(Filial filial);
 
    

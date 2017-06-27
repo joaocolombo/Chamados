@@ -89,9 +89,9 @@ namespace Domain.Services
             return _iChamadoRepository.Alterar(chamado);
         }
 
-        public IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, string status)
+        public IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, bool finalizado)
         {
-            return _iChamadoRepository.BuscarPorAtendente(atendente, status);
+            return _iChamadoRepository.BuscarPorAtendente(atendente, finalizado);
         }
 
         public IEnumerable<Chamado> BuscarPorFilial(Filial filial)

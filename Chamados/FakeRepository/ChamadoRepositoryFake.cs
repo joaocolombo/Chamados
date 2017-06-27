@@ -95,5 +95,10 @@ namespace FakeRepository
         {
             return chamado;
         }
+
+        public IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, bool finalizado)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

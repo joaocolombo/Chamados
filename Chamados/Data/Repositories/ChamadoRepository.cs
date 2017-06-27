@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using Dapper;
 using Domain.Entities;
@@ -50,9 +51,34 @@ namespace Data.Repositories
             return chamado;
         }
 
-        public IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, string status)
+        public IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, bool finalizado)
         {
-            throw new NotImplementedException();
+            var sql = @"SELECT
+                        A.CODIGO
+                        ,A.ASSUNTO
+                        ,A.FINALIZADO
+                        ,A.STATUS
+                        ,'FILIAL' AS FILIAL
+                        , A.CODIGO_FILIAL AS CODIGO
+                        FROM W_ULTIMO_EVENTO_CHAMADO AS A
+                        WHERE ATENDENTE =@ATENDENTE
+                        AND FINALIZADO =@FINALIZADO";
+            var chamados = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
+                (ch, fi) =>
+                {
+                    ch.Filial = fi;
+                    return ch;
+                }, new {ATENDENTE = atendente.Nome, FINALIZADO = finalizado}, splitOn: "FILIAL").ToList();
+
+            foreach (var chamado in chamados)
+            {
+                chamado.Filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
+                chamado.Eventos = _iEventoRepository.BuscarEventosPorChamado(chamado.Codigo);
+                chamado.Categorias = CategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo);
+
+            }
+
+            return chamados;
         }
 
         public IEnumerable<Chamado> BuscarPorFilial(Filial filial)
@@ -78,7 +104,7 @@ namespace Data.Repositories
                     ch.Filial = fi;
                     return ch;
                 },
-             new { CODIGO = codigo }, splitOn:"-").FirstOrDefault();
+             new { CODIGO = codigo }, splitOn: "-").FirstOrDefault();
             var eventos = _iEventoRepository.BuscarEventosPorChamado(codigo);
             var categorias = CategoriaRepository.BuscarCategoriasPorChamado(codigo);
             var filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
