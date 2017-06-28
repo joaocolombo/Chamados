@@ -40,7 +40,10 @@ namespace Data.Repositories
                       WHERE [CODIGO_CHAMADO]=@CODIGO
                         ";
             sql += _iCategoriaRepository.InserirSql(chamado);
-            sql += " COMMIT";
+            sql += @" IF @@ERROR <> 0
+                        ROLLBACK
+                        ELSE
+                         COMMIT";
 
             var comando = new SqlCommand(sql);
             comando.Parameters.AddWithValue("@CODIGO_FILIAL", chamado.Filial.Codigo);
