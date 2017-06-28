@@ -86,5 +86,10 @@ namespace Domain.Services
             evento.Encerrado = DateTime.Now;
             return _iEventoRepository.Alterar(evento);
         }
+
+        public IEnumerable<object> BuscarStatus()
+        {
+            return _iEventoRepository.BuscarStatus();
+        }
     }
 }

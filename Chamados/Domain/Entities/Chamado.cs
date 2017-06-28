@@ -33,7 +33,7 @@ namespace Domain.Entities
         public Atendente Atendente
         {
             get
-            {
+            {   
                 if (!Eventos.Any()) return null;
                 var a = Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
                 return a.Atendente;

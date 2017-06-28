@@ -11,6 +11,7 @@ namespace Domain.Repositories
         string InserirPorChamado(IEnumerable<Evento> eventos);
         List<Evento> BuscarEventosPorChamado(Evento evento);
         List<Evento> BuscarEventosPorChamado(int codigoChamado);
+        IEnumerable<object> BuscarStatus();
 
 
     }

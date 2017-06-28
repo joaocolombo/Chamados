@@ -14,11 +14,13 @@ namespace Data.Repositories
     {
         private readonly IEventoRepository _iEventoRepository;
         private readonly IFilialRepository _iFilialRepository;
+        private readonly ICategoriaRepository _iCategoriaRepository; 
 
-        public ChamadoRepository(IEventoRepository iEventoRepository, IFilialRepository iFilialRepository)
+        public ChamadoRepository(IEventoRepository iEventoRepository, IFilialRepository iFilialRepository, ICategoriaRepository iCategoriaRepository)
         {
             _iEventoRepository = iEventoRepository;
             _iFilialRepository = iFilialRepository;
+            _iCategoriaRepository = iCategoriaRepository;
         }
 
 
@@ -37,7 +39,7 @@ namespace Data.Repositories
                         DELETE FROM [CHAMADOS].[dbo].[CHAMADO_CATEGORIA]
                       WHERE [CODIGO_CHAMADO]=@CODIGO
                         ";
-            sql += CategoriaRepository.InserirSql(chamado);
+            sql += _iCategoriaRepository.InserirSql(chamado);
             sql += " COMMIT";
 
             var comando = new SqlCommand(sql);
@@ -74,7 +76,7 @@ namespace Data.Repositories
             {
                 chamado.Filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
                 chamado.Eventos = _iEventoRepository.BuscarEventosPorChamado(chamado.Codigo);
-                chamado.Categorias = CategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo);
+                chamado.Categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo);
 
             }
 
@@ -106,7 +108,7 @@ namespace Data.Repositories
                 },
              new { CODIGO = codigo }, splitOn: "-").FirstOrDefault();
             var eventos = _iEventoRepository.BuscarEventosPorChamado(codigo);
-            var categorias = CategoriaRepository.BuscarCategoriasPorChamado(codigo);
+            var categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(codigo);
             var filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
             chamado.Filial = filial;
             chamado.Eventos = eventos;
@@ -138,10 +140,16 @@ namespace Data.Repositories
                        ,@FINALIZADO)
                      SET @CODIGO_CHAMADO =(SELECT SCOPE_IDENTITY ())
                        ";
-            sql += CategoriaRepository.InserirSql(chamado);
+            sql += _iCategoriaRepository.InserirSql(chamado);
             sql += _iEventoRepository.InserirPorChamado(chamado.Eventos);
 
-            sql += "COMMIT SELECT @CODIGO_CHAMADO";
+            sql +=@"IF @@ERROR <> 0
+                        ROLLBACK
+                        ELSE
+                        BEGIN
+                            COMMIT
+                            SELECT @CODIGO_CHAMADO
+                        END";
             try
             {
                 var comando = new SqlCommand(sql);

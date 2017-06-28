@@ -13,6 +13,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Data.Repositories;
 using FakeRepository;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Cors.Internal;
 
 namespace API
 {
@@ -37,27 +39,42 @@ namespace API
         {
             // Add framework services.
             services.AddOptions();
-          //  services.Configure<Chamado>(Configuration);
+            //  services.Configure<Chamado>(Configuration);
+            services.AddCors(o => o.AddPolicy("LiberarAcessoExterno", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
 
             services.AddMvc();
-
+            services.Configure<MvcOptions>(options =>
+            {
+                options.Filters.Add(new CorsAuthorizationFilterFactory("AllowSpecificOrigin"));
+            });
             services.AddScoped<IChamadoService, ChamadoService>();
             services.AddScoped<IChamadoRepository, ChamadoRepository>();
             services.AddScoped<IEventoRepository, EventoRepository>();
             services.AddScoped<IEventoService, EventoService>();
             services.AddScoped<IFilialService, FilialService>();
             services.AddScoped<IFilialRepository, FilialRepository>();
+            services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+            services.AddScoped<ICategoriaService, CategoriaServise>();
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+
+
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            app.UseCors("LiberarAcessoExterno");
 
             app.UseMvc();
-            
+
+
         }
     }
 }

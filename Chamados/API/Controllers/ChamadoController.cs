@@ -1,8 +1,12 @@
 
+using System;
 using System.Collections.Generic;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
 using Domain.Services.Interfaces;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc.Cors;
 using Newtonsoft.Json;
 
 namespace API.Controllers
@@ -53,10 +57,19 @@ namespace API.Controllers
         }
         //Inserir OK 21/06
         [HttpPost]
-        public int Inserir([FromBody]Chamado value)
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult Inserir([FromBody] Chamado value)
         {
-            return _iChamadoService.Inserir(value);
+            try
+            {
+                return Ok(_iChamadoService.Inserir(value));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
         //Alterar OK 21/06
         [HttpPut("Finalizar")]
         public void Finalizar([FromBody]List<object> value)

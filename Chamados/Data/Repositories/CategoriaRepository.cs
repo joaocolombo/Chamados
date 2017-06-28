@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using Dapper;
 using Domain.Entities;
+using Domain.Repositories;
 
 namespace Data.Repositories
 {
-    public static class CategoriaRepository
+    public  class CategoriaRepository:ICategoriaRepository
     {
-        public static string InserirSql(Chamado chamado)
+        public  string InserirSql(Chamado chamado)
         {
             return chamado.Categorias.Aggregate("", (current, categoria) => current + (@"
                         INSERT INTO [CHAMADOS].[dbo].[CHAMADO_CATEGORIA]
@@ -20,7 +22,7 @@ namespace Data.Repositories
                         "));
         }
 
-        public static List<Categoria> BuscarCategoriasPorChamado(int codigoChamado)
+        public  List<Categoria> BuscarCategoriasPorChamado(int codigoChamado)
         {
             var sql = @"SELECT B.[CODIGO],
 	                           B.[DESCRICAO],
@@ -47,6 +49,16 @@ namespace Data.Repositories
             }
 
             return categorias;
+        }
+
+        public IEnumerable<Categoria> BuscarCategoria()
+        {
+            var sql = @"SELECT A.CODIGO
+	                  ,A.DESCRICAO
+	                  ,B.DESCRICAO AS GRUPO
+	                  FROM CATEGORIA AS A 
+	                  JOIN CATEGORIA_GRUPO AS B ON A.CODIGO_GRUPO=B.CODIGO";
+            return ChamadosDb.Conecection().Query<Categoria>(sql);
         }
     }
 }

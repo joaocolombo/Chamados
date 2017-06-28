@@ -1,8 +1,7 @@
-﻿@using Domain.Entities
-@model Domain.Entities.Chamado
-
+﻿
+@model MVC.ViewModel.InserirChamadoViewModel
 @{
-    var filiais = ViewBag.Filiais as SelectList;
+    
 }
 
 <header class="slidePanel-header">
@@ -24,27 +23,38 @@
                             @Html.ValidationSummary(true, "", new { @class = "alert alert-danger", role = "alert" })
 
                             <div class="form-group">
-                                @Html.LabelFor(model => model.Assunto, new { @class = "form-control-label" })
-                                @Html.TextBoxFor(model => model.Assunto, new { @class = "form-control form-control-lg" })
-                                @* @Html.ValidationMessageFor(model => model.Descricao, null, new { @class = "form-control-feedback" })*@
+                                <label asp-for="Assunto" class="form-control-label"></label>
+                                <input asp-for="Assunto" class="form-control form-control-lg" />
                             </div>
 
                             <div class="form-group">
-                                <label asp-for="Filial">Filial</label>
-                                @Html.DropDownListFor(model => model.Filial.Codigo, filiais, new { @class = "form-control form-control-lg" })
-                                @*     @Html.ValidationMessageFor(model => model.Filial, null, new { @class = "form-control-feedback" })*@
+
+                                <label asp-for="CodigoFilial">FILIAL</label>
+                                <div class=" col-lg-offset-12">
+                                    <input asp-for="Geral" type="checkbox"/>GERAL
+                                </div>
+                                <select asp-for="CodigoFilial" class = "form-control form-control-lg"  data-plugin = "select2Ajax" data-ajax--url = "//api.bischoffgroup.com.br/lnx/lojaexclusiva/obter" custom-filter-usuario = "36" ></select>
                             </div>
-
-                            @*<div class="form-group">
-                                    @Html.LabelFor(model => model.Colecao, new { @class = "form-control-label" })
-                                    @Html.DropDownListFor(model => model.Colecao, Enumerable.Empty<SelectListItem>(), new { @class = "form-control form-control-lg", data_plugin = "select2Ajax", data_ajax__url = "//api.bischoffgroup.com.br/lnx/colecoes/obter" })
-                                    @Html.ValidationMessageFor(model => model.Colecao, null, new { @class = "form-control-feedback" })
-                                </div>*@
-
+                            <div class="form-group">
+                                <label asp-for="Categorias" class="form-control-label"></label>
+                                <select asp-for="Categorias" class="form-control form-control-lg"  data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/categoria/select2/BuscarTodos" ></select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Descricao" class="form-control-label"></label>
+                                <textarea asp-for="Descricao" class="form-control" id="textareaDefault" rows="5"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Status" class="form-control-label"></label>
+                                <select asp-for="Status" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/evento/select2/buscarstatus"></select>
+                            </div>
+                            
+                            <div class="hidden">
+                                <input asp-for="NomeAtendente" Value="Joao" hidden/>
+                            </div>
                             <div class="text-right">
                                 <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Salvar</button>
                             </div>
-                        </form>
+                        </form> 
                     </div>
                 </div>
             </div>
@@ -52,8 +62,3 @@
     </div>
 </div>
 
-@*<script type="text/javascript">
-        $(document).ready(function () {
-            window.$.validator.unobtrusive.parse("form");
-        });
-    </script>*@

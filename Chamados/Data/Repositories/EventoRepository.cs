@@ -16,7 +16,7 @@ namespace Data.Repositories
         {
             if (evento.Encerrado == DateTime.MinValue)
             {
-                evento.Encerrado = new DateTime(1990, 01, 01);
+                evento.Encerrado = new DateTime(1900, 01, 01);
             }
 
             var sql = @"INSERT INTO [CHAMADOS].[dbo].[EVENTO]
@@ -28,8 +28,8 @@ namespace Data.Repositories
                                    ,[CODIGO_CHAMADO])
                              VALUES
                                    ((SELECT CODIGO FROM EVENTO_STATUS WHERE DESCRICAO =@STATUS)
-                                   ,@ABERTURA
-                                   ,@ENCERRAMENTO
+                                   , CONVERT(DATETIME,@ABERTURA,103)
+                                   , CONVERT(DATETIME,@ENCERRAMENTO,103)
                                    ,@ATENDENTE
                                    ,@DESCRICAO
                                    ,@CODIGO_CHAMADO)
@@ -136,12 +136,17 @@ namespace Data.Repositories
             },
             new { CODIGO = codigo }, splitOn: "NOME").FirstOrDefault();
 
-
             evento.Atendente = AtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
             return evento;
-
-
         }
+
+        public IEnumerable<object> BuscarStatus()
+        {
+            var sql = @"SELECT CODIGO
+	                           ,DESCRICAO
+		                        FROM EVENTO_STATUS";
+            return  ChamadosDb.Conecection().Query(sql).Select(x => new {id = x.DESCRICAO, text = x.DESCRICAO});
+         }
 
         public string InserirPorChamado(IEnumerable<Evento> eventos)
         {
@@ -162,9 +167,9 @@ namespace Data.Repositories
                 ,[CODIGO_CHAMADO])
                 VALUES
                 ((SELECT CODIGO FROM EVENTO_STATUS WHERE DESCRICAO ='" + evento.Status + "')" +
-                                    ", \n '" + evento.Abertura +
-                                    "', \n '" + evento.Encerrado +
-                                    "', \n'" + evento.Atendente.Nome +
+                                    ", \n  CONVERT(DATETIME,'" + evento.Abertura +"',103)" +
+                                    ", \n CONVERT(DATETIME,'" + evento.Encerrado + "',103)" +
+                                    ", \n'" + evento.Atendente.Nome +
                                     "', \n'" + evento.Descricao +
                     "',@CODIGO_CHAMADO) \n" +
                                    " ");
