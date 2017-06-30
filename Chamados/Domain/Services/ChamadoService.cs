@@ -10,11 +10,13 @@ namespace Domain.Services
     public class ChamadoService : IChamadoService
     {
         private readonly IChamadoRepository _iChamadoRepository;
+        private readonly IFilialService _iFilialService;
 
 
-        public ChamadoService(IChamadoRepository iChamadoRepository)
+        public ChamadoService(IChamadoRepository iChamadoRepository, IFilialService iFilialService)
         {
             _iChamadoRepository = iChamadoRepository;
+            _iFilialService = iFilialService;
 
         }
 
@@ -44,11 +46,10 @@ namespace Domain.Services
             }
         }
 
-        public Chamado AlterarAssunto(Chamado chamado, string assunto, Atendente atendente)
+        public Chamado AlterarAssunto(int codigo, string assunto, Atendente atendente)
         {
-            chamado = _iChamadoRepository.BuscarPorId(chamado.Codigo);
+             var chamado = _iChamadoRepository.BuscarPorId(codigo);
             VerificaAtendenteCorrente(chamado, atendente);
-            VerificaUltimoEventoFinalizado(chamado);
             VerificaChamadoFinalizado(chamado);
             chamado.Assunto = assunto;
             if (chamado.Assunto.Equals(""))
@@ -58,34 +59,32 @@ namespace Domain.Services
             return _iChamadoRepository.Alterar(chamado);
         }
 
-        public Chamado AlterarCategoria(Chamado chamado, List<Categoria> categorias, Atendente atendente)
+        public Chamado AlterarCategoria(int codigo, List<Categoria> categorias, Atendente atendente)
         {
-            chamado = _iChamadoRepository.BuscarPorId(chamado.Codigo);
+            var chamado = _iChamadoRepository.BuscarPorId(codigo);
             VerificaAtendenteCorrente(chamado, atendente);
-            VerificaUltimoEventoFinalizado(chamado);
             VerificaChamadoFinalizado(chamado);
             chamado.Categorias = categorias;
             if (!categorias.Any())
             {
                 throw new Exception("O Chamado precisa uma categoria");
             }
-            return _iChamadoRepository.Alterar(chamado);
+            _iChamadoRepository.Alterar(chamado);
+            return _iChamadoRepository.BuscarPorId(codigo);
         }
 
-        public Chamado AlterarFilial(Chamado chamado, Filial filial, Atendente atendente)
+        public Chamado AlterarFilial(int codigo, Filial filial, Atendente atendente)
         {
-            chamado = _iChamadoRepository.BuscarPorId(chamado.Codigo);
+            var chamado = _iChamadoRepository.BuscarPorId(codigo);
             VerificaAtendenteCorrente(chamado, atendente);
             VerificaChamadoFinalizado(chamado);
-            if (chamado.Eventos.Any())
-            {
-                throw new Exception("Já Existe evento para esse chamado, não é possivel alterar");
-            }
+            filial = _iFilialService.BuscarPorCodigo(filial.Codigo);
             chamado.Filial = filial;
             if (chamado.Filial == null)
             {
                 throw new Exception("O Chamado Precisa de uma Filial Valida");
             }
+
             return _iChamadoRepository.Alterar(chamado);
         }
 

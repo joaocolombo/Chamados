@@ -11,7 +11,7 @@ namespace MVC.Controllers
     public class EventoController : Controller
     {
         // GET: /<controller>/
-        public IActionResult Index()
+        public IActionResult Novo()
         {
             return View();
         }

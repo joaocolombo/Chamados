@@ -7,9 +7,9 @@ namespace Domain.Services.Interfaces
     public interface IChamadoService
     {
         int Inserir(Chamado chamado);
-        Chamado AlterarFilial(Chamado chamdo, Filial filial, Atendente atendente);
-        Chamado AlterarAssunto(Chamado chamado, string assunto, Atendente atendente);
-        Chamado AlterarCategoria(Chamado chamado, List<Categoria> categorias, Atendente atendente);
+        Chamado AlterarFilial(int codigo, Filial filial, Atendente atendente);
+        Chamado AlterarAssunto(int codigo, string assunto, Atendente atendente);
+        Chamado AlterarCategoria(int codigo, List<Categoria> categorias, Atendente atendente);
         void Finalizar(Chamado chamado, Atendente atendente);
         Chamado BuscarPorId(int codigo);
         IEnumerable<Chamado> BuscarPorStatus(string status);

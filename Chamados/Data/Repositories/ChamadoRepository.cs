@@ -52,7 +52,7 @@ namespace Data.Repositories
             comando.Parameters.AddWithValue("@CODIGO", chamado.Codigo);
             comando.Parameters.AddWithValue("@FINALIZADO", chamado.Finalizado);
             ChamadosDb.ExecuteQueries(comando);
-
+            ChamadosDb.CloseConnection();
             return chamado;
         }
 
@@ -82,6 +82,7 @@ namespace Data.Repositories
                 chamado.Categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo);
 
             }
+            ChamadosDb.CloseConnection();
 
             return chamados;
         }
@@ -116,6 +117,7 @@ namespace Data.Repositories
             chamado.Filial = filial;
             chamado.Eventos = eventos;
             chamado.Categorias = categorias;
+            ChamadosDb.CloseConnection();
 
             return chamado;
 

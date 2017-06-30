@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
 using Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Cors;
 using Newtonsoft.Json;
 
@@ -27,7 +28,7 @@ namespace API.Controllers
         [HttpGet("BuscarPorAtendente/{atendente}/{finalizado}")]
         public IEnumerable<Chamado> BuscarPorAtendente(string atendente, bool finalizado)
         {
-            var a = new Atendente() {Nome = atendente };
+            var a = new Atendente() { Nome = atendente };
             return _iChamadoService.BuscarPorAtendente(a, finalizado);
         }
 
@@ -51,10 +52,12 @@ namespace API.Controllers
         }
 
         [HttpGet("BuscarPorId/{id}")]
-        public Chamado Get(int id)
+        public IActionResult Get(int id)
         {
-            return _iChamadoService.BuscarPorId(id);
+            return Ok(_iChamadoService.BuscarPorId(id));
         }
+
+
         //Inserir OK 21/06
         [HttpPost]
         [EnableCors("LiberarAcessoExterno")]
@@ -66,7 +69,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(422, new { erro = ex.Message });
             }
         }
 
@@ -76,35 +79,55 @@ namespace API.Controllers
         {
             var chamado = JsonConvert.DeserializeObject<Chamado>(value[0].ToString());
             var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
-             _iChamadoService.Finalizar(chamado, atendente);
+            _iChamadoService.Finalizar(chamado, atendente);
         }
 
-        [HttpPut("AlterarFilial")]
-        public Chamado AlterarFilial([FromBody]List<object> value)
+        [HttpPut("AlterarFilial/{id}")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult AlterarFilial([FromBody]List<object> value, int id)
         {
-            var chamdo = JsonConvert.DeserializeObject<Chamado>(value[0].ToString());
-            var filial = JsonConvert.DeserializeObject<Filial>(value[1].ToString());
-            var atendente = JsonConvert.DeserializeObject<Atendente>(value[2].ToString());
+            try
+            {
+                var filial = JsonConvert.DeserializeObject<Filial>(value[0].ToString());
+                var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
 
-            return _iChamadoService.AlterarFilial(chamdo, filial, atendente);
+                return Ok(_iChamadoService.AlterarFilial(id, filial, atendente));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422, new{erro=ex.Message});
+            }
+
         }
 
-        [HttpPut("AlterarAssunto/{assunto}")]
-        public Chamado AlterarAssunto(string assunto, [FromBody]List<object> value)
+        [HttpPut("AlterarAssunto/{assunto}/{id}")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult AlterarAssunto(string assunto, string id, [FromBody]object value)
         {
-            var chamado = JsonConvert.DeserializeObject<Chamado>(value[0].ToString());
+            try
+            {
+
+                var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+                return Ok(_iChamadoService.AlterarAssunto(Convert.ToInt32(id), assunto, atendente));
+
+            }
+            catch (Exception ex)
+            {
+               return StatusCode(422, new { ex.Message});
+            }
+
+
+        }
+
+        [HttpPut("AlterarCategoria/{id}")]
+        [EnableCors("LiberarAcessoExterno")]
+
+        public Chamado AlterarCategoria([FromBody]List<object> value, int id)
+        {
+           
+            var categorias = JsonConvert.DeserializeObject<List<Categoria>>(value[0].ToString());
             var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
-
-            return _iChamadoService.AlterarAssunto(chamado, assunto, atendente);
-        }
-
-        [HttpPut("AlterarCategoria")]
-        public Chamado AlterarCategoria([FromBody]List<object> value)
-        {
-            var chamado = JsonConvert.DeserializeObject<Chamado>(value[0].ToString());
-            var categorias = JsonConvert.DeserializeObject<List<Categoria>>(value[1].ToString());
-            var atendente = JsonConvert.DeserializeObject<Atendente>(value[2].ToString());
-            return _iChamadoService.AlterarCategoria(chamado, categorias, atendente);
+            return _iChamadoService.AlterarCategoria(id, categorias, atendente);
         }
 
     }

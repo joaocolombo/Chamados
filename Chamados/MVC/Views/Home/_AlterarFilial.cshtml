@@ -1,0 +1,56 @@
+﻿@model MVC.ViewModel.AlterarFilialViewModel
+@{
+    var error = ViewData["Error"];
+}
+<header class="slidePanel-header">
+    <div class="slidePanel-actions" aria-label="actions" role="group">
+        <button type="button" class="btn btn-pure slidePanel-close actions-top icon md-close" aria-hidden="true"></button>
+    </div>
+    <h1>Alterar Filial</h1>
+</header>
+<div class="slidePanel-inner">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="panel">
+                    <div class="panel-body">
+                        <div>
+                        </div>
+                        <form asp-controller="Home" asp-action="AlterarFilial" method="POST">
+                            <div class="form-group">
+                                <label asp-for="Filial">FILIAL</label>
+                                <div class=" col-lg-offset-12">
+                                    <input asp-for="Geral" type="checkbox" />GERAL
+                                </div>
+                                <select asp-for="Filial" class="form-control" data-plugin="select2Ajax" data-ajax--url="//api.bischoffgroup.com.br/lnx/lojaexclusiva/obter" custom-filter-usuario="36"></select>
+                            </div>
+                            <div class="hidden">
+                                <input asp-for="Atendente" Value="Joao" hidden />
+                            </div>
+                            <div class="hidden">
+                                <input asp-for="Id" hidden />
+                            </div>
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Salvar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $.ajax({
+            type: "PUT",
+            url: "/Home/Visualizar",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: data
+            success: function (data) { }
+        });
+    });
+</script>

@@ -44,6 +44,7 @@ namespace Data.Repositories
             var dr = ChamadosDb.DataReader(comando);
             dr.Read();
             evento.Codigo = Convert.ToInt32(dr[0]);
+            ChamadosDb.CloseConnection();
 
             return evento;
         }
@@ -52,7 +53,7 @@ namespace Data.Repositories
         {
             if (evento.Encerrado == DateTime.MinValue)
             {
-                evento.Encerrado = new DateTime(1990, 01, 01);
+                evento.Encerrado = new DateTime(1900, 01, 01);
             }
 
             var sql = @"UPDATE [CHAMADOS].[dbo].[EVENTO]
@@ -66,6 +67,8 @@ namespace Data.Repositories
             comando.Parameters.AddWithValue("@ENCERRAMENTO", evento.Encerrado);
             comando.Parameters.AddWithValue("@DESCRICAO", evento.Descricao);
             ChamadosDb.ExecuteQueries(comando);
+            ChamadosDb.CloseConnection();
+
             return evento;
         }
 
@@ -89,7 +92,7 @@ namespace Data.Repositories
 
             foreach (var evento in eventos)
                 evento.Atendente = AtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
-
+            ChamadosDb.CloseConnection();
             return eventos;
 
         }
@@ -113,7 +116,7 @@ namespace Data.Repositories
 
             foreach (var evento in eventos)
                 evento.Atendente = AtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
-
+            ChamadosDb.CloseConnection();
             return eventos;
 
         }
@@ -137,6 +140,8 @@ namespace Data.Repositories
             new { CODIGO = codigo }, splitOn: "NOME").FirstOrDefault();
 
             evento.Atendente = AtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
+            ChamadosDb.CloseConnection();
+
             return evento;
         }
 
@@ -155,7 +160,7 @@ namespace Data.Repositories
             {
                 if (evento.Encerrado == DateTime.MinValue)
                 {
-                    evento.Encerrado = new DateTime(1990, 01, 01);
+                    evento.Encerrado = new DateTime(1900, 01, 01);
                 }
 
                 result = result + (@" INSERT INTO[CHAMADOS].[dbo].[EVENTO]

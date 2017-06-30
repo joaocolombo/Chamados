@@ -33,7 +33,7 @@ namespace Data.Repositories
                           WHERE [CODIGO_CHAMADO] = @CODIGO_CHAMADO";
 
 
-            return ChamadosDb.Conecection().Query<Categoria>(sql).ToList();
+            return ChamadosDb.Conecection().Query<Categoria>(sql, new{CODIGO_CHAMADO=codigoChamado}).ToList();
 
         }
 
