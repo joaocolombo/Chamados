@@ -26,7 +26,7 @@ namespace Domain.Services
             }
         }
         
-        public Evento Adicionar(Chamado chamado, Evento evento, Atendente atendente)
+        public Evento Adicionar(int codigo, Evento evento, Atendente atendente)
         {
             var erro = "";
             ValidarAtendenteCorrente(atendente, evento);
@@ -42,7 +42,7 @@ namespace Domain.Services
             {
                 throw new Exception(erro);
             }
-            var c = _iChamadoService.BuscarPorId(chamado.Codigo);
+            var c = _iChamadoService.BuscarPorId(codigo);
             if (c.Finalizado)
             {
                 throw new Exception("Chamado ja finalizado");

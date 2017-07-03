@@ -4,6 +4,7 @@
 @section pluginsStyle
 {
     <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/plugins/select2/select2.css">
+
 }
 <div class="page">
     <div class="page-header">
@@ -20,21 +21,28 @@
                         <div class="panel-body">
                             <form autocomplete="off">
                                 <div class="form-group">
+
                                     <div class="row">
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-3">
                                             <h4>Codigo</h4>
                                             <label>@Model.Codigo</label>
                                         </div>
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-3">
                                             <h4>Status</h4>
                                             <label>@Model.Status</label>
                                         </div>
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-3">
                                             <h4>Nivel</h4>
                                             <label>@Model.Nivel</label>
                                         </div>
+                                        <div class="col-lg-2">
+                                            <button type="button" data-url="@Url.Action("Finalizar", "Home", new {id = Model.Codigo, nomeAtendente = Model.Atendente.Nome})" asp-controller="Home" asp-action="Finalizar"data-toggle="slidePanel"  class="btn btn-lg btn-primary waves-effect waves-light">
+                                                Finaliza
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
+                                
                                 <div class="form-group">
                                     <div class="row">
                                         <h4 class="col-lg-2">Filial</h4>
@@ -82,21 +90,42 @@
                                         </button>
                                     </div>
                                 </div>
-
-                                <div class="row">
+        
                                     <h3>Evento</h3>
                                     @{
                                         foreach (var evento in Model.Eventos)
                                         {
-                                            <input type="text" class="form-control" Value="@evento.Atendente.Nome" disabled="">
-                                            <input type="text" class="form-control" Value="@evento.Abertura" disabled="">
-                                            <input type="text" class="form-control" Value="@evento.Descricao" disabled="">
-                                            <div>---</div>
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div hidden="">
+                                                        <label>@evento.Codigo</label>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <h5>Atendente</h5>
+                                                        <label>@evento.Atendente.Nome</label>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <h5>Atendente</h5>
+                                                        <label>@evento.Atendente.Nivel</label>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <h5>Status</h5>
+                                                        <label>@evento.Status</label>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <h5>Abertura</h5>
+                                                        <label>@evento.Abertura</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <textarea class="form-control" disabled rows="5">@evento.Descricao</textarea>
+                                            </div>
                                         }
-
                                     }
-
-                                </div>
+                            
+                               
                                 <div class="row">
                                     <div class="col-lg-1 offset-lg-10">
                                         <button type="button" class="btn btn-floating btn-warning btn-sm waves-effect">
@@ -105,10 +134,11 @@
                                     </div>
 
                                     <div class="col-lg-1">
-                                        <button type="button" asp-controller="Evento" asp-action="Novo" data-toggle="slidePanel" class="btn-raised btn btn-sm btn-success btn-floating waves-effect waves-classic">
+                                        <button type="button" asp-controller="Evento" asp-action="Novo" data-url="@Url.Action("Novo", "Evento", new{id=Model.Codigo})" data-toggle="slidePanel" class="btn-raised btn btn-sm btn-success btn-floating waves-effect waves-classic">
                                             <i class="front-icon md-plus animation-scale-up" aria-hidden="true"></i>
                                         </button>
                                     </div>
+
                                 </div>
                             </form>
                         </div>
@@ -123,3 +153,4 @@
     <script src="http://static.bischoffgroup.com.br/resources/plugins/jquery-validation/jquery.validate.js"></script>
     <script src="http://static.bischoffgroup.com.br/resources/plugins/select2/select2.js"></script>
 }
+

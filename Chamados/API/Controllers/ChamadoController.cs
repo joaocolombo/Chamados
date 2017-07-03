@@ -74,12 +74,22 @@ namespace API.Controllers
         }
 
         //Alterar OK 21/06
-        [HttpPut("Finalizar")]
-        public void Finalizar([FromBody]List<object> value)
+        [HttpPut("Finalizar/{id}")]
+        public IActionResult Finalizar([FromBody]object value, int id)
         {
-            var chamado = JsonConvert.DeserializeObject<Chamado>(value[0].ToString());
-            var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
-            _iChamadoService.Finalizar(chamado, atendente);
+            try
+            {
+                var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+                _iChamadoService.Finalizar(id, atendente);
+                return Ok();
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422, new { erro = ex.Message });
+
+            }
+
         }
 
         [HttpPut("AlterarFilial/{id}")]
@@ -95,7 +105,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(422, new{erro=ex.Message});
+                return StatusCode(422, new { erro = ex.Message });
             }
 
         }
@@ -113,7 +123,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-               return StatusCode(422, new { ex.Message});
+                return StatusCode(422, new { ex.Message });
             }
 
 
@@ -122,12 +132,18 @@ namespace API.Controllers
         [HttpPut("AlterarCategoria/{id}")]
         [EnableCors("LiberarAcessoExterno")]
 
-        public Chamado AlterarCategoria([FromBody]List<object> value, int id)
+        public IActionResult AlterarCategoria([FromBody]List<object> value, int id)
         {
-           
-            var categorias = JsonConvert.DeserializeObject<List<Categoria>>(value[0].ToString());
-            var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
-            return _iChamadoService.AlterarCategoria(id, categorias, atendente);
+            try
+            {
+                var categorias = JsonConvert.DeserializeObject<List<Categoria>>(value[0].ToString());
+                var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
+                return Ok(_iChamadoService.AlterarCategoria(id, categorias, atendente));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422, new { erro = ex.Message });
+            }
         }
 
     }

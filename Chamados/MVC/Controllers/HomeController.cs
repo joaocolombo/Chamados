@@ -18,8 +18,40 @@ namespace MVC.Controllers
     public class HomeController : Controller
     {
         private string url = "http://10.1.0.4";
+        [HttpGet]
+        public IActionResult Novo()
+        {
+            return PartialView("_Novo");
+        }
+        [HttpGet]
+        public IActionResult RetornoVisualizar(Chamado chamado)
+        {
+            return View("Visualizar", chamado);
+        }
+        [HttpGet]
+        public IActionResult AlterarAssunto(string id, string assunto)
+        {
+            return PartialView("_AlterarAssunto", new AlterarAssuntoViewModel() { Assunto = assunto, Id = id });
+        }
+        [HttpGet]
+        public IActionResult AlterarFilial(string id, string filial)
+        {
+            return PartialView("_AlterarFilial", new AlterarFilialViewModel() { Id = id, Filial = filial });
+        }
+        [HttpGet]
 
+        public IActionResult AlterarCategoria(string id, IEnumerable<int> categorias)
+        {
+            return PartialView("_AlterarCategoria", new AlterarCategoriaViewModel() { Id = id, Categorias = categorias });
+        }
 
+        [HttpGet]
+        public IActionResult Finalizar(string id, string nomeAtendente)
+        {
+            return PartialView("_Finalizar", new FinalizarViewModel(){Id = id, NomeAtendente =nomeAtendente});
+        }
+
+        [HttpGet]
         public IActionResult Index()
         {
             using (var client = new HttpClient())
@@ -41,6 +73,32 @@ namespace MVC.Controllers
                 }
                 return Error(result);
             }
+        }
+        [HttpGet]
+        public IActionResult Visualizar(string id)
+        {
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(url + "/api/chamado/buscarporid/" + id);
+                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
+                client.DefaultRequestHeaders.Accept.Add(contentType);
+                var response = client.GetAsync("/api/chamado/buscarporid/" + id).Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    var stringData = response.Content.ReadAsStringAsync().Result;
+                    return View(JsonConvert.DeserializeObject<Chamado>(stringData));
+                }
+                var result = response.Content.ReadAsStringAsync().Result;
+                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
+                {
+                    ViewData["Error"] = result;
+                    return View("_AlterarFilial");
+                }
+                return Error(result);
+
+            }
+
         }
 
         [HttpPost]
@@ -75,8 +133,7 @@ namespace MVC.Controllers
             var json = JsonConvert.SerializeObject(chamado);
             using (var client = new HttpClient())
             {
-                //client.PostAsync(url+ "/api/Chamado", new StringContent(json, Encoding.UTF8, "application/json"));
-
+              
                 client.BaseAddress = new Uri(url + "/api/Chamado");
                 var contentType = new MediaTypeWithQualityHeaderValue("application/json");
                 client.DefaultRequestHeaders.Accept.Add(contentType);
@@ -100,57 +157,34 @@ namespace MVC.Controllers
 
         }
 
-        public IActionResult Visualizar(string id)
+        [HttpPost]
+        public IActionResult Finalizar(FinalizarViewModel finalizar)
         {
-
+            var json = JsonConvert.SerializeObject(new Atendente(){Nome = finalizar.NomeAtendente});
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(url + "/api/chamado/buscarporid/" + id);
+
+                client.BaseAddress = new Uri(url + "/api/Chamado/Finalizar/{id}");
                 var contentType = new MediaTypeWithQualityHeaderValue("application/json");
                 client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response = client.GetAsync("/api/chamado/buscarporid/" + id).Result;
+                var response =
+                    client.PutAsync(url + "/api/Chamado/Finalizar/" + finalizar.Id,
+                            new StringContent(json, Encoding.UTF8, "application/json"))
+                        .Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    var stringData = response.Content.ReadAsStringAsync().Result;
-                    return View(JsonConvert.DeserializeObject<Chamado>(stringData));
+                   
+                    return RedirectToAction("Index");
                 }
                 var result = response.Content.ReadAsStringAsync().Result;
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {
                     ViewData["Error"] = result;
-                    return View("_AlterarFilial");
+                    return View("Index");
                 }
                 return Error(result);
 
             }
-
-        }
-
-        [HttpGet]
-        public IActionResult Novo()
-        {
-            return PartialView("_Novo");
-        }
-
-        public IActionResult RetornoVisualizar(Chamado chamado)
-        {
-            return View("Visualizar", chamado);
-        }
-
-        public IActionResult AlterarAssunto(string id, string assunto)
-        {
-            return PartialView("_AlterarAssunto", new AlterarAssuntoViewModel() { Assunto = assunto, Id = id });
-        }
-
-        public IActionResult AlterarFilial(string id, string filial)
-        {
-            return PartialView("_AlterarFilial", new AlterarFilialViewModel() { Id = id, Filial = filial });
-        }
-
-
-        public IActionResult AlterarCategoria(string id, IEnumerable<int> categorias)
-        {
-            return PartialView("_AlterarCategoria", new AlterarCategoriaViewModel() { Id = id, Categorias = categorias });
         }
 
         [HttpPost]

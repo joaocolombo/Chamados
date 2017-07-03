@@ -20,15 +20,7 @@ namespace Domain.Services
 
         }
 
-        private void VerificaUltimoEventoFinalizado(Chamado chamado)
-        {
 
-            var evento = chamado.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
-            if (evento.Encerrado == DateTime.MinValue)
-            {
-                throw new Exception("O chamado não pode ser alterado pois o ultimo evento não foi encerrado");
-            }
-        }
 
         private void VerificaAtendenteCorrente(Chamado chamado, Atendente atendente)
         {
@@ -108,11 +100,10 @@ namespace Domain.Services
             return _iChamadoRepository.BuscarPorStatus(status);
         }
 
-        public void Finalizar(Chamado chamado, Atendente atendente)
+        public void Finalizar(int codigo, Atendente atendente)
         {
-            var c = BuscarPorId(chamado.Codigo);
+            var c = BuscarPorId(codigo);
             VerificaAtendenteCorrente(c, atendente);
-            VerificaUltimoEventoFinalizado(c);
             c.Status = "FINALIZADO";
             c.Finalizado = true;
             _iChamadoRepository.Alterar(c);
