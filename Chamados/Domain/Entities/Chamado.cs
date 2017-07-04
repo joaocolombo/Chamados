@@ -8,6 +8,7 @@ namespace Domain.Entities
     public class Chamado
     {
         public int Codigo { get; set; }
+        public Fila Fila { get; set; }
         public string Status { get; set; }
         public List<Evento> Eventos { get; set; }
         public Filial Filial { get; set; }

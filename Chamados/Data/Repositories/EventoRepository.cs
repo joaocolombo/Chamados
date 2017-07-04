@@ -14,9 +14,9 @@ namespace Data.Repositories
     {
         public Evento Adicionar(Chamado chamado, Evento evento)
         {
-            if (evento.Encerrado == DateTime.MinValue)
+            if (evento.Encerramento == DateTime.MinValue)
             {
-                evento.Encerrado = new DateTime(1900, 01, 01);
+                evento.Encerramento = new DateTime(1900, 01, 01);
             }
 
             var sql = @"INSERT INTO [CHAMADOS].[dbo].[EVENTO]
@@ -37,7 +37,7 @@ namespace Data.Repositories
             var comando = new SqlCommand(sql);
             comando.Parameters.AddWithValue("@STATUS", evento.Status);
             comando.Parameters.AddWithValue("@ABERTURA", evento.Abertura);
-            comando.Parameters.AddWithValue("@ENCERRAMENTO", evento.Encerrado);
+            comando.Parameters.AddWithValue("@ENCERRAMENTO", evento.Encerramento);
             comando.Parameters.AddWithValue("@ATENDENTE", evento.Atendente.Nome);
             comando.Parameters.AddWithValue("@DESCRICAO", evento.Descricao);
             comando.Parameters.AddWithValue("@CODIGO_CHAMADO", chamado.Codigo);
@@ -51,9 +51,9 @@ namespace Data.Repositories
 
         public Evento Alterar(Evento evento)
         {
-            if (evento.Encerrado == DateTime.MinValue)
+            if (evento.Encerramento == DateTime.MinValue)
             {
-                evento.Encerrado = new DateTime(1900, 01, 01);
+                evento.Encerramento = new DateTime(1900, 01, 01);
             }
 
             var sql = @"UPDATE [CHAMADOS].[dbo].[EVENTO]
@@ -64,7 +64,7 @@ namespace Data.Repositories
             var comando = new SqlCommand(sql);
             comando.Parameters.AddWithValue("@CODIGO", evento.Codigo);
             comando.Parameters.AddWithValue("@STATUS", evento.Status);
-            comando.Parameters.AddWithValue("@ENCERRAMENTO", evento.Encerrado);
+            comando.Parameters.AddWithValue("@ENCERRAMENTO", evento.Encerramento);
             comando.Parameters.AddWithValue("@DESCRICAO", evento.Descricao);
             ChamadosDb.ExecuteQueries(comando);
             ChamadosDb.CloseConnection();
@@ -125,9 +125,9 @@ namespace Data.Repositories
         {
 
             var sql = @"SELECT[CODIGO]
-                        , (SELECT DESCRICAO FROM EVENTO_STATUS WHERE CODIGO = [CODIGO_STATUS])STATUS
-                        ,[ABERTURA]
+                        , (SELECT DESCRICAO FROM EVENTO_STATUS WHERE CODIGO = [CODIGO_STATUS]) AS STATUS
                         ,[ENCERRAMENTO]
+                        ,[ABERTURA]
                         ,[DESCRICAO]
                         ,[ATENDENTE] AS NOME
                             FROM[CHAMADOS].[dbo].[EVENTO]
@@ -158,9 +158,9 @@ namespace Data.Repositories
             var result = "";
             foreach (var evento in eventos)
             {
-                if (evento.Encerrado == DateTime.MinValue)
+                if (evento.Encerramento == DateTime.MinValue)
                 {
-                    evento.Encerrado = new DateTime(1900, 01, 01);
+                    evento.Encerramento = new DateTime(1900, 01, 01);
                 }
 
                 result = result + (@" INSERT INTO[CHAMADOS].[dbo].[EVENTO]
@@ -173,7 +173,7 @@ namespace Data.Repositories
                 VALUES
                 ((SELECT CODIGO FROM EVENTO_STATUS WHERE DESCRICAO ='" + evento.Status + "')" +
                                     ", \n  CONVERT(DATETIME,'" + evento.Abertura +"',103)" +
-                                    ", \n CONVERT(DATETIME,'" + evento.Encerrado + "',103)" +
+                                    ", \n CONVERT(DATETIME,'" + evento.Encerramento + "',103)" +
                                     ", \n'" + evento.Atendente.Nome +
                                     "', \n'" + evento.Descricao +
                     "',@CODIGO_CHAMADO) \n" +

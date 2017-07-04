@@ -92,6 +92,22 @@ namespace Domain.Services
             return _iChamadoRepository.Alterar(chamado);
         }
 
+        public void AlterarFila(int codigo, Fila fila, Atendente atendente)
+        {
+            var chamado = _iChamadoRepository.BuscarPorId(codigo);
+            VerificaAtendenteCorrente(chamado, atendente);
+            VerificaChamadoFinalizado(chamado);
+            chamado.Fila=fila;
+            _iChamadoRepository.Alterar(chamado);
+        }
+        //Este metodo vem somente do Evento.Adicionar
+        public void RemoverFila(int codigo)
+        {
+            var c = _iChamadoRepository.BuscarPorId(codigo);
+            c.Fila = new Fila(){Codigo = 0 };
+            _iChamadoRepository.Alterar(c); 
+        }
+
         public IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, bool finalizado)
         {
             return _iChamadoRepository.BuscarPorAtendente(atendente, finalizado);
@@ -119,7 +135,6 @@ namespace Domain.Services
             c.Status = "FINALIZADO";
             c.Finalizado = true;
             _iChamadoRepository.Alterar(c);
-
         }
 
         public int Inserir(Chamado chamado)
@@ -164,26 +179,6 @@ namespace Domain.Services
                 evento.Abertura = DateTime.Now;
             }
             return _iChamadoRepository.Inserir(chamado);
-        }
-
-        public void Encaminhar(Evento evento, Atendente atendente, Chamado chamado)
-        {
-            //finalizar evento anterior
-            //validar
-            //evento.Descricao += " Encaminhado para o Atendente " + atendente.Nome;
-            //Adicionar(chamado, evento);
-        }
-
-        public void EncaminharN2(Evento evento, Chamado chamado)
-        {
-            ////finalizar evento anterior
-            //evento.Descricao += " Encaminhado para a Fila do N2";
-            //Adicionar(chamado, evento);
-        }
-
-        public string Teste()
-        {
-            return "sucesso";
         }
 
 

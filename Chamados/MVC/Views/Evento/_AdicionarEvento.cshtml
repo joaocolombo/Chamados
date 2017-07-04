@@ -22,15 +22,15 @@
                             @Html.AntiForgeryToken()
                             @Html.ValidationSummary(true, "", new { @class = "alert alert-danger", role = "alert" })<div class="form-group form-material">
                                 <div class="radio-custom radio-success radio-inline">
-                                    <input type="radio" id="inputAdicionar" name="inputRadioGender" checked="" onchange="Adicionar('encaminharAtendente','encaminhar','salvar','status')">
+                                    <input type="radio" id="inputAdicionar" name="inputRadioGender" checked="" onchange="Adicionar('encaminharAtendente','status')">
                                     <label for="inputAdicionar">Adicionar</label>
                                 </div>
                                 <div class="radio-custom radio-warning radio-inline">
-                                    <input type="radio" id="inputEncN2" name="inputRadioGender" onchange="EncaminharN2('encaminharAtendente', 'encaminhar', 'salvar', 'status')">
+                                    <input type="radio" id="inputEncN2" name="inputRadioGender" onchange="EncaminharN2('encaminharAtendente','status')">
                                     <label for="inputEncN2">Encaminhar para fila N2</label>
                                 </div>
                                 <div class="radio-custom radio-warning radio-inline">
-                                    <input type="radio" id="inputEncAtendente" name="inputRadioGender" onchange="EncaminharAtendente('encaminharAtendente','encaminhar','salvar','status')">
+                                    <input type="radio" id="inputEncAtendente" name="inputRadioGender" onchange="EncaminharAtendente('encaminharAtendente','status')">
                                     <label for="inputEncAtendente">Encaminhar para outro Atendente</label>
                                 </div>
                             </div>
@@ -54,7 +54,7 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-lg-1 offset-lg-9" id="encaminhar" style="display: none">
+                                <div class="col-lg-1 offset-lg-9">
                                     <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Salvar</button>
                                 </div>
                             </div>
@@ -67,24 +67,19 @@
 </div>
 
 <script>
-    function Adicionar(encaminharAtendente, encaminhar, salvar, status) {
+    function Adicionar(encaminharAtendente, status) {
 
         document.getElementById(encaminharAtendente).style.display = 'none';
-
         document.getElementById(status).style.display = 'block';
     }
-    function EncaminharAtendente(encaminharAtendente, encaminhar, salvar, status) {
+    function EncaminharAtendente(encaminharAtendente, status) {
 
         document.getElementById(encaminharAtendente).style.display = 'block';
-        document.getElementById(encaminhar).style.display = 'block';
-        document.getElementById(salvar).style.display = 'none';
         document.getElementById(status).style.display = 'none';
     }
-    function EncaminharN2(encaminharAtendente, encaminhar, salvar, status) {
+    function EncaminharN2(encaminharAtendente, status) {
 
         document.getElementById(encaminharAtendente).style.display = 'none';
-        document.getElementById(encaminhar).style.display = 'block';
-        document.getElementById(salvar).style.display = 'none';
         document.getElementById(status).style.display = 'none';
     }
 </script>

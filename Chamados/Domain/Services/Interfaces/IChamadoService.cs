@@ -16,10 +16,8 @@ namespace Domain.Services.Interfaces
         IEnumerable<Chamado> BuscarPorStatus(string status);
         IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente,bool finalizado);
         IEnumerable<Chamado> BuscarPorFilial(Filial filial);
-        void EncaminharN2(Evento evento, Chamado chamado);
-        void Encaminhar(Evento evento, Atendente atendente, Chamado chamado);
-
-        string Teste();
+        void AlterarFila(int codigo, Fila fila, Atendente atendente);
+        void RemoverFila(int codigo);
 
     }
 }

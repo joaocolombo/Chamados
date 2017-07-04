@@ -8,7 +8,7 @@ namespace Domain.Entities
         public string Status { get; set; }
         public int Codigo { get; set; }
         public DateTime Abertura { get; set; }
-        public DateTime Encerrado { get; set; }
+        public DateTime Encerramento { get; set; }
         public Atendente Atendente { get; set; }
         public string Descricao { get; set; }
 

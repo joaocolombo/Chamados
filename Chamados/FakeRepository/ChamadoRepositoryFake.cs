@@ -18,15 +18,15 @@ namespace FakeRepository
                 Abertura = DateTime.Now.AddDays(-2),
                 Atendente = a2,
                 Descricao = "evento1",
-                Encerrado = DateTime.Now.AddDays(-1),
-                Status = "ENCERRADO"
+                Encerramento = DateTime.Now.AddDays(-1),
+                Status = "Encerramento"
             };
             var e2 = new Evento()
             {
                 Abertura = DateTime.Now.AddDays(-1),
                 Atendente = a2,
                 Descricao = "Encaminhado N2",
-                Encerrado = DateTime.Now,
+                Encerramento = DateTime.Now,
                 Status = "ENCERRADO"
             };
             var e3 = new Evento()

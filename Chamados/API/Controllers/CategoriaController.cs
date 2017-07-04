@@ -14,7 +14,7 @@ namespace API.Controllers
     [Route("api/Categoria")]
     public class CategoriaController : Controller
     {
-        private ICategoriaService _iCategoriaService;
+        private readonly ICategoriaService _iCategoriaService;
 
         public CategoriaController(ICategoriaService iCategoriaService)
         {

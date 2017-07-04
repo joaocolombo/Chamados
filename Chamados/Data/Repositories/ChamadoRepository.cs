@@ -35,6 +35,7 @@ namespace Data.Repositories
                               ,[STATUS] = @STATUS
                               ,[SOLICITANTE] = @SOLICITANTE
                               ,[FINALIZADO] =@FINALIZADO
+                              ,[FILA] =@FILA
                          WHERE [CODIGO]=@CODIGO
                         
                         DELETE FROM [CHAMADOS].[dbo].[CHAMADO_CATEGORIA]
@@ -53,6 +54,7 @@ namespace Data.Repositories
             comando.Parameters.AddWithValue("@CODIGO", chamado.Codigo);
             comando.Parameters.AddWithValue("@SOLICITANTE", chamado.Solicitante);
             comando.Parameters.AddWithValue("@FINALIZADO", chamado.Finalizado);
+            comando.Parameters.AddWithValue("@FILA", chamado.Fila.Codigo);
             ChamadosDb.ExecuteQueries(comando);
             ChamadosDb.CloseConnection();
             return chamado;
