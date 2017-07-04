@@ -8,7 +8,8 @@ namespace Domain.Services.Interfaces
     {
         Evento Adicionar(int codigo, Evento evento, Atendente atendente);
         Evento Finalizar(Evento evento);
-        Evento AlterarDescricao (Evento evento, string String, Atendente antendente);
+        Evento AlterarDescricao (int codigo, string descricao, Atendente antendente);
+        Evento AlterarStatus (int codigo, string status, Atendente antendente);
         Evento BuscarPorId(int codigo);
         IEnumerable<Evento> BuscarEventosPorChamado(int codigoChamado);
         IEnumerable<object> BuscarStatus();

@@ -18,11 +18,12 @@
             <div class="col-md-8">
                 <div class="panel">
                     <div class="panel-body">
-                        <form asp-controller="Home" asp-action="AlterarCategoria" method="POST">
-                            
+                        <div id="return"></div>
+                        <form asp-controller="Home" asp-action="AlterarCategoria" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true">
+
                             <div class="form-group">
                                 <label asp-for="Categorias" class="form-control-label"></label>
-                                <select asp-for="Categorias"  class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/categoria/select2/BuscarTodos"></select>
+                                <select asp-for="Categorias" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/categoria/select2/BuscarTodos"></select>
                             </div>
                             <div class="hidden">
                                 <input asp-for="Atendente" Value="Joao" hidden/>

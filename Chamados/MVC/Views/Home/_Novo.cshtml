@@ -18,26 +18,30 @@
             <div class="col-md-8">
                 <div class="panel">
                     <div class="panel-body">
-                        <form asp-controller="Home" asp-action="Novo" method="POST">
+                        <div id="return"></div>
+                        <form asp-controller="Home" asp-action="Novo" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true">
                             @Html.AntiForgeryToken()
-                            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger", role = "alert" })
+                            @Html.ValidationSummary(true, "", new {@class = "alert alert-danger", role = "alert"})
 
                             <div class="form-group">
                                 <label asp-for="Assunto" class="form-control-label"></label>
-                                <input asp-for="Assunto" class="form-control form-control-lg" />
+                                <input asp-for="Assunto" class="form-control form-control-lg"/>
                             </div>
-
+                            <div class="form-group">
+                                <label asp-for="Solicitante" class="form-control-label"></label>
+                                <input asp-for="Solicitante" class="form-control form-control-lg"/>
+                            </div>
                             <div class="form-group">
 
                                 <label asp-for="CodigoFilial">FILIAL</label>
                                 <div class=" col-lg-offset-12">
                                     <input asp-for="Geral" type="checkbox"/>GERAL
                                 </div>
-                                <select asp-for="CodigoFilial" class = "form-control form-control-lg"  data-plugin = "select2Ajax" data-ajax--url = "//api.bischoffgroup.com.br/lnx/lojaexclusiva/obter" custom-filter-usuario = "36" ></select>
+                                <select asp-for="CodigoFilial" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//api.bischoffgroup.com.br/lnx/lojaexclusiva/obter" custom-filter-usuario="36"></select>
                             </div>
                             <div class="form-group">
                                 <label asp-for="Categorias" class="form-control-label"></label>
-                                <select asp-for="Categorias" class="form-control form-control-lg"  data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/categoria/select2/BuscarTodos" ></select>
+                                <select asp-for="Categorias" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/categoria/select2/BuscarTodos"></select>
                             </div>
                             <div class="form-group">
                                 <label asp-for="Descricao" class="form-control-label"></label>
@@ -47,14 +51,14 @@
                                 <label asp-for="Status" class="form-control-label"></label>
                                 <select asp-for="Status" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/evento/select2/buscarstatus"></select>
                             </div>
-                            
+
                             <div class="hidden">
                                 <input asp-for="NomeAtendente" Value="Joao" hidden/>
                             </div>
                             <div class="text-right">
                                 <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Salvar</button>
                             </div>
-                        </form> 
+                        </form>
                     </div>
                 </div>
             </div>
@@ -62,3 +66,16 @@
     </div>
 </div>
 
+<script>
+        var onFailure = function(response, status, error) {
+            $("#return").html(response.responseText).addClass("alert alert-danger");
+        };
+
+
+        var onSuccess = function(response, status) {
+            $("#return").html("Aleração realizada com sucesso").addClass("alert alert-success");
+        };
+
+
+</script>
+}

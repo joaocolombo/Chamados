@@ -33,6 +33,7 @@ namespace Data.Repositories
                            SET [CODIGO_FILIAL] =@CODIGO_FILIAL
                               ,[ASSUNTO] = @ASSUNTO
                               ,[STATUS] = @STATUS
+                              ,[SOLICITANTE] = @SOLICITANTE
                               ,[FINALIZADO] =@FINALIZADO
                          WHERE [CODIGO]=@CODIGO
                         
@@ -50,6 +51,7 @@ namespace Data.Repositories
             comando.Parameters.AddWithValue("@ASSUNTO", chamado.Assunto);
             comando.Parameters.AddWithValue("@STATUS", chamado.Status);
             comando.Parameters.AddWithValue("@CODIGO", chamado.Codigo);
+            comando.Parameters.AddWithValue("@SOLICITANTE", chamado.Solicitante);
             comando.Parameters.AddWithValue("@FINALIZADO", chamado.Finalizado);
             ChamadosDb.ExecuteQueries(comando);
             ChamadosDb.CloseConnection();
@@ -63,6 +65,7 @@ namespace Data.Repositories
                         ,A.ASSUNTO
                         ,A.FINALIZADO
                         ,A.STATUS
+                        ,A.SOLICITANTE
                         ,'FILIAL' AS FILIAL
                         , A.CODIGO_FILIAL AS CODIGO
                         FROM W_ULTIMO_EVENTO_CHAMADO AS A
@@ -98,6 +101,7 @@ namespace Data.Repositories
                               ,[ASSUNTO]
                               ,[STATUS]
                               ,[FINALIZADO]
+                              ,[SOLICITANTE]
                               ,'-'as '-'
                               ,[CODIGO_FILIAL] AS CODIGO
                           FROM[CHAMADOS].[dbo].[CHAMADO]
@@ -137,11 +141,13 @@ namespace Data.Repositories
                        ([CODIGO_FILIAL]
                        ,[ASSUNTO]
                        ,[STATUS]
+                       ,[SOLICITANTE]
                        ,[FINALIZADO])
                         VALUES
                        (@CODIGO_FILIAL
                        ,@ASSUNTO
                        ,@STATUS
+                       ,@SOLICITANTE               
                        ,@FINALIZADO)
                      SET @CODIGO_CHAMADO =(SELECT SCOPE_IDENTITY ())
                        ";
@@ -161,6 +167,7 @@ namespace Data.Repositories
                 comando.Parameters.AddWithValue("@CODIGO_FILIAL", chamado.Filial.Codigo);
                 comando.Parameters.AddWithValue("@ASSUNTO", chamado.Assunto);
                 comando.Parameters.AddWithValue("@STATUS", chamado.Status);
+                comando.Parameters.AddWithValue("@SOLICITANTE", chamado.Solicitante);
                 comando.Parameters.AddWithValue("@FINALIZADO", chamado.Finalizado);
                 var dr = ChamadosDb.DataReader(comando);
                 dr.Read();

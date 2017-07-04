@@ -1,7 +1,5 @@
 ﻿@model MVC.ViewModel.AlterarFilialViewModel
-@{
-    var error = ViewData["Error"];
-}
+
 <header class="slidePanel-header">
     <div class="slidePanel-actions" aria-label="actions" role="group">
         <button type="button" class="btn btn-pure slidePanel-close actions-top icon md-close" aria-hidden="true"></button>
@@ -14,13 +12,12 @@
             <div class="col-md-8">
                 <div class="panel">
                     <div class="panel-body">
-                        <div>
-                        </div>
-                        <form asp-controller="Home" asp-action="AlterarFilial" method="POST">
+                        <div id="return" ></div>
+                        <form asp-controller="Home" asp-action="AlterarFilial" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true">
                             <div class="form-group">
                                 <label asp-for="Filial">FILIAL</label>
                                 <div class=" col-lg-offset-12">
-                                    <input asp-for="Geral" type="checkbox" />GERAL
+                                    <input asp-for="Geral" type="checkbox"/>GERAL
                                 </div>
                                 <select asp-for="Filial" class="form-control" data-plugin="select2Ajax" data-ajax--url="//api.bischoffgroup.com.br/lnx/lojaexclusiva/obter" custom-filter-usuario="36"></select>
                             </div>
@@ -40,17 +37,3 @@
         </div>
     </div>
 </div>
-
-<script>
-
-    $(document).ready(function () {
-        $.ajax({
-            type: "PUT",
-            url: "/Home/Visualizar",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            data: data
-            success: function (data) { }
-        });
-    });
-</script>

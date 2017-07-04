@@ -69,7 +69,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(422, new { erro = ex.Message });
+                return StatusCode(422, ex.Message );
             }
         }
 
@@ -86,7 +86,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(422, new { erro = ex.Message });
+                return StatusCode(422, ex.Message );
 
             }
 
@@ -105,7 +105,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(422, new { erro = ex.Message });
+                return StatusCode(422, ex.Message);
             }
 
         }
@@ -123,9 +123,26 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(422, new { ex.Message });
+                return StatusCode(422,ex.Message );
             }
 
+
+        }
+        [HttpPut("AlterarSolicitante/{solicitante}/{id}")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult AlterarFilial([FromBody]object value, string solicitante ,int id)
+        {
+            try
+            {
+               
+                var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+
+                return Ok(_iChamadoService.AlterarSolicitante(id, solicitante, atendente));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422,  ex.Message );
+            }
 
         }
 
@@ -142,7 +159,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(422, new { erro = ex.Message });
+                return StatusCode(422, ex.Message );
             }
         }
 

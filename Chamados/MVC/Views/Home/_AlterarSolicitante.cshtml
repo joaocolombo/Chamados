@@ -1,5 +1,5 @@
 ﻿
-@model MVC.ViewModel.AlterarAssuntoViewModel
+@model MVC.ViewModel.AlterarSolicitanteViewModel
 @{
 
 }
@@ -8,7 +8,7 @@
     <div class="slidePanel-actions" aria-label="actions" role="group">
         <button type="button" class="btn btn-pure slidePanel-close actions-top icon md-close" aria-hidden="true"></button>
     </div>
-    <h1>Alterar Assunto</h1>
+    <h1>Alterar Solicitante</h1>
 </header>
 
 
@@ -19,14 +19,14 @@
                 <div class="panel">
                     <div class="panel-body">
                         <div id="return"></div>
-                        <form asp-controller="Home" asp-action="AlterarAssunto" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true">
+                        <form asp-controller="Home" asp-action="AlterarSolicitante" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true">
 
                             <div class="form-group">
-                                <label class="form-control-label">Assunto</label>
-                                <input asp-for="Assunto" class="form-control form-control-lg"/>
+                                <label class="form-control-label">Solicitante</label>
+                                <input asp-for="Solicitante" class="form-control form-control-lg"/>
                             </div>
                             <div class="hidden">
-                                <input asp-for="Atendente" Value="Joao" hidden/>
+                                <input asp-for="NomeAtendente" Value="Joao" hidden/>
                             </div>
                             <div class="hidden">
                                 <input asp-for="Id" hidden/>

@@ -10,6 +10,7 @@ namespace MVC.ViewModel
     {
         public string Assunto { get; set; }
         public string CodigoFilial { get; set; }
+        public string Solicitante { get; set; }
         public IEnumerable<int> Categorias { get; set; }
         public string Descricao { get; set; }
         public string Status { get; set; }

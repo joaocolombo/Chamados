@@ -12,6 +12,7 @@ namespace Domain.Entities
         public List<Evento> Eventos { get; set; }
         public Filial Filial { get; set; }
         public string Assunto { get; set; }
+        public string Solicitante { get; set; }
         public List<Categoria> Categorias { get; set; }
         private bool finalizado;
 

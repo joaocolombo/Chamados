@@ -38,7 +38,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(422, new { erro = ex.Message });
+                return StatusCode(422, ex.Message );
             }
 
         }
@@ -62,26 +62,41 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(422, new { erro = ex.Message });
+                return StatusCode(422, ex.Message );
             }
         }
 
-        [HttpPut("AlterarDescricao/{descricao}")]
+        [HttpPut("AlterarDescricao/{descricao}/{id}")]
         [EnableCors("LiberarAcessoExterno")]
-        public IActionResult AlterarDescricao([FromBody] List<object> value, string descricao)
+        public IActionResult AlterarDescricao([FromBody] object value, string descricao, int id)
         {
             try
             {
-                var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
-                var evento = JsonConvert.DeserializeObject<Evento>(value[0].ToString());
-                return Ok(_iEventoService.AlterarDescricao(evento, descricao, atendente));
+                var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+              
+                return Ok(_iEventoService.AlterarDescricao(id, descricao, atendente));
             }
             catch (Exception ex)
             {
-                return StatusCode(422, new { erro = ex.Message });
+                return StatusCode(422,ex.Message );
             }
         }
 
+        [HttpPut("AlterarStatus/{status}/{id}")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult AlterarStatus([FromBody] object value, string status, int id)
+        {
+            try
+            {
+                var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+
+                return Ok(_iEventoService.AlterarStatus(id, status, atendente));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422,  ex.Message );
+            }
+        }
         // GET: api/Evento/5
         [HttpGet("BuscarPorId/{id}")]
         public IActionResult Get(int id)
@@ -92,7 +107,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(422, new { erro = ex.Message });
+                return StatusCode(422,ex.Message );
             }
         }
     }

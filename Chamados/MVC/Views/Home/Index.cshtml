@@ -24,6 +24,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Numero Chamado</th>
+                                                <th>Solicitante</th>
                                                 <th>Atendente</th>
                                                 <th>Assunto</th>
                                                 <th>Loja</th>
@@ -42,6 +43,9 @@
                                                         <label>@chamado.Codigo</label>
                                                     </td>
                                                     <td>
+                                                        <label>@chamado.Solicitante</label>
+                                                    </td>
+                                                    <td>
                                                         <label>@chamado.Atendente.Nome</label>
                                                     </td>
                                                     <td>
@@ -54,7 +58,7 @@
                                                         <label>@chamado.Atendente.Nivel</label>
                                                         </td>
                                                         <td>
-                                                            <button class="btn-default" asp-controller="Home" asp-action="Visualizar" asp-route-id="@chamado.Codigo">Visualizar</button>
+                                                            <a class="btn-default" asp-controller="Home" asp-action="Visualizar" asp-route-id="@chamado.Codigo">Visualizar</a>
                                                         </td>
                                                     </tr>
                                             }

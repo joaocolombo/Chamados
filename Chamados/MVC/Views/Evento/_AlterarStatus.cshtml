@@ -1,5 +1,4 @@
-﻿
-@model MVC.ViewModel.AlterarAssuntoViewModel
+﻿@model MVC.ViewModel.AlterarStatusViewModel
 @{
 
 }
@@ -8,7 +7,7 @@
     <div class="slidePanel-actions" aria-label="actions" role="group">
         <button type="button" class="btn btn-pure slidePanel-close actions-top icon md-close" aria-hidden="true"></button>
     </div>
-    <h1>Alterar Assunto</h1>
+    <h1>Alterar Status</h1>
 </header>
 
 
@@ -19,14 +18,18 @@
                 <div class="panel">
                     <div class="panel-body">
                         <div id="return"></div>
-                        <form asp-controller="Home" asp-action="AlterarAssunto" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true">
+                        <form asp-controller="Evento" asp-action="AlterarStatus" method="POST"data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true">
 
                             <div class="form-group">
-                                <label class="form-control-label">Assunto</label>
-                                <input asp-for="Assunto" class="form-control form-control-lg"/>
+                                <h5>Status</h5>
+                                <div class="row">
+                                    <div class="col-lg-11">
+                                        <select asp-for="Status" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/evento/select2/buscarstatus"></select>
+                                    </div>
+                                </div>
                             </div>
                             <div class="hidden">
-                                <input asp-for="Atendente" Value="Joao" hidden/>
+                                <input asp-for="NomeAtendente" Value="Joao" hidden/>
                             </div>
                             <div class="hidden">
                                 <input asp-for="Id" hidden/>

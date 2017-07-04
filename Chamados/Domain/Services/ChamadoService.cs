@@ -50,6 +50,18 @@ namespace Domain.Services
             }
             return _iChamadoRepository.Alterar(chamado);
         }
+        public Chamado AlterarSolicitante(int codigo, string solicitante, Atendente atendente)
+        {
+            var chamado = _iChamadoRepository.BuscarPorId(codigo);
+            VerificaAtendenteCorrente(chamado, atendente);
+            VerificaChamadoFinalizado(chamado);
+            chamado.Solicitante = solicitante;
+            if (chamado.Solicitante.Equals(""))
+            {
+                throw new Exception("O Chamado precisa de um Solicitante");
+            }
+            return _iChamadoRepository.Alterar(chamado);
+        }
 
         public Chamado AlterarCategoria(int codigo, List<Categoria> categorias, Atendente atendente)
         {
@@ -126,6 +138,10 @@ namespace Domain.Services
             {
                 erro += " O Chamado precisa de um assunto.";
             }
+            if (String.IsNullOrEmpty(chamado.Solicitante))
+            {
+                erro += " O Chamado precisa de um solicitante.";
+            }
             if (chamado.Eventos == null)
             {
                 erro += " O Chamado precisa de um evendo";
@@ -169,5 +185,7 @@ namespace Domain.Services
         {
             return "sucesso";
         }
+
+
     }
 }

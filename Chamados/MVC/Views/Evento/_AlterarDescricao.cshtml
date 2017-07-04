@@ -1,0 +1,43 @@
+﻿    @model MVC.ViewModel.AlterarDescricaoViewModel
+    @{
+
+    }
+
+    <header class="slidePanel-header">
+        <div class="slidePanel-actions" aria-label="actions" role="group">
+            <button type="button" class="btn btn-pure slidePanel-close actions-top icon md-close" aria-hidden="true"></button>
+        </div>
+        <h1>Alterar Descricao</h1>
+    </header>
+
+
+    <div class="slidePanel-inner">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <div id="return"></div>
+                            <form asp-controller="Evento" asp-action="AlterarDescricao" method="POST"data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true">
+
+                                <div class="form-group">
+                                    <label class="form-control-label">Assunto</label>
+                                    <textarea asp-for="Descricao" class="form-control" id="textareaDefault" rows="5"></textarea>
+                                </div>
+                                <div class="hidden">
+                                    <input asp-for="NomeAtendente" Value="Joao" hidden/>
+                                </div>
+                                <div class="hidden">
+                                    <input asp-for="Id" hidden/>
+                                </div>
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Salvar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+

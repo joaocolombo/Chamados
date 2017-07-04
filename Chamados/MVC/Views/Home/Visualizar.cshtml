@@ -1,6 +1,9 @@
 ﻿@using Domain.Entities
 @model Domain.Entities.Chamado
+@{
 
+    var ultimoEvento = "";
+}
 @section pluginsStyle
 {
     <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/plugins/select2/select2.css">
@@ -19,128 +22,138 @@
                             <h3 class="panel-title">Visualizar</h3>
                         </div>
                         <div class="panel-body">
-                            <form autocomplete="off">
-                                <div class="form-group">
+                            <div class="form-group">
 
-                                    <div class="row">
-                                        <div class="col-lg-3">
-                                            <h4>Codigo</h4>
-                                            <label>@Model.Codigo</label>
-                                        </div>
-                                        <div class="col-lg-3">
-                                            <h4>Status</h4>
-                                            <label>@Model.Status</label>
-                                        </div>
-                                        <div class="col-lg-3">
-                                            <h4>Nivel</h4>
-                                            <label>@Model.Nivel</label>
-                                        </div>
-                                        <div class="col-lg-2">
-                                            <button type="button" data-url="@Url.Action("Finalizar", "Home", new {id = Model.Codigo, nomeAtendente = Model.Atendente.Nome})" asp-controller="Home" asp-action="Finalizar"data-toggle="slidePanel"  class="btn btn-lg btn-primary waves-effect waves-light">
-                                                Finaliza
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <div class="row">
-                                        <h4 class="col-lg-2">Filial</h4>
-                                        <div class="col-lg-9">
-                                            <label>@Model.Filial.Nome</label>
-                                        </div>
-                                        <div class="col-lg-1">
-                                            <button type="button" data-url="@Url.Action("AlterarFilial", "Home", new{Id=Model.Codigo, Filial =Model.Filial.Nome})" asp-controller="Home" asp-action="AlterarFilial" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
-                                                <i class="icon md-edit" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="row">
-                                        <h4 class="col-lg-2">Assunto</h4>
-                                        <div class="col-lg-9">
-                                            <label>@Model.Assunto</label>
-                                        </div>
-                                        <div class="col-lg-1">
-                                            <button type="button" data-url="@Url.Action("AlterarAssunto", "Home", new{Id=Model.Codigo, Assunto =Model.Assunto})" asp-controller="Home" asp-action="AlterarCategoria" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
-                                                <i class="icon md-edit" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="row">
-                                    <h4>Categorias</h4>
-                                </div>
-                                @{
-                                    foreach (var categoria in Model.Categorias)
-                                    {
-                                        <div class="row">
-                                            <div class="offset-lg-2">
-                                                <label>@categoria.Descricao</label>
-                                            </div>
-                                        </div>
-                                    }
-                                }
-                                <div class="row">
-                                    <div class="col-lg-1 offset-lg-11">
-                                        <button type="button" data-url="@Url.Action("AlterarCategoria", "Home", new{Id=Model.Codigo, Assunto =Model.Categorias})" asp-controller="Home" asp-action="AlterarAssunto" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
-
-                                            <i class="icon md-edit" aria-hidden="true"></i>
+                                    <div class="col-lg-3">
+                                        <h4>Codigo</h4>
+                                        <label>@Model.Codigo</label>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <h4>Status</h4>
+                                        <label>@Model.Status</label>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <h4>Nivel</h4>
+                                        <label>@Model.Nivel</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <button type="button" data-url="/Home/Finalizar/@Model.Codigo/@Model.Atendente.Nome" data-toggle="slidePanel" class="btn btn-lg btn-primary waves-effect waves-light">
+                                            Finalizar
                                         </button>
                                     </div>
                                 </div>
-        
-                                    <h3>Evento</h3>
-                                    @{
-                                        foreach (var evento in Model.Eventos)
-                                        {
-                                            <div class="form-group">
-                                                <div class="row">
-                                                    <div hidden="">
-                                                        <label>@evento.Codigo</label>
-                                                    </div>
-                                                    <div class="col-lg-3">
-                                                        <h5>Atendente</h5>
-                                                        <label>@evento.Atendente.Nome</label>
-                                                    </div>
-                                                    <div class="col-lg-3">
-                                                        <h5>Atendente</h5>
-                                                        <label>@evento.Atendente.Nivel</label>
-                                                    </div>
-                                                    <div class="col-lg-3">
-                                                        <h5>Status</h5>
-                                                        <label>@evento.Status</label>
-                                                    </div>
-                                                    <div class="col-lg-3">
-                                                        <h5>Abertura</h5>
-                                                        <label>@evento.Abertura</label>
-                                                    </div>
-                                                </div>
-                                            </div>
+                            </div>
 
-                                            <div class="form-group">
-                                                <textarea class="form-control" disabled rows="5">@evento.Descricao</textarea>
-                                            </div>
-                                        }
-                                    }
-                            
-                               
+                            <div class="form-group">
                                 <div class="row">
-                                    <div class="col-lg-1 offset-lg-10">
-                                        <button type="button" class="btn btn-floating btn-warning btn-sm waves-effect">
-                                            <i class="icon md-edit" aria-hidden="true"></i>
-                                        </button>
+                                    <h4 class="col-lg-2">Filial</h4>
+                                    <div class="col-lg-9">
+                                        <label>@Model.Filial.Nome</label>
                                     </div>
-
                                     <div class="col-lg-1">
-                                        <button type="button" asp-controller="Evento" asp-action="Novo" data-url="@Url.Action("Novo", "Evento", new{id=Model.Codigo})" data-toggle="slidePanel" class="btn-raised btn btn-sm btn-success btn-floating waves-effect waves-classic">
-                                            <i class="front-icon md-plus animation-scale-up" aria-hidden="true"></i>
+                                        <button type="button" data-url="/Home/AlterarFilial/@Model.Codigo" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
+                                            <i class="icon md-edit" aria-hidden="true"></i>
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <h4 class="col-lg-2">Solicitante</h4>
+                                    <div class="col-lg-9">
+                                        <label>@Model.Solicitante</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <button type="button" data-url="@Url.Action("AlterarSolicitante","Home", new{id= Model.Codigo, Model.Solicitante})" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
+                                            <i class="icon md-edit" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <h4 class="col-lg-2">Assunto</h4>
+                                    <div class="col-lg-9">
+                                        <label>@Model.Assunto</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <button type="button" data-url="@Url.Action("AlterarAssunto","Home", new{id= Model.Codigo, Model.Assunto})" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
+                                            <i class="icon md-edit" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <h4>Categorias</h4>
+                            </div>
+                            @{
+                                foreach (var categoria in Model.Categorias)
+                                {
+                                    <div class="row">
+                                        <div class="offset-lg-2">
+                                            <label>@categoria.Descricao</label>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            <div class="row">
+                                <div class="col-lg-1 offset-lg-11">
+                                    <button type="button" data-url="/Home/AlterarCategoria/@Model.Codigo" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
+
+                                        <i class="icon md-edit" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <h3>Evento</h3>
+                            @{
+                                foreach (var evento in Model.Eventos)
+                                {
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div hidden="">
+                                                <label>@evento.Codigo</label>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <h5>Atendente</h5>
+                                                <label>@evento.Atendente.Nome</label>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <h5>Nivel</h5>
+                                                <label>@evento.Atendente.Nivel</label>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <h5>Status</h5>
+                                                <label>@evento.Status</label>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <h5>Abertura</h5>
+                                                <label>@evento.Abertura</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <textarea class="form-control" disabled rows="5">@evento.Descricao</textarea>
+                                    </div>
+                                    ultimoEvento = @evento.Codigo.ToString();
+
+                                }
+                            }
+                            <div class="row">
+                                <div class="col-lg-1 offset-lg-10">
+                                  <a asp-action="Visualizar" asp-controller="Evento" asp-route-id="@ultimoEvento" class="btn btn-floating btn-warning btn-sm waves-effect">
+                                        <i class="icon md-edit" aria-hidden="true"></i>
+                                    </a>
 
                                 </div>
-                            </form>
+
+                                <div class="col-lg-1">
+                                    <button type="button"  data-url="/Evento/Novo/@Model.Codigo" data-toggle="slidePanel" class="btn-raised btn btn-sm btn-success btn-floating waves-effect waves-classic">
+                                        <i class="front-icon md-plus animation-scale-up" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -154,3 +167,18 @@
     <script src="http://static.bischoffgroup.com.br/resources/plugins/select2/select2.js"></script>
 }
 
+@section scripts
+{
+    <script >
+
+        var onFailure = function (response, status, error) {
+            $("#return").html(response.responseText).removeClass().addClass("alert alert-danger");
+        };
+
+
+        var onSuccess = function (response, status) {
+            $("#return").html("Aleração realizada com sucesso").removeClass().addClass("alert alert-success");
+        };
+
+    </script>
+}

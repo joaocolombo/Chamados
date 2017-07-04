@@ -10,6 +10,7 @@ namespace Domain.Services.Interfaces
         Chamado AlterarFilial(int codigo, Filial filial, Atendente atendente);
         Chamado AlterarAssunto(int codigo, string assunto, Atendente atendente);
         Chamado AlterarCategoria(int codigo, List<Categoria> categorias, Atendente atendente);
+        Chamado AlterarSolicitante(int codigo, string solicitante , Atendente atendente);
         void Finalizar(int codigo, Atendente atendente);
         Chamado BuscarPorId(int codigo);
         IEnumerable<Chamado> BuscarPorStatus(string status);

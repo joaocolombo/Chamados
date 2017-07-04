@@ -52,9 +52,27 @@ namespace Domain.Services
             return _iEventoRepository.Adicionar(c, evento);
         }
 
-        public Evento AlterarDescricao(Evento evento, string descricao, Atendente atendente)
+        public Evento AlterarStatus(int codigo, string status, Atendente atendete)
         {
-            evento = _iEventoRepository.BuscarPorId(evento.Codigo);
+            var evento = _iEventoRepository.BuscarPorId(codigo);
+            if (evento.Encerrado != DateTime.MinValue)
+            {
+                throw new Exception("Evento ja foi finalizado");
+            }
+            ValidarAtendenteCorrente(atendete, evento);
+            evento.Status = status;
+            if (string.IsNullOrEmpty(evento.Status))
+            {
+                throw new Exception("Status em branco");
+            }
+
+            return _iEventoRepository.Alterar(evento);
+        }
+
+
+        public Evento AlterarDescricao(int codigo, string descricao, Atendente atendente)
+        {
+            var evento = _iEventoRepository.BuscarPorId(codigo);
             if (evento.Encerrado != DateTime.MinValue)
             {
                 throw new Exception("Evento ja foi finalizado");
