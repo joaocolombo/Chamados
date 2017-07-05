@@ -24,11 +24,6 @@ namespace MVC.Controllers
             return PartialView("_Novo");
         }
         [HttpGet]
-        public IActionResult RetornoVisualizar(Chamado chamado)
-        {
-            return View("Visualizar", chamado);
-        }
-        [HttpGet]
         public IActionResult AlterarAssunto(string id, string assunto)
         {
             return PartialView("_AlterarAssunto", new AlterarAssuntoViewModel() { Assunto = assunto, Id = id });
@@ -100,9 +95,7 @@ namespace MVC.Controllers
             }
 
         }
-        //==POST==
-
-
+        //==POST==     
 
         [HttpPost]
         public IActionResult AlterarSolicitante(AlterarSolicitanteViewModel alterarSolicitante)
@@ -127,7 +120,7 @@ namespace MVC.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var chamado = JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result);
-                    return RetornoVisualizar(chamado);
+                    return PartialView("_Visualizar",chamado);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {
@@ -227,14 +220,14 @@ namespace MVC.Controllers
             List<Categoria> listaCategoria = new List<Categoria>();
 
             var atendente = JsonConvert.SerializeObject(new Atendente() { Nome = alterarCategoria.Atendente });
-            if (alterarCategoria.Categorias !=null)
+            if (alterarCategoria.Categorias != null)
             {
 
                 foreach (var codigo in alterarCategoria.Categorias)
                 {
                     listaCategoria.Add(new Categoria() { Codigo = codigo });
                 }
-              
+
             }
 
             List<object> lista = new List<object>();
@@ -254,7 +247,7 @@ namespace MVC.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var chamado = JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result);
-                    return RetornoVisualizar(chamado);
+                    return PartialView("_Visualizar",chamado);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {
@@ -272,7 +265,7 @@ namespace MVC.Controllers
             var json = JsonConvert.SerializeObject(new Atendente() { Nome = alterarAssunto.Atendente });
             if (string.IsNullOrEmpty(alterarAssunto.Assunto))
             {
-                return StatusCode(422,"Prencha o Assunto");
+                return StatusCode(422, "Prencha o Assunto");
             }
 
             using (var client = new HttpClient())
@@ -287,7 +280,7 @@ namespace MVC.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var chamado = JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result);
-                    return RetornoVisualizar(chamado);
+                    return PartialView("_Visualizar",chamado);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {
@@ -321,7 +314,7 @@ namespace MVC.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var chamado = JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result);
-                    return RetornoVisualizar(chamado);
+                    return PartialView("_Visualizar", chamado);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {

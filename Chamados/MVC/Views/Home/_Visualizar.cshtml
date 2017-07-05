@@ -1,0 +1,86 @@
+﻿@model Domain.Entities.Chamado
+<div class="form-group">
+
+        <div class="row">
+            <div class="col-lg-3">
+                <h4>Codigo</h4>
+                <label>@Model.Codigo</label>
+            </div>
+            <div class="col-lg-3">
+                <h4>Status</h4>
+                <label>@Model.Status</label>
+            </div>
+            <div class="col-lg-3">
+                <h4>Nivel</h4>
+                <label>@Model.Nivel</label>
+            </div>
+            <div class="col-lg-2">
+                <button type="button" data-url="@Url.Action("Finalizar","Home", new{id =Model.Codigo, nomeAtendente =Model.Atendente.Nome})" data-toggle="slidePanel" class="btn btn-lg btn-primary waves-effect waves-light">
+                    Finalizar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row">
+            <h4 class="col-lg-2">Filial</h4>
+            <div class="col-lg-9">
+                <label id="filial">@Model.Filial.Nome</label>
+            </div>
+            <div class="col-lg-1">
+                <button type="button" data-url="/Home/AlterarFilial/@Model.Codigo" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
+                    <i class="icon md-edit" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <h4 class="col-lg-2">Solicitante</h4>
+            <div class="col-lg-9">
+                <label>@Model.Solicitante</label>
+            </div>
+            <div class="col-lg-1">
+                <button type="button" data-url="@Url.Action("AlterarSolicitante","Home", new{id= Model.Codigo, Model.Solicitante})" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
+                    <i class="icon md-edit" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <h4 class="col-lg-2">Assunto</h4>
+            <div class="col-lg-9">
+                <label>@Model.Assunto</label>
+            </div>
+            <div class="col-lg-1">
+                <button type="button" data-url="@Url.Action("AlterarAssunto","Home", new{id= Model.Codigo, Model.Assunto})" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
+                    <i class="icon md-edit" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <h4>Categorias</h4>
+    </div>
+    @{
+        foreach (var categoria in Model.Categorias)
+        {
+            <div class="row">
+                <div class="offset-lg-2">
+                    <label>@categoria.Descricao</label>
+                </div>
+            </div>
+        }
+    }
+    <div class="row">
+        <div class="col-lg-1 offset-lg-11">
+            <button type="button" data-url="/Home/AlterarCategoria/@Model.Codigo" data-toggle="slidePanel" class="btn btn-floating btn-warning btn-sm waves-effect">
+
+                <i class="icon md-edit" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+
+@Html.Partial("~/Views/Evento/_ListaEvento.cshtml", Model.Eventos);

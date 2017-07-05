@@ -13,7 +13,7 @@
                 <div class="panel">
                     <div class="panel-body">
                         <div id="return" ></div>
-                        <form asp-controller="Home" asp-action="AlterarFilial" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true">
+                        <form asp-controller="Home" asp-action="AlterarFilial" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true" data-ajax-mode="replace"  data-ajax-update="#render-chamado">
                             <div class="form-group">
                                 <label asp-for="Filial">FILIAL</label>
                                 <div class=" col-lg-offset-12">

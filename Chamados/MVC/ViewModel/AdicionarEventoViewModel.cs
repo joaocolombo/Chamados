@@ -12,5 +12,10 @@ namespace MVC.ViewModel
         public string NomeAtendenteNovo { get; set; }
         public string Descricao { get; set; }
         public string Status { get; set; }
+        public int FilaId { get; set; }
+        public int Direcao { get; set; }
+        //public bool Encaminhar { get; set; }
+        //public bool Novo { get; set; }
+        //public bool EncaminharFila { get; set; }
     }
 }

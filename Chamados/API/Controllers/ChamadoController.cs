@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
 using Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Mvc.Cors;
 using Newtonsoft.Json;
 
 namespace API.Controllers
@@ -18,10 +16,12 @@ namespace API.Controllers
     public class ChamadoController : Controller
     {
         private readonly IChamadoService _iChamadoService;
+        private readonly IEventoService _iEventoService;
 
-        public ChamadoController(IChamadoService iChamadoService)
+        public ChamadoController(IChamadoService iChamadoService, IEventoService iEventoService)
         {
             _iChamadoService = iChamadoService;
+            _iEventoService = iEventoService;
         }
 
         //Buscar
@@ -160,6 +160,26 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(422, ex.Message );
+            }
+        }
+
+        [HttpPut("AlterarFila/{id}")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult AlterarFila([FromBody]List<object> value, int id)
+        {
+            try
+            {
+               
+                var fila = JsonConvert.DeserializeObject<Fila>(value[0].ToString());
+                var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
+                var evento = JsonConvert.DeserializeObject<Evento>(value[2].ToString());
+                _iEventoService.Adicionar(id, evento, atendente);
+                _iChamadoService.AlterarFila(id, fila, atendente);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422, ex.Message);
             }
         }
 

@@ -14,7 +14,7 @@ namespace Data.Repositories
     {
         private readonly IEventoRepository _iEventoRepository;
         private readonly IFilialRepository _iFilialRepository;
-        private readonly ICategoriaRepository _iCategoriaRepository; 
+        private readonly ICategoriaRepository _iCategoriaRepository;
 
         public ChamadoRepository(IEventoRepository iEventoRepository, IFilialRepository iFilialRepository, ICategoriaRepository iCategoriaRepository)
         {
@@ -24,8 +24,17 @@ namespace Data.Repositories
         }
 
 
+        private Chamado VerificaFila(Chamado chamado)
+        {
+            if (chamado.Fila == null)
+                chamado.Fila = new Fila() { Codigo = 0 };
+            return chamado;
+        }
+
         public Chamado Alterar(Chamado chamado)
         {
+            chamado = VerificaFila(chamado);
+
             var sql = @"BEGIN TRAN
                         DECLARE @CODIGO_CHAMADO INT
                         SET @CODIGO_CHAMADO =@CODIGO
@@ -78,7 +87,7 @@ namespace Data.Repositories
                 {
                     ch.Filial = fi;
                     return ch;
-                }, new {ATENDENTE = atendente.Nome, FINALIZADO = finalizado}, splitOn: "FILIAL").ToList();
+                }, new { ATENDENTE = atendente.Nome, FINALIZADO = finalizado }, splitOn: "FILIAL").ToList();
 
             foreach (var chamado in chamados)
             {
@@ -137,6 +146,7 @@ namespace Data.Repositories
 
         public int Inserir(Chamado chamado)
         {
+            chamado = VerificaFila(chamado);
             var sql = @"BEGIN TRAN
                         DECLARE @CODIGO_CHAMADO INT
                         INSERT INTO [CHAMADOS].[dbo].[CHAMADO]
@@ -156,7 +166,7 @@ namespace Data.Repositories
             sql += _iCategoriaRepository.InserirSql(chamado);
             sql += _iEventoRepository.InserirPorChamado(chamado.Eventos);
 
-            sql +=@"IF @@ERROR <> 0
+            sql += @"IF @@ERROR <> 0
                         ROLLBACK
                         ELSE
                         BEGIN

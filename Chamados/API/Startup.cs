@@ -60,6 +60,8 @@ namespace API
             services.AddScoped<IFilialRepository, FilialRepository>();
             services.AddScoped<ICategoriaRepository, CategoriaRepository>();
             services.AddScoped<ICategoriaService, CategoriaServise>();
+            services.AddScoped<IFilaService, FilaService>();
+            services.AddScoped<IFilaRepository, FilaRepository>();
 
         }
 

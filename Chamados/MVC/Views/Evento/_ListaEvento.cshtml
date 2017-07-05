@@ -1,0 +1,28 @@
+﻿@model List<Domain.Entities.Evento>
+@{
+    var ultimoEvento = "";
+}
+<h3>Evento</h3>
+@{
+    foreach (var evento in Model)
+    {
+        @Html.Partial("~/Views/Evento/_Evento.cshtml", evento)
+
+        ultimoEvento = @evento.Codigo.ToString();
+
+    }
+}
+<div class="row">
+    <div class="col-lg-1 offset-lg-10">
+        <a asp-action="Visualizar" asp-controller="Evento" asp-route-id="@ultimoEvento" class="btn btn-floating btn-warning btn-sm waves-effect">
+            <i class="icon md-edit" aria-hidden="true"></i>
+        </a>
+
+    </div>
+
+    <div class="col-lg-1">
+        <button type="button" data-url="/Evento/Novo/" data-toggle="slidePanel" class="btn-raised btn btn-sm btn-success btn-floating waves-effect waves-classic">
+            <i class="front-icon md-plus animation-scale-up" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>

@@ -8,7 +8,7 @@
         <button type="button" class="btn btn-pure slidePanel-close actions-top icon md-close" aria-hidden="true"></button>
     </div>
     <h1>Adicionar Evento</h1>
-</header>
+</header>   
 
 
 <div class="slidePanel-inner">
@@ -18,19 +18,19 @@
                 <div class="panel">
                     <div class="panel-body">
                         <div id="return"></div>
-                        <form asp-controller="Evento" asp-action="Novo" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess" data-ajax="true">
+                        <form asp-controller="Evento" asp-action="DirecionarNovoEvento" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess" data-ajax="true" id="frm" name="frm">
                             @Html.AntiForgeryToken()
                             @Html.ValidationSummary(true, "", new { @class = "alert alert-danger", role = "alert" })<div class="form-group form-material">
                                 <div class="radio-custom radio-success radio-inline">
-                                    <input type="radio" id="inputAdicionar" name="inputRadioGender" checked="" onchange="Adicionar('encaminharAtendente','status')">
+                                    <input type="radio"  checked="" asp-for="Direcao" value="1" onchange="Adicionar('encaminharAtendente','status','encaminharFila')">
                                     <label for="inputAdicionar">Adicionar</label>
                                 </div>
                                 <div class="radio-custom radio-warning radio-inline">
-                                    <input type="radio" id="inputEncN2" name="inputRadioGender" onchange="EncaminharN2('encaminharAtendente','status')">
-                                    <label for="inputEncN2">Encaminhar para fila N2</label>
+                                    <input type="radio" asp-for="Direcao" value="2"  onchange="EncaminharN2('encaminharAtendente','status','encaminharFila')">
+                                    <label for="inputEncN2">Encaminhar para fila</label>
                                 </div>
                                 <div class="radio-custom radio-warning radio-inline">
-                                    <input type="radio" id="inputEncAtendente" name="inputRadioGender" onchange="EncaminharAtendente('encaminharAtendente','status')">
+                                    <input type="radio" asp-for="Direcao" value="3"  onchange="EncaminharAtendente('encaminharAtendente','status','encaminharFila')">
                                     <label for="inputEncAtendente">Encaminhar para outro Atendente</label>
                                 </div>
                             </div>
@@ -41,6 +41,10 @@
                             <div class="form-group" id="status">
                                 <label asp-for="Status" class="form-control-label"></label>
                                 <select asp-for="Status" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/evento/select2/buscarstatus"></select>
+                            </div>
+                            <div class="form-group" id="encaminharFila" style="display: none">
+                                <label asp-for="FilaId" class="form-control-label">Fila</label>
+                                <select asp-for="FilaId" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/fila/select2/BuscarTodos"></select>
                             </div>
                             <div class="form-group" id="encaminharAtendente" style="display: none">
                                 <label class="form-control-label">ENCAMINHAR PARA</label>
@@ -53,11 +57,12 @@
                                 <input asp-for="ChamadoId" hidden />
                             </div>
 
-                            <div class="row">
+                            <div class="row" id="btSalvar"style="display: block">
                                 <div class="col-lg-1 offset-lg-9">
                                     <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Salvar</button>
                                 </div>
                             </div>
+
                         </form>
                     </div>
                 </div>
@@ -67,20 +72,29 @@
 </div>
 
 <script>
-    function Adicionar(encaminharAtendente, status) {
+    function Adicionar(encaminharAtendente, status, encaminharFila) {
 
         document.getElementById(encaminharAtendente).style.display = 'none';
         document.getElementById(status).style.display = 'block';
+        document.getElementById(encaminharFila).style.display = 'none';
+
     }
-    function EncaminharAtendente(encaminharAtendente, status) {
+    function EncaminharAtendente(encaminharAtendente, status, encaminharFila) {
 
         document.getElementById(encaminharAtendente).style.display = 'block';
         document.getElementById(status).style.display = 'none';
+        document.getElementById(encaminharFila).style.display = 'none';
+
     }
-    function EncaminharN2(encaminharAtendente, status) {
+    function EncaminharN2(encaminharAtendente, status, encaminharFila) {
 
         document.getElementById(encaminharAtendente).style.display = 'none';
         document.getElementById(status).style.display = 'none';
+        document.getElementById(encaminharFila).style.display = 'block';
+
+
     }
+
+
 </script>
 

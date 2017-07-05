@@ -19,9 +19,11 @@
                             <h3 class="panel-title">Finalizar</h3>
                         </div>
                         <div class="panel-body">
-                            <form autocomplete="off" asp-action="Finalizar" asp-controller="Home">
-                                <input asp-for="NomeAtendente" Value="Joao" hidden />
-                            
+                            <form asp-action="Finalizar" asp-controller="Home" method="post">
+                                <div hidden="">
+                                    <input asp-for="NomeAtendente" Value="@Model.NomeAtendente" />
+                                    <input asp-for="Id" Value="@Model.Id" />
+                                </div>
                                 <h4 class="panel-title">Apos finalizar, o Chamado não podera mais ser alterado, você tem certeza que deseja finaliza-lo?</h4>
                                 <div class="text-right">
                                     <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Finalizar</button>
