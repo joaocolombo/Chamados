@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Domain.Entities;
 
-namespace MVC.ViewModel
+namespace MVC.ViewModel.Home
 {
-    public class AlterarCategoriaViewModel
+    public class AlterarAssuntoViewModel
     {
-        public IEnumerable<int> Categorias { get; set; }
         public string Id { get; set; }
+        public string Assunto { get; set; }
         public string Atendente { get; set; }
     }
 }

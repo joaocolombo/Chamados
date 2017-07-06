@@ -11,7 +11,9 @@ namespace Domain.Repositories
         IEnumerable<Chamado> BuscarPorStatus(string status);
         IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, bool finalizado);
         IEnumerable<Chamado> BuscarPorFilial(Filial filial);
+        IEnumerable<Chamado> BuscarPorFila(Fila fila);
 
-   
+
+
     }
 }

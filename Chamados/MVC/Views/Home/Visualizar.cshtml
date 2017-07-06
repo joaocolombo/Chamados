@@ -1,4 +1,4 @@
-﻿@model Domain.Entities.Chamado
+﻿@model MVC.ViewModel.ChamadoViewModel
 
 @section pluginsStyle
 {
@@ -18,7 +18,7 @@
                             <h3 class="panel-title">Visualizar</h3>
                         </div>
                         <div class="panel-body" id="render-chamado">
-                            @Html.Partial("_Visualizar", Model);
+                            @Html.Partial("_Visualizar", Model)
                         </div>
                     </div>
                 </div>

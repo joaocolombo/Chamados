@@ -18,7 +18,7 @@
                     <div class="panel">
                         <div class="panel-body">
                             <div id="return"></div>
-                            <form asp-controller="Evento" asp-action="AlterarDescricao" method="POST"data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true">
+                            <form asp-controller="Evento" asp-action="AlterarDescricao" method="POST"data-ajax-failure="onFailure" data-ajax-success="onSuccess"data-ajax="true" data-ajax-mode="replace"  data-ajax-update="#render-evento">
 
                                 <div class="form-group">
                                     <label class="form-control-label">Assunto</label>

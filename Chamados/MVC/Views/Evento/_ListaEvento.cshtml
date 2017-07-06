@@ -1,6 +1,7 @@
-﻿@model List<Domain.Entities.Evento>
+﻿@model List<MVC.ViewModel.AdicionarEventoViewModel>
 @{
     var ultimoEvento = "";
+    var codigoChamado = "";
 }
 <h3>Evento</h3>
 @{
@@ -9,9 +10,13 @@
         @Html.Partial("~/Views/Evento/_Evento.cshtml", evento)
 
         ultimoEvento = @evento.Codigo.ToString();
+        codigoChamado = @evento.ChamadoId.ToString();
 
     }
 }
+<div id="render-lista-evento">
+</div>
+
 <div class="row">
     <div class="col-lg-1 offset-lg-10">
         <a asp-action="Visualizar" asp-controller="Evento" asp-route-id="@ultimoEvento" class="btn btn-floating btn-warning btn-sm waves-effect">
@@ -21,8 +26,16 @@
     </div>
 
     <div class="col-lg-1">
-        <button type="button" data-url="/Evento/Novo/" data-toggle="slidePanel" class="btn-raised btn btn-sm btn-success btn-floating waves-effect waves-classic">
+        <button type="button" data-url="/Evento/Novo/@codigoChamado" data-toggle="slidePanel" class="btn-raised btn btn-sm btn-success btn-floating waves-effect waves-classic">
             <i class="front-icon md-plus animation-scale-up" aria-hidden="true"></i>
         </button>
     </div>
 </div>
+
+<script>
+
+    var UpdateTargetId = function (response, status) {
+        onSuccess(response);
+        $('#render-lista-evento').html(response);
+    };
+</script>

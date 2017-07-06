@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 
-namespace MVC.ViewModel
+namespace MVC.ViewModel.Home
 {
-    public class AlterarSolicitanteViewModel
+    public class FinalizarViewModel
     {
         public string Id { get; set; }
-        public string Solicitante { get; set; }
         public string NomeAtendente { get; set; }
     }
 }

@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.Chunks.Generators;
 using MVC.ViewModel;
+using MVC.ViewModel.Evento;
 using Newtonsoft.Json;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -20,16 +22,28 @@ namespace MVC.Controllers
         private string url = "http://10.1.0.4";
 
         [HttpGet]
-        public IActionResult Novo(string id)
+        public IActionResult Novo(int id)
         {
             return PartialView("_AdicionarEvento", new AdicionarEventoViewModel() { ChamadoId = id });
         }
 
+        private AdicionarEventoViewModel ConvertEventoToViewModel(Evento evento)
+        {
+            return new AdicionarEventoViewModel()
+            {
+                Descricao = evento.Descricao,
+                Status = evento.Status,
+                Abertura = evento.Abertura,
+                Atendente = evento.Atendente,
+                Codigo = evento.Codigo,
+                FilaId = evento.Codigo
+
+            };
+        }
+
         [HttpGet]
         public IActionResult Visualizar(string id)
-
-
-        {
+            {
 
             using (var client = new HttpClient())
             {
@@ -42,7 +56,8 @@ namespace MVC.Controllers
                 var stringData = response.Content.ReadAsStringAsync().Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    return View(JsonConvert.DeserializeObject<Evento>(stringData));
+                    var eventoVM =ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(stringData));
+                    return View(eventoVM);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {
@@ -57,11 +72,6 @@ namespace MVC.Controllers
 
         }
 
-        [HttpGet]
-        public IActionResult RetornoVisualizar(Evento evento)
-        {
-            return View("Visualizar", evento);
-        }
 
         [HttpGet]
         public IActionResult AlterarDescricao(string id, string descricao)
@@ -95,8 +105,8 @@ namespace MVC.Controllers
                             .Result;
                     if (response.IsSuccessStatusCode)
                     {
-                        var evento = JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result);
-                        return PartialView("_ListaEvento", evento);
+                        var eventoVM =ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
+                        return PartialView("~/Views/Evento/_Visualizar.cshtml", eventoVM);
                     }
                     if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                     {
@@ -127,8 +137,8 @@ namespace MVC.Controllers
                             .Result;
                     if (response.IsSuccessStatusCode)
                     {
-                        var evento = JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result);
-                        return RetornoVisualizar(evento);
+                        var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
+                        return PartialView("~/Views/Evento/_Visualizar.cshtml", eventoVM);
                     }
                     if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                     {
@@ -161,14 +171,14 @@ namespace MVC.Controllers
         public IActionResult AlterarFila(AdicionarEventoViewModel eventoViewModel)
         {
 
-            var atendenteJson = JsonConvert.SerializeObject(new Atendente() { Nome = eventoViewModel.NomeAtendenteAtual });
+            var atendenteJson = JsonConvert.SerializeObject(new Atendente() { Nome = eventoViewModel.Atendente.Nome });
 
             var evento = new Evento()
             {
                 Descricao = eventoViewModel.Descricao,
                 Atendente = new Atendente()
                 {
-                    Nome = eventoViewModel.NomeAtendenteAtual
+                    Nome = eventoViewModel.Atendente.Nome
                 },
                 Status = "ENCAMINHAR"
 
@@ -193,8 +203,8 @@ namespace MVC.Controllers
                         .Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    var e = JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result);
-                    return Ok();
+                    var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
+                    return PartialView("~/Views/Evento/_Evento.cshtml", eventoVM);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {
@@ -210,7 +220,7 @@ namespace MVC.Controllers
         {
             if (string.IsNullOrEmpty(AdicionarEvento.NomeAtendenteNovo))
             {
-                AdicionarEvento.NomeAtendenteNovo = AdicionarEvento.NomeAtendenteAtual;
+                AdicionarEvento.NomeAtendenteNovo = AdicionarEvento.Atendente.Nome;
             }
 
             var evento = new Evento()
@@ -223,7 +233,7 @@ namespace MVC.Controllers
                 Status = AdicionarEvento.Status
 
             };
-            var atendente = new Atendente() { Nome = AdicionarEvento.NomeAtendenteAtual };
+            var atendente = new Atendente() { Nome = AdicionarEvento.Atendente.Nome };
 
             List<object> lista = new List<object>();
             lista.Add(AdicionarEvento.ChamadoId);
@@ -243,7 +253,8 @@ namespace MVC.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return RedirectToAction("Visualizar", "Home", new { id = AdicionarEvento.ChamadoId });
+                    var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
+                    return PartialView("~/Views/Evento/_Evento.cshtml", eventoVM);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {

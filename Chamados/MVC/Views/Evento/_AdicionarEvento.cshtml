@@ -1,7 +1,4 @@
 ﻿@model MVC.ViewModel.AdicionarEventoViewModel
-@{
-
-}
 
 <header class="slidePanel-header">
     <div class="slidePanel-actions" aria-label="actions" role="group">
@@ -18,7 +15,7 @@
                 <div class="panel">
                     <div class="panel-body">
                         <div id="return"></div>
-                        <form asp-controller="Evento" asp-action="DirecionarNovoEvento" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess" data-ajax="true" id="frm" name="frm">
+                        <form asp-controller="Evento" asp-action="DirecionarNovoEvento" method="POST" data-ajax-failure="onFailure" data-ajax-success="UpdateTargetId" data-ajax="true">
                             @Html.AntiForgeryToken()
                             @Html.ValidationSummary(true, "", new { @class = "alert alert-danger", role = "alert" })<div class="form-group form-material">
                                 <div class="radio-custom radio-success radio-inline">
@@ -51,7 +48,10 @@
                                 <select asp-for="Status" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/evento/select2/buscarstatus"></select>
                             </div>
                             <div class="hidden">
-                                <input asp-for="NomeAtendenteAtual" Value="Joao" hidden />
+                                <input asp-for="Atendente.Nome" Value="Joao" hidden />
+                            </div>
+                            <div class="hidden">
+                                <input asp-for="Atendente.Nivel" Value="N2" hidden />
                             </div>
                             <div class="hidden">
                                 <input asp-for="ChamadoId" hidden />

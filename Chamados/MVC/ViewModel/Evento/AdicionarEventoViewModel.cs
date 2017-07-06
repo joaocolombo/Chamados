@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
+using Domain.Entities;
 
-namespace MVC.ViewModel
+namespace MVC.ViewModel.Evento
 {
     public class AdicionarEventoViewModel
     {
-        public string ChamadoId { get; set; }
-        public string NomeAtendenteAtual { get; set; }
+        public int ChamadoId { get; set; }
+        public int Codigo { get; set; }
         public string NomeAtendenteNovo { get; set; }
         public string Descricao { get; set; }
         public string Status { get; set; }
         public int FilaId { get; set; }
         public int Direcao { get; set; }
-        //public bool Encaminhar { get; set; }
-        //public bool Novo { get; set; }
-        //public bool EncaminharFila { get; set; }
+        public DateTime Abertura { get; set; }
+        public Atendente Atendente { get; set; }
     }
 }

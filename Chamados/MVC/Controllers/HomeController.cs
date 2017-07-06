@@ -11,6 +11,8 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MVC.ViewModel;
+using MVC.ViewModel.Evento;
+using MVC.ViewModel.Home;
 
 namespace MVC.Controllers
 {
@@ -84,7 +86,9 @@ namespace MVC.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var stringData = response.Content.ReadAsStringAsync().Result;
-                    return View(JsonConvert.DeserializeObject<Chamado>(stringData));
+
+                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(stringData));
+                    return View(chamadoVM);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {
@@ -95,6 +99,38 @@ namespace MVC.Controllers
             }
 
         }
+
+        private ChamadoViewModel ConvertChamadoToViewModel(Chamado chamado)
+        {
+            List<AdicionarEventoViewModel> eventos = new List<AdicionarEventoViewModel>();
+            foreach (var evento in chamado.Eventos)
+            {
+                eventos.Add(new AdicionarEventoViewModel()
+                {
+                    Descricao = evento.Descricao,
+                    Status = evento.Status,
+                    Abertura = evento.Abertura,
+                    Atendente = evento.Atendente,
+                    Codigo = evento.Codigo,
+                    ChamadoId = chamado.Codigo,
+                    FilaId = evento.Codigo
+
+                });
+            }
+            return new ChamadoViewModel()
+            {
+                Assunto = chamado.Assunto,
+                Codigo = chamado.Codigo,
+                Categorias = chamado.Categorias,
+                Fila = chamado.Fila,
+                Filial = chamado.Filial,
+                Finalizado = chamado.Finalizado,
+                Solicitante = chamado.Solicitante,
+                Status = chamado.Status,
+                Eventos = eventos
+            };
+        }
+
         //==POST==     
 
         [HttpPost]
@@ -119,8 +155,8 @@ namespace MVC.Controllers
                         .Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    var chamado = JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result);
-                    return PartialView("_Visualizar",chamado);
+                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result));
+                    return PartialView("_Visualizar", chamadoVM);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {
@@ -246,8 +282,8 @@ namespace MVC.Controllers
                         .Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    var chamado = JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result);
-                    return PartialView("_Visualizar",chamado);
+                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result));
+                    return PartialView("_Visualizar", chamadoVM);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {
@@ -279,8 +315,8 @@ namespace MVC.Controllers
                         .Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    var chamado = JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result);
-                    return PartialView("_Visualizar",chamado);
+                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result));
+                    return PartialView("_Visualizar", chamadoVM);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {
@@ -313,8 +349,8 @@ namespace MVC.Controllers
                         .Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    var chamado = JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result);
-                    return PartialView("_Visualizar", chamado);
+                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result));
+                    return PartialView("_Visualizar", chamadoVM);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
                 {

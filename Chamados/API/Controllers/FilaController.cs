@@ -29,7 +29,7 @@ namespace API.Controllers
         [EnableCors("LiberarAcessoExterno")]
         public IActionResult Get()
         {
-            var item = _iFilaService.BuscarFila().Select(x => new {id = x.Codigo, text = x.Descricao});
+            var item = _iFilaService.BuscarFila().Select(x => new { id = x.Codigo, text = x.Descricao });
 
             var retorno = new
             {
@@ -40,6 +40,32 @@ namespace API.Controllers
             return Ok(retorno);
         }
 
+        [HttpGet("BuscarTodos")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult BuscarTodos()
+        {
+            try
+            {
+                return Ok(_iFilaService.BuscarFila());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422, ex.Message);
+            }
+        }
+        [HttpGet("BuscarPorId/{id}")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult BuscarPorId(int id)
+        {
+            try
+            {
+                return Ok(_iFilaService.BuscarPorId(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422, ex.Message);
+            }
+        }
 
 
     }

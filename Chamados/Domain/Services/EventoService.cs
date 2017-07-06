@@ -31,7 +31,7 @@ namespace Domain.Services
 
         private void ValidarEventoFinalizado(Evento evento)
         {
-            if (evento.Encerramento != DateTime.MinValue)
+            if (evento.Encerramento != new DateTime(1900,01,01))
             {
                 throw new Exception("Evento ja foi finalizado");
             }

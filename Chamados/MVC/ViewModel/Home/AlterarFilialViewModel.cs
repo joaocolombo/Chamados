@@ -1,5 +1,5 @@
 ﻿
-namespace MVC.ViewModel
+namespace MVC.ViewModel.Home
 {
     public class AlterarFilialViewModel
     {

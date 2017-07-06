@@ -9,12 +9,19 @@ namespace Data.Repositories
 {
     public class FilaRepository : IFilaRepository
     {
+        private readonly IChamadoRepository _iChamadoRepository;
+
+        public FilaRepository(IChamadoRepository iChamadoRepository)
+        {
+            _iChamadoRepository = iChamadoRepository;
+        }
+
         public IEnumerable<Fila> BuscarFila()
         {
             var sql = @"SELECT A.CODIGO
 	                  ,A.DESCRICAO
 	                  FROM FILA AS A";
-            return ChamadosDb.Conecection().Query<Fila>(sql);
+           var fila = ChamadosDb.Conecection().Query<Fila>(sql);
         }
 
         public Fila BuscarPorId(int codigo)

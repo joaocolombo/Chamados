@@ -175,7 +175,7 @@ namespace API.Controllers
                 var evento = JsonConvert.DeserializeObject<Evento>(value[2].ToString());
                 _iEventoService.Adicionar(id, evento, atendente);
                 _iChamadoService.AlterarFila(id, fila, atendente);
-                return Ok();
+                return Ok(evento);
             }
             catch (Exception ex)
             {

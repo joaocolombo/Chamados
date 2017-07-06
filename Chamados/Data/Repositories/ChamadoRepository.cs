@@ -195,5 +195,9 @@ namespace Data.Repositories
 
         }
 
+        public IEnumerable<Chamado> BuscarPorFila(Fila fila)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

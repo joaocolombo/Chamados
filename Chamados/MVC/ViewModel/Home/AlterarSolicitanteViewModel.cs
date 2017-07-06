@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MVC.ViewModel
+namespace MVC.ViewModel.Home
 {
-    public class AlterarStatusViewModel
+    public class AlterarSolicitanteViewModel
     {
-        public string  Id { get; set; }
-        public string Status { get; set; }
+        public string Id { get; set; }
+        public string Solicitante { get; set; }
         public string NomeAtendente { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿@using Domain.Entities
-@model List<Domain.Entities.Chamado>
+@model List<Domain.Entities.Fila>
 
 @section pluginsStyle
 {
@@ -36,31 +36,19 @@
 
 
 
-                                            @foreach (var chamado in Model)
+                                            @foreach (var fila in Model)
                                             {
                                                 <tr>
                                                     <td>
-                                                        <label>@chamado.Codigo</label>
+                                                        <label>@fila.Descricao</label>
                                                     </td>
                                                     <td>
-                                                        <label>@chamado.Solicitante</label>
+                                                        <label>@fila.Lista.Count</label>
                                                     </td>
                                                     <td>
-                                                        <label>@chamado.Atendente.Nome</label>
+                                                        <a class="btn-default" asp-controller="Home" asp-action="Visualizar" asp-route-id="@fila.Codigo">Visualizar</a>
                                                     </td>
-                                                    <td>
-                                                        <label>@chamado.Assunto</label>
-                                                    </td>
-                                                    <td>
-                                                        <label>@chamado.Filial.Nome</label>
-                                                    </td>
-                                                    <td>
-                                                        <label>@chamado.Atendente.Nivel</label>
-                                                        </td>
-                                                        <td>
-                                                            <a class="btn-default" asp-controller="Home" asp-action="Visualizar" asp-route-id="@chamado.Codigo">Visualizar</a>
-                                                        </td>
-                                                    </tr>
+                                                </tr>
                                             }
                                         </tbody>
                                     </table>

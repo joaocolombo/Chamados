@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MVC.ViewModel
+namespace MVC.ViewModel.Evento
 {
     public class AlterarDescricaoViewModel
     {
