@@ -9,6 +9,7 @@ namespace Domain.Services.Interfaces.Validates
         string NovoEvento(Evento evento, Atendente atendente, Chamado chamado);
         string PermiteAlterarStatus(Evento evento, Atendente atendente, string status);
         string PermiteAlterarDescricao(Evento evento, Atendente atendente, string descricao);
+        string NovoEventoFila(Fila fila);
         //  string AtendenteCorrente(Chamado chamado, Atendente atendente);
         //        string PermiteAlterarSolicitante(Chamado chamado, Atendente atendente, string solicitante);
         //        string PermiteAlterarCategoria(Chamado chamado, Atendente atendente, List<Categoria> categorias);

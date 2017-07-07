@@ -56,23 +56,8 @@ namespace Domain.Services.Validates
             {
                 erro += "O Chamado precisa de um evendo. ";
             }
-            else
-            {
-                foreach (var evento in chamado.Eventos)
-                {
-                    if (string.IsNullOrEmpty(evento.Descricao))
-                    {
-                        erro = "Necessario preencher uma descricao. ";
-                    }
-                    if (string.IsNullOrEmpty(evento.Status))
-                    {
-                        erro += "Necessario selecionar um status. ";
-                    }
-                }
 
-            }
-
-            if (chamado.Filial == null)
+            if (chamado.Filial.Codigo == null)
             {
                 erro += " O Chamado precisa de uma Filial. ";
             }
@@ -107,7 +92,7 @@ namespace Domain.Services.Validates
             erro = PermiteAlteracao(chamado, atendente);
             if (categorias.Any())
             {
-                erro = "O Chamado uma Categoria. ";
+                erro = "O Chamado precisa de uma Categoria. ";
             }
             return erro;
         }
@@ -118,7 +103,7 @@ namespace Domain.Services.Validates
             erro = PermiteAlteracao(chamado, atendente);
             if (filial==null)
             {
-                erro = "O Chamado uma Categoria. ";
+                erro = "O Chamado precisa de uma Filial. ";
             }
             return erro;
         }
@@ -129,7 +114,7 @@ namespace Domain.Services.Validates
             erro = PermiteAlteracao(chamado, atendente);
             if (fila==null)
             {
-                erro = "O Chamado uma Categoria. ";
+                erro = "O Chamado uma Fila. ";
             }
             return erro;
         }

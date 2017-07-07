@@ -130,7 +130,7 @@ namespace API.Controllers
         }
         [HttpPut("AlterarSolicitante/{solicitante}/{id}")]
         [EnableCors("LiberarAcessoExterno")]
-        public IActionResult AlterarFilial([FromBody]object value, string solicitante ,int id)
+        public IActionResult AlterarSolicitante([FromBody]object value, string solicitante ,int id)
         {
             try
             {
@@ -173,8 +173,9 @@ namespace API.Controllers
                 var fila = JsonConvert.DeserializeObject<Fila>(value[0].ToString());
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
                 var evento = JsonConvert.DeserializeObject<Evento>(value[2].ToString());
-               var e =_iEventoService.Adicionar(id, evento, atendente);
+                var e =_iEventoService.AdicionarEventoFila(id, evento,fila, atendente);
                 _iChamadoService.AlterarFila(id, fila, atendente);
+
                 return Ok(e);
             }
             catch (Exception ex)

@@ -97,7 +97,7 @@ namespace Domain.Services
         {
             var c = BuscarPorId(codigo);
             var erro =_iChamadoValidate.PermiteFinalizar(c, atendente);
-            if (string.IsNullOrEmpty(erro))
+            if (!string.IsNullOrEmpty(erro))
             {
                 throw new Exception(erro);
             }

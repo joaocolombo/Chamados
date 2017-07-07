@@ -9,6 +9,7 @@ namespace Domain.Services.Validates
 {
     public class EventoValidate:IEventoValidate
     {
+        private string erro;
         private string AtendenteCorrente(Atendente atendenteAtual, Atendente atendenteNovo)
         {
             if (atendenteAtual.Nome != atendenteNovo.Nome)
@@ -29,7 +30,7 @@ namespace Domain.Services.Validates
 
          public string NovoEvento(Evento evento, Atendente atendente, Chamado chamado)
         {
-            var erro = "";
+            erro = "";
             erro += AtendenteCorrente(chamado.Atendente, atendente);
 
             if (string.IsNullOrEmpty(evento.Descricao))
@@ -46,7 +47,7 @@ namespace Domain.Services.Validates
 
         public string PermiteAlterarStatus(Evento evento, Atendente atendente, string status)
         {
-            var erro = AtendenteCorrente(atendente, evento.Atendente);
+            erro = AtendenteCorrente(atendente, evento.Atendente);
             erro += Finalizado(evento);
             if (string.IsNullOrEmpty(status))
             {
@@ -58,7 +59,7 @@ namespace Domain.Services.Validates
 
         public string PermiteAlterarDescricao(Evento evento, Atendente atendente, string descricao)
         {
-            var erro = AtendenteCorrente(atendente, evento.Atendente);
+            erro = AtendenteCorrente(atendente, evento.Atendente);
             erro += Finalizado(evento);
             if (string.IsNullOrEmpty(descricao))
             {
@@ -71,5 +72,15 @@ namespace Domain.Services.Validates
             return erro;
 
         }
+
+        public string NovoEventoFila(Fila fila)
+        {
+            if (fila.Codigo==0)
+            {
+                erro = "O Evento precisa de uma fila";
+            }
+            return erro;
+        }
+
     }
 }
