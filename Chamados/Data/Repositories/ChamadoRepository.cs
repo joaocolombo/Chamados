@@ -197,7 +197,53 @@ namespace Data.Repositories
 
         public IEnumerable<Chamado> BuscarPorFila(Fila fila)
         {
-            throw new NotImplementedException();
+            var sql = @"SELECT [CODIGO]
+                              ,[ASSUNTO]
+                              ,[STATUS]
+                              ,[FINALIZADO]
+                              ,[SOLICITANTE]
+                              ,'-'as '-'
+                              ,[CODIGO_FILIAL] AS CODIGO
+                          FROM[CHAMADOS].[dbo].[CHAMADO]
+                        WHERE [FILA] = @FILA";
+
+
+            var chamados = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
+                (ch, fi) =>
+                {
+                    ch.Filial = fi;
+                    return ch;
+                },
+             new { FILA = fila.Codigo }, splitOn: "-");
+
+            foreach (var chamado in chamados)
+            {
+                var eventos = _iEventoRepository.BuscarEventosPorChamado(chamado.Codigo);
+                var categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo);
+                var filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
+                chamado.Filial = filial;
+                chamado.Eventos = eventos;
+                chamado.Categorias = categorias;
+            }
+
+            ChamadosDb.CloseConnection();
+
+            return chamados;
+        }
+
+        public Chamado BuscarPorIdEvento(int codigoEvento)
+        {
+            var sql = @"SELECT A.[CODIGO]
+                                  ,[CODIGO_FILIAL]
+                                  ,[ASSUNTO]
+                                  ,[STATUS]
+                                  ,[FINALIZADO]
+                                  ,[SOLICITANTE]
+                                  ,[FILA]
+                              FROM [Chamados].[dbo].[CHAMADO] AS A
+                              JOIN EVENTO AS B ON A.CODIGO=B.CODIGO_CHAMADO 
+                              WHERE B.CODIGO=@CODIGOEVENTO";
+            return ChamadosDb.Conecection().Query<Chamado>(sql, new {CODIGOEVENTO = codigoEvento}).FirstOrDefault();
         }
     }
 }

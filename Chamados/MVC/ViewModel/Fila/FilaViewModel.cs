@@ -6,11 +6,14 @@ using Domain.Entities;
 
 namespace MVC.ViewModel.Fila
 {
-    public class ListaFilaViewModel
+    public class FilaViewModel
     {
         public int Codigo { get; set; }
         public string Descricao { get; set; }
         public List<Chamado> Lista { get; set; }
+        public int Quantidade { get; set; }
+
+
 
     }
 }

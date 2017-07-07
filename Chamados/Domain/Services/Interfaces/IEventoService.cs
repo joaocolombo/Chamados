@@ -11,6 +11,7 @@ namespace Domain.Services.Interfaces
         Evento Finalizar(Evento evento);
         Evento AlterarDescricao (int codigo, string descricao, Atendente antendente);
         Evento AlterarStatus (int codigo, string status, Atendente antendente);
+        Evento AlterarAtendente (int codigoChamado ,Atendente antendente);
         Evento BuscarPorId(int codigo);
         IEnumerable<Evento> BuscarEventosPorChamado(int codigoChamado);
         IEnumerable<object> BuscarStatus();

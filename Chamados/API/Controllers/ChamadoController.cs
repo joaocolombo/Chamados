@@ -173,9 +173,26 @@ namespace API.Controllers
                 var fila = JsonConvert.DeserializeObject<Fila>(value[0].ToString());
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
                 var evento = JsonConvert.DeserializeObject<Evento>(value[2].ToString());
-                _iEventoService.Adicionar(id, evento, atendente);
+               var e =_iEventoService.Adicionar(id, evento, atendente);
                 _iChamadoService.AlterarFila(id, fila, atendente);
-                return Ok(evento);
+                return Ok(e);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422, ex.Message);
+            }
+        }
+        [HttpPut("AssumirChamado/{id}")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult AssumirChamado([FromBody]object value, int id)
+        {
+            try
+            {
+
+                var atendenteNovo = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+                _iEventoService.AlterarAtendente(id ,atendenteNovo);
+                _iChamadoService.RemoverFila(id);
+                return Ok();
             }
             catch (Exception ex)
             {

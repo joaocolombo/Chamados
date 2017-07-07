@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Data.Repositories;
+using Domain.Services.Interfaces.Validates;
+using Domain.Services.Validates;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Cors.Internal;
 
@@ -61,6 +63,8 @@ namespace API
             services.AddScoped<ICategoriaService, CategoriaServise>();
             services.AddScoped<IFilaService, FilaService>();
             services.AddScoped<IFilaRepository, FilaRepository>();
+            services.AddScoped<IEventoValidate, EventoValidate>();
+            services.AddScoped<IChamadoValidate, ChamadoValidate>();
 
         }
 

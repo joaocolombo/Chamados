@@ -1,5 +1,4 @@
-﻿
-@model MVC.ViewModel.Home.FinalizarViewModel
+﻿@model MVC.ViewModel.Evento.AdicionarEventoViewModel
 
 @section pluginsStyle
 {
@@ -8,7 +7,7 @@
 }
 <div class="page">
     <div class="page-header">
-        <h1 class="page-title mb-10">Chamados</h1>
+        <h1 class="page-title mb-10">Chamado</h1>
     </div>
     <div class="page-content">
         <div class="container container-fluid">
@@ -16,15 +15,16 @@
                 <div class="col-md-8">
                     <div class="panel">
                         <div class="panel-heading">
-                            <h3 class="panel-title">Finalizar</h3>
+                            <h3 class="panel-title">Assumir</h3>
                         </div>
                         <div class="panel-body">
-                            <form asp-action="Finalizar" asp-controller="Home" method="post">
+                            <form asp-action="AssumirChamado" asp-controller="Fila" method="post">
                                 <div hidden="">
-                                    <input asp-for="NomeAtendente" Value="@Model.NomeAtendente" />
-                                    <input asp-for="Id" Value="@Model.Id" />
+                                    <input asp-for="NomeAtendenteNovo" Value="Jose" />
+                                    <input asp-for="ChamadoId"  />
+                                    <input asp-for="Atendente.Nome" />
                                 </div>
-                                <h4 class="panel-title">Apos finalizar, o Chamado não podera mais ser alterado, você tem certeza que deseja finaliza-lo?</h4>
+                                <h4 class="panel-title">Apos Assumir o Chamado  ele ira constar na sua fila, você tem certeza que deseja assumi-lo?</h4>
                                 <div class="text-right">
                                     <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Finalizar</button>
                                 </div>

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
 using Domain.Entities;
 using Domain.Repositories;
 using Domain.Services.Interfaces;
+using Domain.Services.Interfaces.Validates;
 
 namespace Domain.Services
 {
@@ -12,68 +15,46 @@ namespace Domain.Services
     {
         private readonly IEventoRepository _iEventoRepository;
         private readonly IChamadoService _iChamadoService;
+        private readonly IChamadoValidate _iChamadoValidate;
+        private readonly IEventoValidate _iEventoValidate;
 
-
-        public EventoService(IEventoRepository iEventoRepository, IChamadoService iChamadoService)
+        public EventoService(IEventoRepository iEventoRepository, IChamadoService iChamadoService, IChamadoValidate iChamadoValidate, IEventoValidate iEventoValidate )
         {
+            _iChamadoValidate = iChamadoValidate;
             _iEventoRepository = iEventoRepository;
             _iChamadoService = iChamadoService;
-
+            _iEventoValidate = iEventoValidate;
         }
 
-        private void ValidarAtendenteCorrente(Atendente atendente, Evento evento)
-        {
-            if (atendente.Nome != evento.Atendente.Nome)
-            {
-                throw new Exception("O Evento não pode ser adicionado/alterado por esse atendente");
-            }
-        }
 
-        private void ValidarEventoFinalizado(Evento evento)
-        {
-            if (evento.Encerramento != new DateTime(1900,01,01))
-            {
-                throw new Exception("Evento ja foi finalizado");
-            }
-        }
-        
         public Evento Adicionar(int codigoChamado, Evento evento, Atendente atendente)
         {
-            var erro = "";
-            ValidarAtendenteCorrente(atendente, evento);
-            if (string.IsNullOrEmpty(evento.Descricao))
-            {
-                erro = "Necessario preencher uma descricao";
-            }
-            if (string.IsNullOrEmpty(evento.Status))
-            {
-                erro += "Necessario selecionar um status";
-            }
+            var chamado = _iChamadoService.BuscarPorId(codigoChamado);
+            var erro =  _iEventoValidate.NovoEvento(evento, atendente,chamado);
+            erro += _iChamadoValidate.PermiteIncluirAlterarEvento(chamado);
+            _iChamadoService.RemoverFila(chamado.Codigo);
+            Finalizar(chamado.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());
+
             if (!string.IsNullOrEmpty(erro))
             {
                 throw new Exception(erro);
             }
-            var c = _iChamadoService.BuscarPorId(codigoChamado);
-            if (c.Finalizado)
-            {
-                throw new Exception("Chamado ja finalizado");
-            }
-            _iChamadoService.RemoverFila(c.Codigo);
-            Finalizar(c.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());
+
             evento.Abertura = DateTime.Now;
-            return _iEventoRepository.Adicionar(c, evento);
+            return _iEventoRepository.Adicionar(chamado, evento);
         }
 
         public Evento AlterarStatus(int codigo, string status, Atendente atendente)
         {
+            var chamado = _iChamadoService.BuscarPorIdEvento(codigo);
             var evento = _iEventoRepository.BuscarPorId(codigo);
-            ValidarEventoFinalizado(evento);
-            ValidarAtendenteCorrente(atendente, evento);
-            evento.Status = status;
-            if (string.IsNullOrEmpty(evento.Status))
+            var erro = _iChamadoValidate.PermiteIncluirAlterarEvento(chamado);
+            erro += _iEventoValidate.PermiteAlterarStatus(evento, atendente, status);
+            if (string.IsNullOrEmpty(erro))
             {
-                throw new Exception("Status em branco");
+                throw new Exception(erro);
             }
+            evento.Status = status;
 
             return _iEventoRepository.Alterar(evento);
         }
@@ -81,15 +62,15 @@ namespace Domain.Services
 
         public Evento AlterarDescricao(int codigo, string descricao, Atendente atendente)
         {
+            var chamado = _iChamadoService.BuscarPorIdEvento(codigo);
             var evento = _iEventoRepository.BuscarPorId(codigo);
-            ValidarEventoFinalizado(evento);
-            ValidarAtendenteCorrente(atendente,evento);
-
-            evento.Descricao = descricao;
-            if (evento.Descricao.Equals(""))
+            var erro = _iChamadoValidate.PermiteIncluirAlterarEvento(chamado);
+            erro += _iEventoValidate.PermiteAlterarDescricao(evento, atendente, descricao);
+            if (string.IsNullOrEmpty(erro))
             {
-                throw new Exception("Descricao em branco");
+                throw new Exception(erro);
             }
+            evento.Descricao = descricao;
 
             return _iEventoRepository.Alterar(evento);
         }
@@ -115,8 +96,26 @@ namespace Domain.Services
             return _iEventoRepository.BuscarStatus();
         }
 
+        public Evento AlterarAtendente(int codigoChamado, Atendente atendente)
+        {
+            var chamado = _iChamadoService.BuscarPorId(codigoChamado);
+            var evento = new Evento()
+            {
+                Abertura = DateTime.Now,
+                Atendente = atendente,
+                Descricao = "Chamado Foi Assumido",
+                Status = "ENCAMINHAR"
+            };
+            var erro = _iChamadoValidate.PermiteAlterarAtendente(chamado);
+            if (string.IsNullOrEmpty(erro))
+            {
+                throw new Exception(erro);
+            }
 
+            _iChamadoService.RemoverFila(chamado.Codigo);
+            Finalizar(chamado.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());
 
-
+            return _iEventoRepository.Adicionar(chamado, evento);
+        }
     }
 }

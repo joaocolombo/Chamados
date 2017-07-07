@@ -21,7 +21,12 @@ namespace Data.Repositories
             var sql = @"SELECT A.CODIGO
 	                  ,A.DESCRICAO
 	                  FROM FILA AS A";
-           var fila = ChamadosDb.Conecection().Query<Fila>(sql);
+           var filas = ChamadosDb.Conecection().Query<Fila>(sql);
+            foreach (var fila in filas)
+            {
+                fila.Lista = _iChamadoRepository.BuscarPorFila(fila).ToList();
+            }
+            return filas;
         }
 
         public Fila BuscarPorId(int codigo)
@@ -30,7 +35,9 @@ namespace Data.Repositories
 	                  ,A.DESCRICAO
 	                  FROM FILA AS A
                       WHERE CODIGO = @CODIGO";
-            return ChamadosDb.Conecection().Query<Fila>(sql, new {CODIGO=codigo}).FirstOrDefault();
+           var fila =ChamadosDb.Conecection().Query<Fila>(sql, new {CODIGO=codigo}).FirstOrDefault();
+            fila.Lista = _iChamadoRepository.BuscarPorFila(fila).ToList();
+            return fila;
         }
     }
 }

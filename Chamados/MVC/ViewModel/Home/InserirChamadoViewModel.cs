@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities;
 
-namespace MVC.ViewModel.Evento
+namespace MVC.ViewModel.Home
 {
     public class InserirChamadoViewModel
     {

@@ -12,6 +12,8 @@ namespace Domain.Repositories
         IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, bool finalizado);
         IEnumerable<Chamado> BuscarPorFilial(Filial filial);
         IEnumerable<Chamado> BuscarPorFila(Fila fila);
+        Chamado BuscarPorIdEvento(int codigoEvento);
+
 
 
 

@@ -39,6 +39,21 @@ namespace API.Controllers
             };
             return Ok(retorno);
         }
+        [HttpGet("BuscarTodos/Cabecarios")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult BuscarTodosCabecarios()
+        {
+            try
+            {
+                var filas = _iFilaService.BuscarFila().Select(x =>
+                    new {Codigo = x.Codigo, Descricao = x.Descricao, Quantidade = x.Lista.Count});
+                return Ok(filas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422, ex.Message);
+            }
+        }
 
         [HttpGet("BuscarTodos")]
         [EnableCors("LiberarAcessoExterno")]
