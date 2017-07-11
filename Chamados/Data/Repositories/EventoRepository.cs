@@ -12,6 +12,13 @@ namespace Data.Repositories
 {
     public class EventoRepository : IEventoRepository
     {
+        private readonly IAtendenteRepository _iAtendenteRepository;
+
+        public EventoRepository(IAtendenteRepository iAtendenteRepository)
+        {
+            _iAtendenteRepository = iAtendenteRepository;
+        }
+         
         public Evento Adicionar(Chamado chamado, Evento evento)
         {
             if (evento.Encerramento == DateTime.MinValue)
@@ -91,7 +98,7 @@ namespace Data.Repositories
             }, new {CODIGO= e.Codigo}, splitOn: "NOME").ToList();
 
             foreach (var evento in eventos)
-                evento.Atendente = AtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
+                evento.Atendente = _iAtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
             ChamadosDb.CloseConnection();
             return eventos;
 
@@ -115,7 +122,7 @@ namespace Data.Repositories
             }, new { CODIGO = codigoChamado }, splitOn: "NOME").ToList();
 
             foreach (var evento in eventos)
-                evento.Atendente = AtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
+                evento.Atendente = _iAtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
             ChamadosDb.CloseConnection();
             return eventos;
 
@@ -139,7 +146,7 @@ namespace Data.Repositories
             },
             new { CODIGO = codigo }, splitOn: "NOME").FirstOrDefault();
 
-            evento.Atendente = AtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
+            evento.Atendente = _iAtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
             ChamadosDb.CloseConnection();
 
             return evento;

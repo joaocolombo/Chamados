@@ -22,37 +22,45 @@ namespace MVC.Controllers
     public class HomeController : Controller
     {
         private string url = "http://10.1.0.4";
+
         [HttpGet]
         public IActionResult Novo()
         {
             return PartialView("_Novo");
         }
+
         [HttpGet]
         public IActionResult AlterarAssunto(string id, string assunto)
         {
             return PartialView("_AlterarAssunto", new AlterarAssuntoViewModel() { Assunto = assunto, Id = id });
         }
+
         [HttpGet]
         public IActionResult AlterarFilial(string id, string filial)
         {
             return PartialView("_AlterarFilial", new AlterarFilialViewModel() { Id = id, Filial = filial });
         }
+
         [HttpGet]
 
         public IActionResult AlterarCategoria(string id, IEnumerable<int> categorias)
         {
             return PartialView("_AlterarCategoria", new AlterarCategoriaViewModel() { Id = id, Categorias = categorias });
         }
+
         [HttpGet]
         public IActionResult AlterarSolicitante(string id, string solicitante)
         {
-            return PartialView("_AlterarSolicitante", new AlterarSolicitanteViewModel() { Id = id, Solicitante = solicitante });
+            return PartialView("_AlterarSolicitante",
+                new AlterarSolicitanteViewModel() { Id = id, Solicitante = solicitante });
         }
+
         [HttpGet]
         public IActionResult Finalizar(string id, string nomeAtendente)
         {
             return PartialView("_Finalizar", new FinalizarViewModel() { Id = id, NomeAtendente = nomeAtendente });
         }
+
         [HttpGet]
         public IActionResult Imagem(string id)
         {
@@ -61,45 +69,44 @@ namespace MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Imagem(List<IFormFile> files)
+        public async Task<IActionResult> Imagem(IFormFile file)
         {
+            // full path to file in temp location
+            var filePath = Path.GetTempFileName();
 
+            if (file.Length > 0)
             {
-                long size = files.Sum(f => f.Length);
-
-                // full path to file in temp location
-                var filePath = Path.GetTempFileName();
-
-                foreach (var formFile in files)
+                using (var stream = new FileStream("c:\\temp\\" + file.FileName, FileMode.Create))
                 {
-                    if (formFile.Length > 0)
-                    {
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await formFile.CopyToAsync(stream);
-                        }
-                    }
+                    await file.CopyToAsync(stream);
+
                 }
 
-                // process uploaded files
-                // Don't rely on or trust the FileName property without validation.
+            }// process uploaded files
+            // Don't rely on or trust the FileName property without validation.
 
-                return Ok(new { count = files.Count, size, filePath });
-            }
-
+            return Ok(new { filePath, file.Name, file.FileName });
         }
+
 
 
 
         [HttpGet]
         public IActionResult Index()
         {
+            //#if debug
+            CookieOptions cookies = new CookieOptions();
+            cookies.Expires = DateTime.Now.AddDays(1);
+            Response.Cookies.Append("3B0A953170186B25414F47C59F15137B", "33");
+
+            //3B0A953170186B25414F47C59F15137B
+            //#else
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(url + "/api/chamado/buscarporatendente/joao/1");
+                client.BaseAddress = new Uri(url + "/api/chamado/buscarporatendente");
                 var contentType = new MediaTypeWithQualityHeaderValue("application/json");
                 client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response = client.GetAsync("/api/chamado/buscarporatendente/joao/1").Result;
+                var response = client.GetAsync("/api/chamado/buscarporatendente/"+Request.Cookies["3B0A953170186B25414F47C59F15137B"]+"/1").Result;
                 var stringData = response.Content.ReadAsStringAsync().Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -176,12 +183,17 @@ namespace MVC.Controllers
         public IActionResult AlterarSolicitante(AlterarSolicitanteViewModel alterarSolicitante)
         {
 
+
             if (string.IsNullOrEmpty(alterarSolicitante.Solicitante))
             {
                 return StatusCode(422, "Prencha o Solicitante");
             }
 
-            var json = JsonConvert.SerializeObject(new Atendente() { Nome = alterarSolicitante.NomeAtendente });
+            var json = JsonConvert.SerializeObject(new Atendente()
+            {
+                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+            });
+
 
             using (var client = new HttpClient())
             {
@@ -215,7 +227,7 @@ namespace MVC.Controllers
                 Descricao = inserirChamadoViewModel.Descricao,
                 Atendente = new Atendente()
                 {
-                    Nome = inserirChamadoViewModel.NomeAtendente
+                    Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
                 },
                 Status = inserirChamadoViewModel.Status
 
@@ -264,7 +276,10 @@ namespace MVC.Controllers
         [HttpPost]
         public IActionResult Finalizar(FinalizarViewModel finalizar)
         {
-            var json = JsonConvert.SerializeObject(new Atendente() { Nome = finalizar.NomeAtendente });
+            var json = JsonConvert.SerializeObject(new Atendente()
+            {
+                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+            });
             using (var client = new HttpClient())
             {
 
@@ -294,7 +309,10 @@ namespace MVC.Controllers
         {
             List<Categoria> listaCategoria = new List<Categoria>();
 
-            var atendente = JsonConvert.SerializeObject(new Atendente() { Nome = alterarCategoria.Atendente });
+            var atendente = JsonConvert.SerializeObject(new Atendente()
+            {
+                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+            });
             if (alterarCategoria.Categorias != null)
             {
 
@@ -337,7 +355,10 @@ namespace MVC.Controllers
         [HttpPost]
         public IActionResult AlterarAssunto(AlterarAssuntoViewModel alterarAssunto)
         {
-            var json = JsonConvert.SerializeObject(new Atendente() { Nome = alterarAssunto.Atendente });
+            var json = JsonConvert.SerializeObject(new Atendente()
+            {
+                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+            });
             if (string.IsNullOrEmpty(alterarAssunto.Assunto))
             {
                 return StatusCode(422, "Prencha o Assunto");
@@ -369,7 +390,10 @@ namespace MVC.Controllers
         [HttpPost]
         public IActionResult AlterarFilial(AlterarFilialViewModel alterarFilial)
         {
-            var atendente = JsonConvert.SerializeObject(new Atendente() { Nome = alterarFilial.Atendente });
+            var atendente = JsonConvert.SerializeObject(new Atendente()
+            {
+                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+            });
             var filial = JsonConvert.SerializeObject(new Filial() { Codigo = alterarFilial.Filial });
             List<object> lista = new List<object>();
             lista.Add(filial);

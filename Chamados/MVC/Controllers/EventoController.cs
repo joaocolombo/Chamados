@@ -232,7 +232,7 @@ namespace MVC.Controllers
             lista.Add(eventoJson);
             var json = JsonConvert.SerializeObject(lista);
 
-            var response = PutMethodEvento("/api/Chamado/Encaminhar/{id}", "/api/Chamado/Encaminhar/" + eventoViewModel.Codigo, json);
+            var response = PutMethodEvento("/api/Chamado/Encaminhar/{id}", "/api/Chamado/Encaminhar/" + eventoViewModel.ChamadoId, json);
 
             if (response.IsSuccessStatusCode)
             {

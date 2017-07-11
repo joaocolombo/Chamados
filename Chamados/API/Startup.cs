@@ -65,6 +65,8 @@ namespace API
             services.AddScoped<IFilaRepository, FilaRepository>();
             services.AddScoped<IEventoValidate, EventoValidate>();
             services.AddScoped<IChamadoValidate, ChamadoValidate>();
+            services.AddScoped<IAtendenteRepository, AtendenteRepository>();
+            services.AddScoped<IAtendenteService, AtendenteService>();
 
         }
 

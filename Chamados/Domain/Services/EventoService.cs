@@ -134,7 +134,7 @@ namespace Domain.Services
         {
             var chamado = _iChamadoService.BuscarPorId(codigoChamado);
             erro = _iEventoValidate.PermiteAlterarAtendente(evento);
-            erro += _iChamadoValidate.PermiteEncaminhar(chamado, atendente);
+            erro += _iChamadoValidate.PermiteEncaminhar(chamado, atendente, evento);
 
 
             if (!string.IsNullOrEmpty(erro))

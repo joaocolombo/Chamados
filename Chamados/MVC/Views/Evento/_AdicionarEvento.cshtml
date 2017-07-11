@@ -45,13 +45,13 @@
                             </div>
                             <div class="form-group" id="encaminharAtendente" style="display: none">
                                 <label class="form-control-label">ENCAMINHAR PARA</label>
-                                <select asp-for="Status" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/evento/select2/buscarstatus"></select>
+                                <select asp-for="NomeAtendenteNovo" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/atendente/select2/BuscarTodos"></select>
                             </div>
                             <div class="hidden">
-                                <input asp-for="Atendente.Nome" Value="Joao" hidden />
+                                <input asp-for="Atendente.Nome" Value="joao.colombo" hidden />
                             </div>
                             <div class="hidden">
-                                <input asp-for="Atendente.Nivel" Value="N2" hidden />
+                                <input asp-for="Atendente.Nivel" Value="Desenvolvimento" hidden />
                             </div>
                             <div class="hidden">
                                 <input asp-for="ChamadoId" hidden />

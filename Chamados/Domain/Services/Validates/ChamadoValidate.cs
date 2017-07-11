@@ -145,9 +145,13 @@ namespace Domain.Services.Validates
             return erro;
         }
 
-        public string PermiteEncaminhar(Chamado chamado, Atendente atendente)
+        public string PermiteEncaminhar(Chamado chamado, Atendente atendente, Evento evento)
         {
             var erro = PermiteAlteracao(chamado,atendente);
+            if (string.IsNullOrEmpty(evento.Atendente.Nome))
+            {
+                erro = "Necessario preencher o atendente destino. ";
+            }
             return erro;
 
         }
