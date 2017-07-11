@@ -13,6 +13,8 @@ namespace Domain.Repositories
         IEnumerable<Chamado> BuscarPorFilial(Filial filial);
         IEnumerable<Chamado> BuscarPorFila(Fila fila);
         Chamado BuscarPorIdEvento(int codigoEvento);
+        IEnumerable<object> SelectGenerico(string tabela, string parametros, string draw, string orderby, string orderbyDirecao);
+        int TotalRegistros(string tabela, string parametros);
 
 
 

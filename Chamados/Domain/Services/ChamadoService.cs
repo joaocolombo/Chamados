@@ -150,5 +150,15 @@ namespace Domain.Services
         {
             return _iChamadoRepository.BuscarPorStatus(status);
         }
+
+        public IEnumerable<object> SelectGenerico(string tabela, string parametros,string draw, string orderby, string orderbyDirecao)
+        {
+            return _iChamadoRepository.SelectGenerico(tabela, parametros, draw, orderby, orderbyDirecao);
+        }
+
+        public int TotalRegistros(string tabela, string parametros)
+        {
+            return 100;
+        }
     }
 }

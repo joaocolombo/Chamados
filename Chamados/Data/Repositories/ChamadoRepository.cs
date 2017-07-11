@@ -245,5 +245,34 @@ namespace Data.Repositories
                               WHERE B.CODIGO=@CODIGOEVENTO";
             return ChamadosDb.Conecection().Query<Chamado>(sql, new {CODIGOEVENTO = codigoEvento}).FirstOrDefault();
         }
+
+        //------
+
+        public IEnumerable<object> SelectGenerico(string tabela, string parametros, string draw, string orderby, string orderbyDirecao )
+        {
+            var sql =@"select COLUNA.name from SYS.columns AS COLUNA
+                        JOIN SYS.tables AS TABELA ON COLUNA.object_id = TABELA.object_id WHERE TABELA.name ='"+ tabela+"'";
+
+            var colunas = ChamadosDb.Conecection().Query<string>(sql);
+            
+            sql = "SELECT top("+draw+") * FROM " + tabela;
+
+            if (!string.IsNullOrEmpty(parametros))
+            {
+                sql += " where ";
+                foreach (var coluna in colunas)
+                {
+                    sql += coluna + " like '%" + parametros + "%' or ";
+                }
+                sql += " 0=1";
+            }
+
+            return ChamadosDb.Conecection().Query(sql);
+        }
+
+        public int TotalRegistros(string tabela, string parametros)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

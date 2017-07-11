@@ -135,7 +135,7 @@ namespace Domain.Services.Validates
             return erro;
         }
 
-        public string PermiteAlterarAtendente(Chamado chamado)
+        public string PermiteAssumir(Chamado chamado)
         {
             var erro = Finalizado(chamado);
             if (chamado.Fila == null)
@@ -143,6 +143,13 @@ namespace Domain.Services.Validates
                 erro += "Chamado precisa estar em uma fila. ";
             }
             return erro;
+        }
+
+        public string PermiteEncaminhar(Chamado chamado, Atendente atendente)
+        {
+            var erro = PermiteAlteracao(chamado,atendente);
+            return erro;
+
         }
     }
 }

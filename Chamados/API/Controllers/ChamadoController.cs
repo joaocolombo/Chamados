@@ -1,6 +1,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
+using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
@@ -183,6 +185,25 @@ namespace API.Controllers
                 return StatusCode(422, ex.Message);
             }
         }
+        [HttpPut("Encaminhar/{id}")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult EncaminharOutroAtendente([FromBody]List<object> value, int id)
+        {
+            try
+            {
+
+                var atendente = JsonConvert.DeserializeObject<Atendente>(value[0].ToString());
+                var evento = JsonConvert.DeserializeObject<Evento>(value[1].ToString());
+                var e = _iEventoService.AdicionarEventoOutroAtendente(id, evento, atendente);
+                
+                return Ok(e);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422, ex.Message);
+            }
+        }
+
         [HttpPut("AssumirChamado/{id}")]
         [EnableCors("LiberarAcessoExterno")]
         public IActionResult AssumirChamado([FromBody]object value, int id)
@@ -191,7 +212,7 @@ namespace API.Controllers
             {
 
                 var atendenteNovo = JsonConvert.DeserializeObject<Atendente>(value.ToString());
-                _iEventoService.AlterarAtendente(id ,atendenteNovo);
+                _iEventoService.AssumirChamado(id ,atendenteNovo);
                 _iChamadoService.RemoverFila(id);
                 return Ok();
             }
@@ -200,6 +221,38 @@ namespace API.Controllers
                 return StatusCode(422, ex.Message);
             }
         }
+        [HttpGet("Tabela/{tabela}/{draw}/{start}/{length}/{sortColumn}/{sortColumnDir}/{searchFilter}")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult TabelaChamados(string tabela,string draw,string start,string length, 
+            string sortColumn, string sortColumnDir, string searchFilter )
+        {
+            
+            
+            //var draw = values("draw").FirstOrDefault(); //qtd linhas da tabela
+            //var start = Request.Form.GetValues("start").FirstOrDefault(); //primeira linha
+            //var length = Request.Form.GetValues("length").FirstOrDefault();//qtd total de registros
+            //var sortColumn =Request.Form.GetValues("columns[" + Request.Form.GetValues("order[0][column]").FirstOrDefault() +
+            //                         "][name]").FirstOrDefault();//coluna que sera ordenada
+            // var sortColumnDir = Request.Form.GetValues("order[0][dir]").FirstOrDefault();//forma de ordenação desc 
+            // var searchFilter = Request.Form.GetValues("search[value]").FirstOrDefault();// parametro filtro
+
+            var pageSize = length != null ? Convert.ToInt32(length) : 0;
+            var skip = start != null ? Convert.ToInt32(start) : 0;
+
+
+            var data = _iChamadoService.SelectGenerico(tabela, searchFilter,draw, sortColumn, sortColumnDir);
+
+            var recordsTotal = _iChamadoService.TotalRegistros(tabela, searchFilter);//total de linas na tabela 
+
+            return Json(new
+            {
+                draw,
+                recordsTotal,
+                recordsFiltered = recordsTotal,
+                data = data
+            });
+        }
+
 
     }
 }

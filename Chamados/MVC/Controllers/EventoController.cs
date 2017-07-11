@@ -27,6 +27,22 @@ namespace MVC.Controllers
             return PartialView("_AdicionarEvento", new AdicionarEventoViewModel() { ChamadoId = id });
         }
 
+        private HttpResponseMessage PutMethodEvento(string uri, string uriParametros, string json)
+        {
+            using (var client = new HttpClient())
+            {
+
+                client.BaseAddress = new Uri(url + uri);
+                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
+                client.DefaultRequestHeaders.Accept.Add(contentType);
+                return client.PutAsync(url + uriParametros, new StringContent(json, Encoding.UTF8, "application/json"))
+                        .Result;
+
+
+            }
+        }
+
+
         private AdicionarEventoViewModel ConvertEventoToViewModel(Evento evento)
         {
             return new AdicionarEventoViewModel()
@@ -43,7 +59,7 @@ namespace MVC.Controllers
 
         [HttpGet]
         public IActionResult Visualizar(string id)
-            {
+        {
 
             using (var client = new HttpClient())
             {
@@ -56,7 +72,7 @@ namespace MVC.Controllers
                 var stringData = response.Content.ReadAsStringAsync().Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    var eventoVM =ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(stringData));
+                    var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(stringData));
                     return View(eventoVM);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
@@ -84,38 +100,30 @@ namespace MVC.Controllers
         {
             return PartialView("_AlterarStatus", new AlterarStatusViewModel() { Id = id, Status = status });
         }
-      
+
 
         [HttpPost]
         public IActionResult AlterarDescricao(AlterarDescricaoViewModel alterarDescricao)
         {
             {
                 var json = JsonConvert.SerializeObject(new Atendente() { Nome = alterarDescricao.NomeAtendente });
+                var response = PutMethodEvento("/api/Evento/AlterarDescricao/{descricao}/{id}",
+                    "/api/Evento/AlterarDescricao/" + alterarDescricao.Descricao + "/" +
+                    alterarDescricao.Id, json);
 
-                using (var client = new HttpClient())
+                if (response.IsSuccessStatusCode)
                 {
-
-                    client.BaseAddress = new Uri(url + "/api/Evento/AlterarDescricao/{descricao}/{id}");
-                    var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                    client.DefaultRequestHeaders.Accept.Add(contentType);
-                    var response =
-                        client.PutAsync(
-                                url + "/api/Evento/AlterarDescricao/" + alterarDescricao.Descricao + "/" +
-                                alterarDescricao.Id, new StringContent(json, Encoding.UTF8, "application/json"))
-                            .Result;
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var eventoVM =ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
-                        return PartialView("~/Views/Evento/_Visualizar.cshtml", eventoVM);
-                    }
-                    if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                    {
-                        return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                    }
-                    return View(response.Content.ReadAsStringAsync().Result);
-
-
+                    var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
+                    return PartialView("~/Views/Evento/_Visualizar.cshtml", eventoVM);
                 }
+                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
+                {
+                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
+                }
+                return View(response.Content.ReadAsStringAsync().Result);
+
+
+
             }
         }
         [HttpPost]
@@ -123,48 +131,40 @@ namespace MVC.Controllers
         {
             {
                 var json = JsonConvert.SerializeObject(new Atendente() { Nome = alterarStatus.NomeAtendente });
+                var response = PutMethodEvento("/api/Evento/AlterarStatus/{status}/{id}",
+                    "/api/Evento/AlterarStatus/" + alterarStatus.Status + "/" +
+                    alterarStatus.Id, json);
 
-                using (var client = new HttpClient())
+                if (response.IsSuccessStatusCode)
                 {
-
-                    client.BaseAddress = new Uri(url + "/api/Evento/AlterarStatus/{status}/{id}");
-                    var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                    client.DefaultRequestHeaders.Accept.Add(contentType);
-                    var response =
-                        client.PutAsync(
-                                url + "/api/Evento/AlterarStatus/" + alterarStatus.Status + "/" +
-                                alterarStatus.Id, new StringContent(json, Encoding.UTF8, "application/json"))
-                            .Result;
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
-                        return PartialView("~/Views/Evento/_Visualizar.cshtml", eventoVM);
-                    }
-                    if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                    {
-                        return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                    }
-                    return View(response.Content.ReadAsStringAsync().Result);
-
+                    var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
+                    return PartialView("~/Views/Evento/_Visualizar.cshtml", eventoVM);
                 }
+                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
+                {
+                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
+                }
+                return View(response.Content.ReadAsStringAsync().Result);
+
+
             }
         }
 
         [HttpPost]
-        public IActionResult DirecionarNovoEvento(AdicionarEventoViewModel AdicionarEvento)
+        public IActionResult DirecionarNovoEvento(AdicionarEventoViewModel adicionarEvento)
         {
-            if (AdicionarEvento.Direcao == 1)
+            if (adicionarEvento.Direcao == 1)
             {
-                return Novo(AdicionarEvento);
+                return Novo(adicionarEvento);
             }
-            else if (AdicionarEvento.Direcao == 2)
+            else if (adicionarEvento.Direcao == 2)
             {
-                return AlterarFila(AdicionarEvento);
+                return AlterarFila(adicionarEvento);
 
             }
             else
             {
-                return Ok();
+                return EncaminharOutroAtendente(adicionarEvento);
             }
         }
         [HttpPost]
@@ -192,51 +192,82 @@ namespace MVC.Controllers
             lista.Add(eventoJson);
             var json = JsonConvert.SerializeObject(lista);
 
-            using (var client = new HttpClient())
+            var response =
+                PutMethodEvento("/api/Chamado/AlterarFila/{id}",
+                    "/api/Chamado/AlterarFila/" + eventoViewModel.ChamadoId, json);
+
+            if (response.IsSuccessStatusCode)
             {
-
-                client.BaseAddress = new Uri(url + "/api/Chamado/AlterarFila/{id}");
-                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response =
-                    client.PutAsync(url + "/api/Chamado/AlterarFila/" + eventoViewModel.ChamadoId, new StringContent(json, Encoding.UTF8, "application/json"))
-                        .Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
-                    return PartialView("~/Views/Evento/_Evento.cshtml", eventoVM);
-                }
-                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                {
-                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                }
-                return StatusCode(500, response.Content.ReadAsStringAsync().Result);
-
+                var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
+                return PartialView("~/Views/Evento/_Evento.cshtml", eventoVM);
             }
-        }
-
-        [HttpPost]
-        public IActionResult Novo(AdicionarEventoViewModel AdicionarEvento)
-        {
-            if (string.IsNullOrEmpty(AdicionarEvento.NomeAtendenteNovo))
+            if (response.ReasonPhrase.Equals("Unprocessable Entity"))
             {
-                AdicionarEvento.NomeAtendenteNovo = AdicionarEvento.Atendente.Nome;
+                return StatusCode(422, response.Content.ReadAsStringAsync().Result);
+            }
+            return StatusCode(500, response.Content.ReadAsStringAsync().Result);
+
+
+        }
+        [HttpPost]
+        public IActionResult EncaminharOutroAtendente(AdicionarEventoViewModel eventoViewModel)
+        {
+
+            var atendenteJson = JsonConvert.SerializeObject(new Atendente() { Nome = eventoViewModel.Atendente.Nome });
+
+            var evento = new Evento()
+            {
+                Descricao = eventoViewModel.Descricao,
+                Atendente = new Atendente()
+                {
+                    Nome = eventoViewModel.NomeAtendenteNovo
+                },
+                Status = "ENCAMINHAR"
+
+            };
+            var eventoJson = JsonConvert.SerializeObject(evento);
+
+            List<object> lista = new List<object>();
+            lista.Add(atendenteJson);
+            lista.Add(eventoJson);
+            var json = JsonConvert.SerializeObject(lista);
+
+            var response = PutMethodEvento("/api/Chamado/Encaminhar/{id}", "/api/Chamado/Encaminhar/" + eventoViewModel.Codigo, json);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
+                return PartialView("~/Views/Evento/_Evento.cshtml", eventoVM);
+            }
+            if (response.ReasonPhrase.Equals("Unprocessable Entity"))
+            {
+                return StatusCode(422, response.Content.ReadAsStringAsync().Result);
+            }
+            return StatusCode(500, response.Content.ReadAsStringAsync().Result);
+
+        }
+        [HttpPost]
+        public IActionResult Novo(AdicionarEventoViewModel adicionarEvento)
+        {
+            if (string.IsNullOrEmpty(adicionarEvento.NomeAtendenteNovo))
+            {
+                adicionarEvento.NomeAtendenteNovo = adicionarEvento.Atendente.Nome;
             }
 
             var evento = new Evento()
             {
-                Descricao = AdicionarEvento.Descricao,
+                Descricao = adicionarEvento.Descricao,
                 Atendente = new Atendente()
                 {
-                    Nome = AdicionarEvento.NomeAtendenteNovo
+                    Nome = adicionarEvento.NomeAtendenteNovo
                 },
-                Status = AdicionarEvento.Status
+                Status = adicionarEvento.Status
 
             };
-            var atendente = new Atendente() { Nome = AdicionarEvento.Atendente.Nome };
+            var atendente = new Atendente() { Nome = adicionarEvento.Atendente.Nome };
 
             List<object> lista = new List<object>();
-            lista.Add(AdicionarEvento.ChamadoId);
+            lista.Add(adicionarEvento.ChamadoId);
             lista.Add(JsonConvert.SerializeObject(atendente));
             lista.Add(JsonConvert.SerializeObject(evento));
 
@@ -248,12 +279,15 @@ namespace MVC.Controllers
                 var contentType = new MediaTypeWithQualityHeaderValue("application/json");
                 client.DefaultRequestHeaders.Accept.Add(contentType);
                 var response =
-                    client.PostAsync(url + "/api/Evento/Adicionar", new StringContent(json, Encoding.UTF8, "application/json"))
+                    client.PostAsync(url + "/api/Evento/Adicionar",
+                            new StringContent(json, Encoding.UTF8, "application/json"))
                         .Result;
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var eventoVM = ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
+                    var eventoVM =
+                        ConvertEventoToViewModel(
+                            JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result));
                     return PartialView("~/Views/Evento/_Evento.cshtml", eventoVM);
                 }
                 if (response.ReasonPhrase.Equals("Unprocessable Entity"))
@@ -261,8 +295,8 @@ namespace MVC.Controllers
                     return StatusCode(422, response.Content.ReadAsStringAsync().Result);
                 }
                 return View(response.Content.ReadAsStringAsync().Result);
-
             }
+
         }
     }
 }

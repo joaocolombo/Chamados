@@ -108,7 +108,7 @@ namespace Domain.Services
             return _iEventoRepository.BuscarStatus();
         }
 
-        public Evento AlterarAtendente(int codigoChamado, Atendente atendente)
+        public Evento AssumirChamado(int codigoChamado, Atendente atendente)
         {
             var chamado = _iChamadoService.BuscarPorId(codigoChamado);
             var evento = new Evento()
@@ -118,7 +118,7 @@ namespace Domain.Services
                 Descricao = "Chamado Foi Assumido",
                 Status = "ENCAMINHAR"
             };
-            erro = _iChamadoValidate.PermiteAlterarAtendente(chamado);
+            erro = _iChamadoValidate.PermiteAssumir(chamado);
             if (string.IsNullOrEmpty(erro))
             {
                 throw new Exception(erro);
@@ -127,6 +127,23 @@ namespace Domain.Services
             _iChamadoService.RemoverFila(chamado.Codigo);
             Finalizar(chamado.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());
 
+            return _iEventoRepository.Adicionar(chamado, evento);
+        }
+
+        public Evento AdicionarEventoOutroAtendente(int codigoChamado, Evento evento, Atendente atendente)
+        {
+            var chamado = _iChamadoService.BuscarPorId(codigoChamado);
+            erro = _iEventoValidate.PermiteAlterarAtendente(evento);
+            erro += _iChamadoValidate.PermiteEncaminhar(chamado, atendente);
+
+
+            if (!string.IsNullOrEmpty(erro))
+            {
+                throw new Exception(erro);
+            }
+
+            Finalizar(chamado.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());
+            evento.Abertura = DateTime.Now;
             return _iEventoRepository.Adicionar(chamado, evento);
         }
     }

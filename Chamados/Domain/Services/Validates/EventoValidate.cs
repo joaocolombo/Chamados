@@ -82,5 +82,18 @@ namespace Domain.Services.Validates
             return erro;
         }
 
+        public string PermiteAlterarAtendente(Evento evento)
+        {
+            
+            if (string.IsNullOrEmpty(evento.Descricao))
+            {
+                erro += "O status precisa ser preenchido. ";
+            }
+            if (evento.Descricao.Length < 5)
+            {
+                erro += "O status precisa ter mais que 5 caracteres. ";
+            }
+            return erro;
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace Domain.Services.Interfaces.Validates
         string PermiteAlterarFila(Chamado chamado, Atendente atendente, Fila fila);
         string PermiteFinalizar(Chamado chamado, Atendente atendente);
         string PermiteIncluirAlterarEvento(Chamado chamado);
-        string PermiteAlterarAtendente(Chamado chamado);
+        string PermiteAssumir(Chamado chamado);
+        string PermiteEncaminhar(Chamado chamado, Atendente atendente);
     }
 }
