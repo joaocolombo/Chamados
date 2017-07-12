@@ -81,22 +81,20 @@ namespace Domain.Services
             {
                 throw new Exception(erro);
             }
-            chamado.Fila = fila;
-            _iChamadoRepository.Alterar(chamado);
+
+            _iChamadoRepository.AdicionarNaFila(codigo, fila);
         }
         //Este metodo vem somente do Evento.Adicionar e Evento.Assumir
         public void RemoverFila(int codigo)
         {
-            var c = _iChamadoRepository.BuscarPorId(codigo);
-            c.Fila = new Fila() { Codigo = 0 };
-            _iChamadoRepository.Alterar(c);
+            _iChamadoRepository.RemoveDaFila(codigo);
         }
 
 
         public void Finalizar(int codigo, Atendente atendente)
         {
             var c = BuscarPorId(codigo);
-            var erro =_iChamadoValidate.PermiteFinalizar(c, atendente);
+            var erro = _iChamadoValidate.PermiteFinalizar(c, atendente);
             if (!string.IsNullOrEmpty(erro))
             {
                 throw new Exception(erro);
@@ -128,7 +126,7 @@ namespace Domain.Services
 
         public Chamado BuscarPorIdEvento(int codigoEvento)
         {
-           return _iChamadoRepository.BuscarPorIdEvento(codigoEvento);
+            return _iChamadoRepository.BuscarPorIdEvento(codigoEvento);
         }
 
         public IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, bool finalizado)
@@ -151,7 +149,7 @@ namespace Domain.Services
             return _iChamadoRepository.BuscarPorStatus(status);
         }
 
-        public IEnumerable<object> SelectGenerico(string tabela, string parametros,string draw, string orderby, string orderbyDirecao)
+        public IEnumerable<object> SelectGenerico(string tabela, string parametros, string draw, string orderby, string orderbyDirecao)
         {
             return _iChamadoRepository.SelectGenerico(tabela, parametros, draw, orderby, orderbyDirecao);
         }

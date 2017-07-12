@@ -17,10 +17,12 @@ namespace API.Controllers
     {
 
         private readonly IEventoService _iEventoService;
+        private readonly IAtendenteService _iAtendenteService;
 
-        public EventoController(IEventoService iEventoService)
+        public EventoController(IEventoService iEventoService, IAtendenteService iAtendenteService)
         {
             _iEventoService = iEventoService;
+            _iAtendenteService = iAtendenteService;
         }
 
 
@@ -33,7 +35,9 @@ namespace API.Controllers
             {
                 var chamado = Convert.ToInt32(value[0]);
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
                 var evento = JsonConvert.DeserializeObject<Evento>(value[2].ToString());
+                evento.Atendente= _iAtendenteService.BuscarAtendente(evento.Atendente.Codigo);
                 return Ok(_iEventoService.Adicionar(chamado, evento, atendente));
             }
             catch (Exception ex)
@@ -73,7 +77,8 @@ namespace API.Controllers
             try
             {
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
-              
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
+
                 return Ok(_iEventoService.AlterarDescricao(id, descricao, atendente));
             }
             catch (Exception ex)
@@ -89,6 +94,7 @@ namespace API.Controllers
             try
             {
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
 
                 return Ok(_iEventoService.AlterarStatus(id, status, atendente));
             }

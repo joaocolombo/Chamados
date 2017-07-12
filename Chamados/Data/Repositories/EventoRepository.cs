@@ -76,7 +76,7 @@ namespace Data.Repositories
             ChamadosDb.ExecuteQueries(comando);
             ChamadosDb.CloseConnection();
 
-            return evento;
+            return BuscarPorId(evento.Codigo);
         }
 
         public List<Evento> BuscarEventosPorChamado(Evento e)

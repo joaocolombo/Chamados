@@ -106,7 +106,10 @@ namespace MVC.Controllers
         public IActionResult AlterarDescricao(AlterarDescricaoViewModel alterarDescricao)
         {
             {
-                var json = JsonConvert.SerializeObject(new Atendente() { Nome = alterarDescricao.NomeAtendente });
+                var json = JsonConvert.SerializeObject(new Atendente()
+                {
+                    Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+                });
                 var response = PutMethodEvento("/api/Evento/AlterarDescricao/{descricao}/{id}",
                     "/api/Evento/AlterarDescricao/" + alterarDescricao.Descricao + "/" +
                     alterarDescricao.Id, json);
@@ -130,7 +133,10 @@ namespace MVC.Controllers
         public IActionResult AlterarStatus(AlterarStatusViewModel alterarStatus)
         {
             {
-                var json = JsonConvert.SerializeObject(new Atendente() { Nome = alterarStatus.NomeAtendente });
+                var json = JsonConvert.SerializeObject(new Atendente()
+                {
+                    Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+                });
                 var response = PutMethodEvento("/api/Evento/AlterarStatus/{status}/{id}",
                     "/api/Evento/AlterarStatus/" + alterarStatus.Status + "/" +
                     alterarStatus.Id, json);
@@ -171,7 +177,10 @@ namespace MVC.Controllers
         public IActionResult AlterarFila(AdicionarEventoViewModel eventoViewModel)
         {
 
-            var atendenteJson = JsonConvert.SerializeObject(new Atendente() { Nome = eventoViewModel.Atendente.Nome });
+            var atendente = new Atendente()
+            {
+                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+            };
 
             var evento = new Evento()
             {
@@ -183,13 +192,12 @@ namespace MVC.Controllers
                 Status = "ENCAMINHAR"
 
             };
-            var eventoJson = JsonConvert.SerializeObject(evento);
-
-            var filaJson = JsonConvert.SerializeObject(new Fila() { Codigo = eventoViewModel.FilaId });
+            
+            var fila = new Fila() { Codigo = eventoViewModel.FilaId };
             List<object> lista = new List<object>();
-            lista.Add(filaJson);
-            lista.Add(atendenteJson);
-            lista.Add(eventoJson);
+            lista.Add(fila);
+            lista.Add(atendente);
+            lista.Add(evento);
             var json = JsonConvert.SerializeObject(lista);
 
             var response =
@@ -213,7 +221,10 @@ namespace MVC.Controllers
         public IActionResult EncaminharOutroAtendente(AdicionarEventoViewModel eventoViewModel)
         {
 
-            var atendenteJson = JsonConvert.SerializeObject(new Atendente() { Nome = eventoViewModel.Atendente.Nome });
+            var atendente=new Atendente()
+            {
+                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+            };
 
             var evento = new Evento()
             {
@@ -225,11 +236,9 @@ namespace MVC.Controllers
                 Status = "ENCAMINHAR"
 
             };
-            var eventoJson = JsonConvert.SerializeObject(evento);
-
             List<object> lista = new List<object>();
-            lista.Add(atendenteJson);
-            lista.Add(eventoJson);
+            lista.Add(atendente);
+            lista.Add(evento);
             var json = JsonConvert.SerializeObject(lista);
 
             var response = PutMethodEvento("/api/Chamado/Encaminhar/{id}", "/api/Chamado/Encaminhar/" + eventoViewModel.ChamadoId, json);
@@ -253,18 +262,18 @@ namespace MVC.Controllers
             {
                 adicionarEvento.NomeAtendenteNovo = adicionarEvento.Atendente.Nome;
             }
-
+            var atendente = new Atendente()
+            {
+                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+            };
             var evento = new Evento()
             {
                 Descricao = adicionarEvento.Descricao,
-                Atendente = new Atendente()
-                {
-                    Nome = adicionarEvento.NomeAtendenteNovo
-                },
+                Atendente = atendente,
                 Status = adicionarEvento.Status
 
             };
-            var atendente = new Atendente() { Nome = adicionarEvento.Atendente.Nome };
+
 
             List<object> lista = new List<object>();
             lista.Add(adicionarEvento.ChamadoId);

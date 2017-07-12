@@ -41,6 +41,11 @@ namespace Domain.Services.Validates
             {
                 erro += "Necessario selecionar um status. ";
             }
+            if (evento.Atendente==null)
+            {
+                erro += "Necessario um Atendente no Evento. ";
+
+            }
             return erro;
         }
 
@@ -75,9 +80,9 @@ namespace Domain.Services.Validates
 
         public string NovoEventoFila(Fila fila)
         {
-            if (fila.Codigo==0)
+            if (fila.Codigo!=0)
             {
-                erro = "O Evento precisa de uma fila";
+                erro = "O Evento ja esta em fila";
             }
             return erro;
         }

@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Domain.Entities;
+using Domain.Repositories;
 using Domain.Services.Interfaces.Validates;
 
 namespace Domain.Services.Validates
 {
     public class ChamadoValidate:IChamadoValidate
     {
+        private readonly IChamadoRepository _iChamadoRepository;
+
+        public ChamadoValidate(IChamadoRepository icChamadoRepository)
+        {
+            _iChamadoRepository = icChamadoRepository;
+        }
 
         public string AtendenteCorrente(Chamado chamado, Atendente atendente)
         {
@@ -90,7 +97,7 @@ namespace Domain.Services.Validates
         {
             var erro = "";
             erro = PermiteAlteracao(chamado, atendente);
-            if (categorias.Any())
+            if (!categorias.Any())
             {
                 erro = "O Chamado precisa de uma Categoria. ";
             }
@@ -128,7 +135,7 @@ namespace Domain.Services.Validates
         {
 
             var erro = Finalizado(chamado);
-            if (chamado.Fila != null)
+            if (_iChamadoRepository.ChamadoEmFila(chamado.Codigo))
             {
                 erro += "Chamado esta em fila. ";
             }
@@ -138,7 +145,7 @@ namespace Domain.Services.Validates
         public string PermiteAssumir(Chamado chamado)
         {
             var erro = Finalizado(chamado);
-            if (chamado.Fila == null)
+            if (!_iChamadoRepository.ChamadoEmFila(chamado.Codigo))
             {
                 erro += "Chamado precisa estar em uma fila. ";
             }

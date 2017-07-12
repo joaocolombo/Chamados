@@ -28,14 +28,11 @@ namespace Domain.Services
         }
 
 
-        public Evento AdicionarEventoFila(int codigoChamado, Evento evento, Fila fila, Atendente atendente)
+        public Evento AdicionarEventoFila(int codigoChamado, Evento evento)
         {
-            erro = _iEventoValidate.NovoEventoFila(fila);
-            if (!string.IsNullOrEmpty(erro))
-            {
-                throw new Exception(erro);
-            }
-            return Adicionar(codigoChamado, evento, atendente);
+            var chamado =_iChamadoService.BuscarPorId(codigoChamado);
+            evento.Abertura =DateTime.Now;
+            return _iEventoRepository.Adicionar(chamado, evento);
         }
 
 
@@ -119,7 +116,7 @@ namespace Domain.Services
                 Status = "ENCAMINHAR"
             };
             erro = _iChamadoValidate.PermiteAssumir(chamado);
-            if (string.IsNullOrEmpty(erro))
+            if (!string.IsNullOrEmpty(erro))
             {
                 throw new Exception(erro);
             }

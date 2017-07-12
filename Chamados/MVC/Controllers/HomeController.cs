@@ -101,12 +101,13 @@ namespace MVC.Controllers
 
             //3B0A953170186B25414F47C59F15137B
             //#else
+
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(url + "/api/chamado/buscarporatendente");
                 var contentType = new MediaTypeWithQualityHeaderValue("application/json");
                 client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response = client.GetAsync("/api/chamado/buscarporatendente/"+Request.Cookies["3B0A953170186B25414F47C59F15137B"]+"/1").Result;
+                var response = client.GetAsync("/api/chamado/buscarporatendente/" + 33 + "/1").Result;
                 var stringData = response.Content.ReadAsStringAsync().Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -125,7 +126,7 @@ namespace MVC.Controllers
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(url + "/api/chamado/buscarporid/" + id);
+                client.BaseAddress = new Uri(url + "/api/chamado/buscarporid/{id}");
                 var contentType = new MediaTypeWithQualityHeaderValue("application/json");
                 client.DefaultRequestHeaders.Accept.Add(contentType);
                 var response = client.GetAsync("/api/chamado/buscarporid/" + id).Result;
@@ -168,7 +169,6 @@ namespace MVC.Controllers
                 Assunto = chamado.Assunto,
                 Codigo = chamado.Codigo,
                 Categorias = chamado.Categorias,
-                Fila = chamado.Fila,
                 Filial = chamado.Filial,
                 Finalizado = chamado.Finalizado,
                 Solicitante = chamado.Solicitante,
@@ -228,6 +228,7 @@ namespace MVC.Controllers
                 Atendente = new Atendente()
                 {
                     Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+
                 },
                 Status = inserirChamadoViewModel.Status
 
@@ -279,6 +280,8 @@ namespace MVC.Controllers
             var json = JsonConvert.SerializeObject(new Atendente()
             {
                 Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+
+
             });
             using (var client = new HttpClient())
             {
@@ -309,10 +312,12 @@ namespace MVC.Controllers
         {
             List<Categoria> listaCategoria = new List<Categoria>();
 
-            var atendente = JsonConvert.SerializeObject(new Atendente()
+            var atendente = new Atendente()
             {
                 Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
-            });
+
+
+            };
             if (alterarCategoria.Categorias != null)
             {
 
@@ -358,6 +363,8 @@ namespace MVC.Controllers
             var json = JsonConvert.SerializeObject(new Atendente()
             {
                 Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+
+
             });
             if (string.IsNullOrEmpty(alterarAssunto.Assunto))
             {
@@ -390,11 +397,11 @@ namespace MVC.Controllers
         [HttpPost]
         public IActionResult AlterarFilial(AlterarFilialViewModel alterarFilial)
         {
-            var atendente = JsonConvert.SerializeObject(new Atendente()
+            var atendente = new Atendente()
             {
                 Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
-            });
-            var filial = JsonConvert.SerializeObject(new Filial() { Codigo = alterarFilial.Filial });
+            };
+            var filial = new Filial() { Codigo = alterarFilial.Filial };
             List<object> lista = new List<object>();
             lista.Add(filial);
             lista.Add(atendente);

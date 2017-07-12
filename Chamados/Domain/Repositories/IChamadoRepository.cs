@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Domain.Entities;
 
 namespace Domain.Repositories
@@ -15,6 +16,9 @@ namespace Domain.Repositories
         Chamado BuscarPorIdEvento(int codigoEvento);
         IEnumerable<object> SelectGenerico(string tabela, string parametros, string draw, string orderby, string orderbyDirecao);
         int TotalRegistros(string tabela, string parametros);
+        Chamado AdicionarNaFila(int codigo, Fila fila );
+        bool ChamadoEmFila(int codigoChamado);
+        Chamado RemoveDaFila(int codigo);
 
 
 

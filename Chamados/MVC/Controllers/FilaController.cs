@@ -93,19 +93,23 @@ namespace MVC.Controllers
             return StatusCode(500, response.Content.ReadAsStringAsync().Result);
         }
         [HttpGet]
-        public IActionResult AssumirChamado(int id, string nomeAtendente)
+        public IActionResult AssumirChamado(int id)
         {
 
             return PartialView("_AssumirChamado",
-                new AdicionarEventoViewModel() { ChamadoId = id, Atendente = new Atendente() { Nome = nomeAtendente } });
+                new AdicionarEventoViewModel() { ChamadoId = id});
 
         }
         [HttpPost]
         public IActionResult AssumirChamado(AdicionarEventoViewModel adicionarEventoViewModel)
         {
-            var json = JsonConvert.SerializeObject(new Atendente() { Nome = adicionarEventoViewModel.NomeAtendenteNovo });
-            var response = PutApi("/Api/Chamado/AssumirChamado/{id}", "/Api/Chamado/AssumirChamado/" + adicionarEventoViewModel.ChamadoId, json)
-            ;
+            var json = JsonConvert.SerializeObject(new Atendente()
+            {
+                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+                
+            });
+            var response = PutApi("/Api/Chamado/AssumirChamado/{id}", "/Api/Chamado/AssumirChamado/" 
+                + adicionarEventoViewModel.ChamadoId, json);
             if (response.IsSuccessStatusCode)
             {
 

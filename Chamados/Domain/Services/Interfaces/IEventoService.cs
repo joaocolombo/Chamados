@@ -15,7 +15,7 @@ namespace Domain.Services.Interfaces
         Evento BuscarPorId(int codigo);
         IEnumerable<Evento> BuscarEventosPorChamado(int codigoChamado);
         IEnumerable<object> BuscarStatus();
-        Evento AdicionarEventoFila(int codigoChamado, Evento evento, Fila fila, Atendente atendente);
+        Evento AdicionarEventoFila(int codigoChamado, Evento evento);
         Evento AdicionarEventoOutroAtendente(int codigoChamado, Evento evento, Atendente atendente);
 
 

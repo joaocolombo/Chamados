@@ -12,6 +12,7 @@ namespace MVC.ViewModel.Evento
         public int ChamadoId { get; set; }
         public int Codigo { get; set; }
         public string NomeAtendenteNovo { get; set; }
+        public int CodigoAtendenteNovo { get; set; }
         public string Descricao { get; set; }
         public string Status { get; set; }
         public int FilaId { get; set; }

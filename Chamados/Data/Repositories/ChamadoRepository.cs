@@ -16,24 +16,18 @@ namespace Data.Repositories
         private readonly IFilialRepository _iFilialRepository;
         private readonly ICategoriaRepository _iCategoriaRepository;
 
+
         public ChamadoRepository(IEventoRepository iEventoRepository, IFilialRepository iFilialRepository, ICategoriaRepository iCategoriaRepository)
         {
             _iEventoRepository = iEventoRepository;
             _iFilialRepository = iFilialRepository;
             _iCategoriaRepository = iCategoriaRepository;
+
         }
 
-
-        private Chamado VerificaFila(Chamado chamado)
-        {
-            if (chamado.Fila == null)
-                chamado.Fila = new Fila() { Codigo = 0 };
-            return chamado;
-        }
 
         public Chamado Alterar(Chamado chamado)
         {
-            chamado = VerificaFila(chamado);
 
             var sql = @"BEGIN TRAN
                         DECLARE @CODIGO_CHAMADO INT
@@ -44,7 +38,6 @@ namespace Data.Repositories
                               ,[STATUS] = @STATUS
                               ,[SOLICITANTE] = @SOLICITANTE
                               ,[FINALIZADO] =@FINALIZADO
-                              ,[FILA] =@FILA
                          WHERE [CODIGO]=@CODIGO
                         
                         DELETE FROM [CHAMADOS].[dbo].[CHAMADO_CATEGORIA]
@@ -63,10 +56,9 @@ namespace Data.Repositories
             comando.Parameters.AddWithValue("@CODIGO", chamado.Codigo);
             comando.Parameters.AddWithValue("@SOLICITANTE", chamado.Solicitante);
             comando.Parameters.AddWithValue("@FINALIZADO", chamado.Finalizado);
-            comando.Parameters.AddWithValue("@FILA", chamado.Fila.Codigo);
             ChamadosDb.ExecuteQueries(comando);
             ChamadosDb.CloseConnection();
-            return chamado;
+            return BuscarPorId(chamado.Codigo);
         }
 
         public IEnumerable<Chamado> BuscarPorAtendente(Atendente atendente, bool finalizado)
@@ -115,6 +107,8 @@ namespace Data.Repositories
                               ,[SOLICITANTE]
                               ,'-'as '-'
                               ,[CODIGO_FILIAL] AS CODIGO
+
+                              
                           FROM[CHAMADOS].[dbo].[CHAMADO]
                         WHERE [CODIGO] = @CODIGO";
 
@@ -125,7 +119,7 @@ namespace Data.Repositories
                     ch.Filial = fi;
                     return ch;
                 },
-             new { CODIGO = codigo }, splitOn: "-").FirstOrDefault();
+             new { CODIGO = codigo }, splitOn:"-").FirstOrDefault();
             var eventos = _iEventoRepository.BuscarEventosPorChamado(codigo);
             var categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(codigo);
             var filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
@@ -146,7 +140,7 @@ namespace Data.Repositories
 
         public int Inserir(Chamado chamado)
         {
-            chamado = VerificaFila(chamado);
+           
             var sql = @"BEGIN TRAN
                         DECLARE @CODIGO_CHAMADO INT
                         INSERT INTO [CHAMADOS].[dbo].[CHAMADO]
@@ -239,7 +233,6 @@ namespace Data.Repositories
                                   ,[STATUS]
                                   ,[FINALIZADO]
                                   ,[SOLICITANTE]
-                                  ,[FILA]
                               FROM [Chamados].[dbo].[CHAMADO] AS A
                               JOIN EVENTO AS B ON A.CODIGO=B.CODIGO_CHAMADO 
                               WHERE B.CODIGO=@CODIGOEVENTO";
@@ -273,6 +266,35 @@ namespace Data.Repositories
         public int TotalRegistros(string tabela, string parametros)
         {
             throw new NotImplementedException();
+        }
+
+        public Chamado AdicionarNaFila(int codigo, Fila fila)
+        {
+            var sql = @"UPDATE CHAMADO SET FILA = @FILA WHERE CODIGO =@CODIGO";
+            var retornoUpdate =ChamadosDb.Conecection().Execute(sql, new {FILA = fila.Codigo, CODIGO = codigo});
+            if (retornoUpdate!=1)
+            {
+                throw new Exception("Ocorreu um erro na alteração");
+            }
+            return BuscarPorId(codigo);
+        }
+
+        public bool ChamadoEmFila(int codigoChamado)
+        {
+            var sql = @"SELECT ISNULL(FILA,0) FILA FROM CHAMADO WHERE CODIGO=@CODIGO";
+            var retorno = ChamadosDb.Conecection().Query<int>(sql, new { CODIGO = codigoChamado }).FirstOrDefault();
+            return retorno !=0;
+        }
+
+        public Chamado RemoveDaFila(int codigo)
+        {
+            var sql = @"UPDATE CHAMADO SET FILA = null WHERE CODIGO =@CODIGO";
+            var retornoUpdate = ChamadosDb.Conecection().Execute(sql, new { CODIGO = codigo });
+            if (retornoUpdate != 1)
+            {
+                throw new Exception("Ocorreu um erro na alteração");
+            }
+            return BuscarPorId(codigo);
         }
     }
 }

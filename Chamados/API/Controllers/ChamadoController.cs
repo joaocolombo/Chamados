@@ -19,18 +19,20 @@ namespace API.Controllers
     {
         private readonly IChamadoService _iChamadoService;
         private readonly IEventoService _iEventoService;
+        private readonly IAtendenteService _iAtendenteService;
 
-        public ChamadoController(IChamadoService iChamadoService, IEventoService iEventoService)
+        public ChamadoController(IChamadoService iChamadoService, IEventoService iEventoService, IAtendenteService iAtendenteService)
         {
             _iChamadoService = iChamadoService;
             _iEventoService = iEventoService;
+            _iAtendenteService = iAtendenteService;
         }
 
         //Buscar
         [HttpGet("BuscarPorAtendente/{atendente}/{finalizado}")]
-        public IEnumerable<Chamado> BuscarPorAtendente(string atendente, bool finalizado)
+        public IEnumerable<Chamado> BuscarPorAtendente(int atendente, bool finalizado)
         {
-            var a = new Atendente() { Nome = atendente };
+            var a = _iAtendenteService.BuscarAtendente(atendente);
             return _iChamadoService.BuscarPorAtendente(a, finalizado);
         }
 
@@ -67,7 +69,11 @@ namespace API.Controllers
         {
             try
             {
-                return Ok(_iChamadoService.Inserir(value));
+                foreach (var evento in value.Eventos)
+                {
+                    evento.Atendente = _iAtendenteService.BuscarAtendente(evento.Atendente.Codigo);
+                }
+              return Ok(_iChamadoService.Inserir(value));
             }
             catch (Exception ex)
             {
@@ -82,6 +88,7 @@ namespace API.Controllers
             try
             {
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
                 _iChamadoService.Finalizar(id, atendente);
                 return Ok();
 
@@ -102,6 +109,7 @@ namespace API.Controllers
             {
                 var filial = JsonConvert.DeserializeObject<Filial>(value[0].ToString());
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
 
                 return Ok(_iChamadoService.AlterarFilial(id, filial, atendente));
             }
@@ -120,6 +128,8 @@ namespace API.Controllers
             {
 
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
+
                 return Ok(_iChamadoService.AlterarAssunto(Convert.ToInt32(id), assunto, atendente));
 
             }
@@ -138,6 +148,7 @@ namespace API.Controllers
             {
                
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
 
                 return Ok(_iChamadoService.AlterarSolicitante(id, solicitante, atendente));
             }
@@ -157,6 +168,8 @@ namespace API.Controllers
             {
                 var categorias = JsonConvert.DeserializeObject<List<Categoria>>(value[0].ToString());
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
+
                 return Ok(_iChamadoService.AlterarCategoria(id, categorias, atendente));
             }
             catch (Exception ex)
@@ -174,9 +187,11 @@ namespace API.Controllers
                
                 var fila = JsonConvert.DeserializeObject<Fila>(value[0].ToString());
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
-                var evento = JsonConvert.DeserializeObject<Evento>(value[2].ToString());
-                var e =_iEventoService.AdicionarEventoFila(id, evento,fila, atendente);
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
                 _iChamadoService.AlterarFila(id, fila, atendente);
+
+                var evento = JsonConvert.DeserializeObject<Evento>(value[2].ToString());
+                var e =_iEventoService.AdicionarEventoFila(id, evento);
 
                 return Ok(e);
             }
@@ -188,12 +203,16 @@ namespace API.Controllers
         [HttpPut("Encaminhar/{id}")]
         [EnableCors("LiberarAcessoExterno")]
         public IActionResult EncaminharOutroAtendente([FromBody]List<object> value, int id)
+
         {
             try
             {
-
+                //atendente atual
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[0].ToString());
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
+                //novo atendente
                 var evento = JsonConvert.DeserializeObject<Evento>(value[1].ToString());
+                evento.Atendente = _iAtendenteService.BuscarAtendente(evento.Atendente.Nome);
                 var e = _iEventoService.AdicionarEventoOutroAtendente(id, evento, atendente);
                 
                 return Ok(e);
@@ -212,6 +231,8 @@ namespace API.Controllers
             {
 
                 var atendenteNovo = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+                atendenteNovo = _iAtendenteService.BuscarAtendente(atendenteNovo.Codigo);
+
                 _iEventoService.AssumirChamado(id ,atendenteNovo);
                 _iChamadoService.RemoverFila(id);
                 return Ok();

@@ -20,13 +20,11 @@
                         <div class="panel-body">
                             <form asp-action="AssumirChamado" asp-controller="Fila" method="post">
                                 <div hidden="">
-                                    <input asp-for="NomeAtendenteNovo" Value="Jose" />
                                     <input asp-for="ChamadoId"  />
-                                    <input asp-for="Atendente.Nome" />
                                 </div>
                                 <h4 class="panel-title">Apos Assumir o Chamado  ele ira constar na sua fila, você tem certeza que deseja assumi-lo?</h4>
                                 <div class="text-right">
-                                    <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Finalizar</button>
+                                    <button type="submit" class="btn btn-lg btn-primary waves-effect waves-light">Assumir</button>
                                 </div>
                             </form>
                         </div>
