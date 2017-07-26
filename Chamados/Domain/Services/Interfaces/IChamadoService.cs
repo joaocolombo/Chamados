@@ -12,6 +12,7 @@ namespace Domain.Services.Interfaces
         Chamado AlterarCategoria(int codigo, List<Categoria> categorias, Atendente atendente);
         Chamado AlterarSolicitante(int codigo, string solicitante , Atendente atendente);
         Chamado BuscarPorIdEvento(int codigoEvento);
+        Chamado AdicionarImagem(int codigo, string nomeArquivo, Atendente atendente);
         void Finalizar(int codigo, Atendente atendente);
         Chamado BuscarPorId(int codigo);
         IEnumerable<Chamado> BuscarPorStatus(string status);

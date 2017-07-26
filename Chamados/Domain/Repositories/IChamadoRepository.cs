@@ -19,6 +19,8 @@ namespace Domain.Repositories
         Chamado AdicionarNaFila(int codigo, Fila fila );
         bool ChamadoEmFila(int codigoChamado);
         Chamado RemoveDaFila(int codigo);
+        void AdicionarImagem(int codigo, string nomeArquivo);
+
 
 
 

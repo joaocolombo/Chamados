@@ -158,5 +158,18 @@ namespace Domain.Services
         {
             return 100;
         }
+
+        public Chamado AdicionarImagem(int codigo, string nomeArquivo, Atendente atendente)
+        {
+            var chamado = _iChamadoRepository.BuscarPorId(codigo);
+            var erro=_iChamadoValidate.AtendenteCorrente(chamado, atendente);
+            if (!string.IsNullOrEmpty(erro))
+            {
+                throw new Exception(erro);
+            }
+            _iChamadoRepository.AdicionarImagem(codigo,nomeArquivo);
+            return _iChamadoRepository.BuscarPorId(codigo);
+
+        }
     }
 }

@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\themeforest-11989202-remark-responsive-bootstrap-4-admin-template\**" />
+    <Content Remove="wwwroot\themeforest-11989202-remark-responsive-bootstrap-4-admin-template\**" />
+    <EmbeddedResource Remove="wwwroot\themeforest-11989202-remark-responsive-bootstrap-4-admin-template\**" />
+    <None Remove="wwwroot\themeforest-11989202-remark-responsive-bootstrap-4-admin-template\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="wwwroot\js\MensagemValidacaoFormulariosAJAX.js" />
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +37,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\template\" />
   </ItemGroup>
 
 </Project>

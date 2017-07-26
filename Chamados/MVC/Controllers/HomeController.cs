@@ -22,6 +22,7 @@ namespace MVC.Controllers
     public class HomeController : Controller
     {
         private string url = "http://10.1.0.4";
+       
 
         [HttpGet]
         public IActionResult Novo()
@@ -61,32 +62,32 @@ namespace MVC.Controllers
             return PartialView("_Finalizar", new FinalizarViewModel() { Id = id, NomeAtendente = nomeAtendente });
         }
 
-        [HttpGet]
-        public IActionResult Imagem(string id)
-        {
+        //[HttpGet]
+        //public IActionResult Imagem(string id)
+        //{
 
-            return PartialView("_Imagem");
-        }
+        //    return PartialView("_Imagem");
+        //}
 
-        [HttpPost]
-        public async Task<IActionResult> Imagem(IFormFile file)
-        {
-            // full path to file in temp location
-            var filePath = Path.GetTempFileName();
+        //[HttpPost]
+        //public async Task<IActionResult> Imagem(IFormFile file)
+        //{
+        //    // full path to file in temp location
+        //    var filePath = Path.GetTempFileName();
 
-            if (file.Length > 0)
-            {
-                using (var stream = new FileStream("c:\\temp\\" + file.FileName, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
+        //    if (file.Length > 0)
+        //    {
+        //        using (var stream = new FileStream("c:\\temp\\" + file.FileName, FileMode.Create))
+        //        {
+        //            await file.CopyToAsync(stream);
 
-                }
+        //        }
 
-            }// process uploaded files
-            // Don't rely on or trust the FileName property without validation.
+        //    }// process uploaded files
+        //    // Don't rely on or trust the FileName property without validation.
 
-            return Ok(new { filePath, file.Name, file.FileName });
-        }
+        //    return Ok(new { filePath, file.Name, file.FileName });
+        //}
 
 
 
@@ -177,7 +178,70 @@ namespace MVC.Controllers
             };
         }
 
-        //==POST==     
+        //==POST==   
+
+
+        //[HttpPost]
+        //public async Task<IActionResult> Imagem(IFormFile file)
+        //{
+        //    // full path to file in temp location
+        //    var filePath = Path.GetTempFileName();
+
+        //    if (file.Length > 0)
+        //    {
+        //        using (var stream = new FileStream("c:\\temp\\" + file.FileName, FileMode.Create))
+        //        {
+        //            await file.CopyToAsync(stream);
+
+        //        }
+
+        //    }// process uploaded files
+        //    // Don't rely on or trust the FileName property without validation.
+
+        //    return Ok(new { filePath, file.Name, file.FileName });
+        //}
+        public async Task<IActionResult> AdicionarImagemAsync(IFormFile file, int id)
+        {
+           
+            var nomeArquivo = Guid.NewGuid() + file.FileName;
+            if (file.Length > 0)
+            {
+                using (var stream = new FileStream("c:\\temp\\" + nomeArquivo, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+
+                }
+
+            }
+
+            var json = JsonConvert.SerializeObject(new Atendente()
+            {
+                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+            });
+
+            using (var client = new HttpClient())
+            {
+                
+                client.BaseAddress = new Uri(url + "/api/Chamado/AdicionarImagem/{nomeArquivo}/{id}");
+                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
+                client.DefaultRequestHeaders.Accept.Add(contentType);
+                var response =
+                    client.PutAsync(url + "/api/Chamado/AdicionarImagem/" + nomeArquivo + "/" +id, new StringContent(json, Encoding.UTF8, "application/json"))
+                        .Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result));
+                    return PartialView("_Visualizar", chamadoVM);
+                }
+                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
+                {
+                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
+                }
+                return Error(response.Content.ReadAsStringAsync().Result);
+
+            }
+
+        }
 
         [HttpPost]
         public IActionResult AlterarSolicitante(AlterarSolicitanteViewModel alterarSolicitante)

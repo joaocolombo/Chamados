@@ -223,6 +223,25 @@ namespace API.Controllers
             }
         }
 
+        [HttpPut("AdicionarImagem/{nomeArquivo}/{id}")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult AdicionaImagem([FromBody] object value,string nomeArquivo, int id)
+        {
+            try
+            {
+
+                var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
+                atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
+                
+                return Ok(_iChamadoService.AdicionarImagem(id, nomeArquivo, atendente));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(422, ex.Message);
+            }
+        }
+
+
         [HttpPut("AssumirChamado/{id}")]
         [EnableCors("LiberarAcessoExterno")]
         public IActionResult AssumirChamado([FromBody]object value, int id)

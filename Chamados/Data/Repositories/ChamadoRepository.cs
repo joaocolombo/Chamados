@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Data.SqlClient;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using Dapper;
@@ -112,6 +113,8 @@ namespace Data.Repositories
                           FROM[CHAMADOS].[dbo].[CHAMADO]
                         WHERE [CODIGO] = @CODIGO";
 
+            try
+            {
 
             var chamado = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
                 (ch, fi) =>
@@ -130,6 +133,12 @@ namespace Data.Repositories
 
             return chamado;
 
+            }
+            catch (Exception e)
+            {
+               
+                return null;
+            }
 
         }
 
@@ -295,6 +304,29 @@ namespace Data.Repositories
                 throw new Exception("Ocorreu um erro na alteração");
             }
             return BuscarPorId(codigo);
+        }
+
+        public void AdicionarImagem(int codigo, string nomeArquivo)
+        {
+            try
+            {
+                var sql = @"INSERT INTO [Chamados].[dbo].[CHAMADO_IMAGEM]
+                                                       ([CODIGO_CHAMADO]
+                                                       ,[PATH_IMAGEM]
+                                                       ,[NOME_IMAGEM])
+                                                 VALUES
+                                                       (@CODIGO
+                                                       ,'C:\TEMP\'
+                                                       ,@NOMEARQUIVO)";
+
+                ChamadosDb.Conecection().Execute(sql, new{ CODIGO =codigo, NOMEARQUIVO=nomeArquivo});
+;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }
