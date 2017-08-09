@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using MVC.Interfaces;
 using MVC.ViewModel;
 using MVC.ViewModel.Evento;
 using MVC.ViewModel.Home;
@@ -24,12 +25,12 @@ namespace MVC.Controllers
 
     public class HomeController : Controller
     {
-        private string url = "http://10.1.0.4";
+        private readonly IConsumirApi _iConsumirApi;
 
-
-        private 
-
-
+        public HomeController(IConsumirApi iConsumirApi)
+        {
+            _iConsumirApi = iConsumirApi;
+        }
 
         [HttpGet]
         public IActionResult Novo()
@@ -99,15 +100,12 @@ namespace MVC.Controllers
             var userPrincipal = new ClaimsPrincipal(userIdentity);
 
             HttpContext.Authentication.SignInAsync("CookieAutentication", userPrincipal,
-                 new AuthenticationProperties
-                 {
-                     ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
-                     IsPersistent = false,
-                     AllowRefresh = false
-                 });
-
-
-
+                new AuthenticationProperties
+                {
+                    ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
+                    IsPersistent = false,
+                    AllowRefresh = false
+                });
 
 #if DEBUG
             CookieOptions cookies = new CookieOptions();
@@ -117,50 +115,23 @@ namespace MVC.Controllers
             //3B0A953170186B25414F47C59F15137B
 #endif
 
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(url + "/api/chamado/buscarporatendente");
-                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response = client.GetAsync("/api/chamado/buscarporatendente/" + 33 + "/1").Result;
-                var stringData = response.Content.ReadAsStringAsync().Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    return View(JsonConvert.DeserializeObject<List<Chamado>>(stringData));
-                }
-                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                {
-                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                }
-                return Error(response.Content.ReadAsStringAsync().Result);
-            }
+            var retoro = _iConsumirApi.GetMethod("/api/chamado/buscarporatendente",
+                "/api/chamado/buscarporatendente/" + 33 + "/1");
+            if (retoro.IsSuccessStatusCode)
+                return View(JsonConvert.DeserializeObject<List<Chamado>>(retoro.Content.ReadAsStringAsync().Result));
+            return StatusCode(422, retoro.Content.ReadAsStringAsync().Result);
         }
+
+
+
         [HttpGet]
         [Authorize(Roles = "pinto")]
         public IActionResult Visualizar(string id)
         {
-
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(url + "/api/chamado/buscarporid/{id}");
-                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response = client.GetAsync("/api/chamado/buscarporid/" + id).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var stringData = response.Content.ReadAsStringAsync().Result;
-
-                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(stringData));
-                    return View(chamadoVM);
-                }
-                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                {
-                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                }
-                return Error(response.Content.ReadAsStringAsync().Result);
-
-            }
-
+            var response = _iConsumirApi.GetMethod("/api/chamado/buscarporid/{id}", "/api/chamado/buscarporid/" + id);
+            if (response.IsSuccessStatusCode)
+                return View(ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+            return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
         private ChamadoViewModel ConvertChamadoToViewModel(Chamado chamado)
@@ -196,84 +167,40 @@ namespace MVC.Controllers
 
         public async Task<IActionResult> AdicionarImagemAsync(IFormFile file, int id)
         {
-
             var nomeArquivo = Guid.NewGuid() + file.FileName;
             if (file.Length > 0)
             {
                 using (var stream = new FileStream("c:\\temp\\" + nomeArquivo, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
-
                 }
-
             }
-
             var json = JsonConvert.SerializeObject(new Atendente()
             {
                 Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
             });
 
-            using (var client = new HttpClient())
-            {
-
-                client.BaseAddress = new Uri(url + "/api/Chamado/AdicionarImagem/{nomeArquivo}/{id}");
-                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response =
-                    client.PutAsync(url + "/api/Chamado/AdicionarImagem/" + nomeArquivo + "/" + id, new StringContent(json, Encoding.UTF8, "application/json"))
-                        .Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result));
-                    return PartialView("_Visualizar", chamadoVM);
-                }
-                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                {
-                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                }
-                return Error(response.Content.ReadAsStringAsync().Result);
-
-            }
-
+            var response = _iConsumirApi.PutMethod("/api/Chamado/AdicionarImagem/{nomeArquivo}/{id}", "/api/Chamado/AdicionarImagem/" + nomeArquivo + "/" + id, json);
+            if (response.IsSuccessStatusCode)
+                return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+            return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
         [HttpPost]
         public IActionResult AlterarSolicitante(AlterarSolicitanteViewModel alterarSolicitante)
         {
-
-
             if (string.IsNullOrEmpty(alterarSolicitante.Solicitante))
-            {
                 return StatusCode(422, "Prencha o Solicitante");
-            }
-
             var json = JsonConvert.SerializeObject(new Atendente()
             {
                 Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
             });
-
-
-            using (var client = new HttpClient())
-            {
-
-                client.BaseAddress = new Uri(url + "/api/Chamado/AlterarSolicitante/{assunto}/{id}");
-                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response =
-                    client.PutAsync(url + "/api/Chamado/AlterarSolicitante/" + alterarSolicitante.Solicitante + "/" + alterarSolicitante.Id, new StringContent(json, Encoding.UTF8, "application/json"))
-                        .Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result));
-                    return PartialView("_Visualizar", chamadoVM);
-                }
-                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                {
-                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                }
-                return Error(response.Content.ReadAsStringAsync().Result);
-
-            }
+            var response = _iConsumirApi.PutMethod("/api/Chamado/AlterarSolicitante/{assunto}/{id}",
+                "/api/Chamado/AlterarSolicitante/" + alterarSolicitante.Solicitante + "/" + alterarSolicitante.Id,
+                json);
+            if (response.IsSuccessStatusCode)
+                return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+            return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
         [HttpPost]
@@ -291,10 +218,7 @@ namespace MVC.Controllers
 
             };
             if (inserirChamadoViewModel.Geral)
-            {
                 inserirChamadoViewModel.CodigoFilial = "000000";
-            }
-
             var chamado = new Chamado()
             {
                 Assunto = inserirChamadoViewModel.Assunto,
@@ -305,30 +229,10 @@ namespace MVC.Controllers
                 Eventos = new List<Evento>() { evento },
                 Solicitante = inserirChamadoViewModel.Solicitante
             };
-
-            var json = JsonConvert.SerializeObject(chamado);
-            using (var client = new HttpClient())
-            {
-
-                client.BaseAddress = new Uri(url + "/api/Chamado");
-                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response =
-                    client.PostAsync(url + "/api/Chamado", new StringContent(json, Encoding.UTF8, "application/json"))
-                        .Result;
-                var id = response.Content.ReadAsStringAsync().Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    return RedirectToAction("Visualizar", new { id = id });
-                }
-                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                {
-                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                }
-                return Error(response.Content.ReadAsStringAsync().Result);
-
-            }
-
+            var response = _iConsumirApi.PostMethod("/api/Chamado", "/api/Chamado", JsonConvert.SerializeObject(chamado));
+            if (response.IsSuccessStatusCode)
+                return RedirectToAction("Visualizar", new { id = response.Content.ReadAsStringAsync().Result });
+            return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
         [HttpPost]
@@ -337,83 +241,33 @@ namespace MVC.Controllers
             var json = JsonConvert.SerializeObject(new Atendente()
             {
                 Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
-
-
             });
-            using (var client = new HttpClient())
-            {
-
-                client.BaseAddress = new Uri(url + "/api/Chamado/Finalizar/{id}");
-                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response =
-                    client.PutAsync(url + "/api/Chamado/Finalizar/" + finalizar.Id,
-                            new StringContent(json, Encoding.UTF8, "application/json"))
-                        .Result;
-                if (response.IsSuccessStatusCode)
-                {
-
-                    return RedirectToAction("Index");
-                }
-                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                {
-                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                }
-                return Error(response.Content.ReadAsStringAsync().Result);
-
-            }
+            var response = _iConsumirApi.PutMethod("/api/Chamado/Finalizar/{id}", "/api/Chamado/Finalizar/" + finalizar.Id, json);
+            if (response.IsSuccessStatusCode)
+                return RedirectToAction("Index");
+            return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
         [HttpPost]
         public IActionResult AlterarCategoria(AlterarCategoriaViewModel alterarCategoria)
         {
             List<Categoria> listaCategoria = new List<Categoria>();
-
             var atendente = new Atendente()
             {
                 Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
-
-
             };
             if (alterarCategoria.Categorias != null)
-            {
-
                 foreach (var codigo in alterarCategoria.Categorias)
-                {
                     listaCategoria.Add(new Categoria() { Codigo = codigo });
-                }
 
-            }
-
-            List<object> lista = new List<object>();
-            lista.Add(listaCategoria);
-            lista.Add(atendente);
-            var json = JsonConvert.SerializeObject(lista);
-
-            using (var client = new HttpClient())
-            {
-
-                client.BaseAddress = new Uri(url + "/api/Chamado/AlterarCategoria/{id}");
-                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response =
-                    client.PutAsync(url + "/api/Chamado/AlterarCategoria/" + alterarCategoria.Id, new StringContent(json, Encoding.UTF8, "application/json"))
-                        .Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result));
-                    return PartialView("_Visualizar", chamadoVM);
-                }
-                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                {
-                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                }
-                return Error(response.Content.ReadAsStringAsync().Result);
-
-            }
+            List<object> lista = new List<object>() { listaCategoria, atendente };
+            var response = _iConsumirApi.PutMethod("/api/Chamado/AlterarCategoria/{id}",
+                "/api/Chamado/AlterarCategoria/" + alterarCategoria.Id, JsonConvert.SerializeObject(lista));
+            if (response.IsSuccessStatusCode)
+                return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+            return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
-
-
+        
         [HttpPost]
         public IActionResult AlterarAssunto(AlterarAssuntoViewModel alterarAssunto)
         {

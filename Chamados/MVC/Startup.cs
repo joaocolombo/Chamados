@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Razor.Chunks.Generators;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MVC.Interfaces;
+using MVC.Services;
 
 namespace MVC
 {
@@ -34,6 +36,7 @@ namespace MVC
             // Add framework services.
 
             services.AddMvc();
+            services.AddScoped<IConsumirApi, ConsumirApi>();
 
         }
 

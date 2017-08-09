@@ -37,8 +37,6 @@ namespace MVC.Controllers
                 client.DefaultRequestHeaders.Accept.Add(contentType);
                 return client.PutAsync(url + uriParametros, new StringContent(json, Encoding.UTF8, "application/json"))
                         .Result;
-
-
             }
         }
 
