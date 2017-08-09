@@ -14,6 +14,7 @@ namespace Domain.Entities
         public string Assunto { get; set; }
         public string Solicitante { get; set; }
         public List<Categoria> Categorias { get; set; }
+        public List<string> Imagens { get; set; }
         private bool finalizado;
 
         public bool Finalizado

@@ -20,6 +20,7 @@ namespace Domain.Repositories
         bool ChamadoEmFila(int codigoChamado);
         Chamado RemoveDaFila(int codigo);
         void AdicionarImagem(int codigo, string nomeArquivo);
+        List<string> BuscarImagensPorChamado(int codigo);
 
 
 

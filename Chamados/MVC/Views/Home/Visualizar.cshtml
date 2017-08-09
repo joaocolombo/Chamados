@@ -6,7 +6,8 @@
 @section pluginsStyle
 {
     <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/plugins/select2/select2.css">
-
+    <link href="~/js/blueimp-file-upload/jquery.fileupload.css" rel="stylesheet" />
+    <link href="~/js/dropify/dropify.css" rel="stylesheet" />
 }
 <div class="page">
     <div class="page-header">
@@ -31,31 +32,44 @@
                             <h3 class="panel-title">Imagens</h3>
                         </div>
                         <div class="panel-body" id="render-chamado">
-                            
+
                             @Html.Partial("_Imagem")
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        @section plugins
+    </div>
+</div>
+@section plugins
 {
-            <script src="http://static.bischoffgroup.com.br/resources/plugins/jquery-validation/jquery.validate.js"></script>
-            <script src="http://static.bischoffgroup.com.br/resources/plugins/select2/select2.js"></script>
-        }
+    <script src="http://static.bischoffgroup.com.br/resources/plugins/jquery-validation/jquery.validate.js"></script>
+    <script src="http://static.bischoffgroup.com.br/resources/plugins/select2/select2.js"></script>
+    <script src="~/js/blueimp-tmpl/tmpl.js"></script>
+    <script src="~/js/blueimp-canvas-to-blob/canvas-to-blob.js"></script>
+    <script src="~/js/blueimp-load-image/load-image.all.min.js"></script>
+    <script src="~/js/blueimp-file-upload/jquery.fileupload.js"></script>
+    <script src="~/js/blueimp-file-upload/jquery.fileupload-process.js"></script>
+    <script src="~/js/blueimp-file-upload/jquery.fileupload-image.js"></script>
+    <script src="~/js/blueimp-file-upload/jquery.fileupload-audio.js"></script>
+    <script src="~/js/blueimp-file-upload/jquery.fileupload-video.js"></script>
+    <script src="~/js/blueimp-file-upload/jquery.fileupload-validate.js"></script>
+    <script src="~/js/blueimp-file-upload/jquery.fileupload-ui.js"></script>
+    <script src="~/js/dropify/dropify.js"></script>
+}
 
-        @section scripts
+@section scripts
 {
-            <script>
+    <script>
 
-                var onFailure = function (response, status, error) {
-                    $("#return").html(response.responseText).removeClass().addClass("alert alert-danger");
-                };
+        var onFailure = function (response, status, error) {
+            $("#return").html(response.responseText).removeClass().addClass("alert alert-danger");
+        };
 
 
-                var onSuccess = function (response, status) {
-                    $("#return").html("Aleração realizada com sucesso").removeClass().addClass("alert alert-success");
-                };
+        var onSuccess = function (response, status) {
+            $("#return").html("Aleração realizada com sucesso").removeClass().addClass("alert alert-success");
+        };
 
-            </script>
-        }
+    </script>
+}

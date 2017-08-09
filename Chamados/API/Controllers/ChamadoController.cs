@@ -32,6 +32,7 @@ namespace API.Controllers
         [HttpGet("BuscarPorAtendente/{atendente}/{finalizado}")]
         public IEnumerable<Chamado> BuscarPorAtendente(int atendente, bool finalizado)
         {
+
             var a = _iAtendenteService.BuscarAtendente(atendente);
             return _iChamadoService.BuscarPorAtendente(a, finalizado);
         }

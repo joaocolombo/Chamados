@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dapper;
@@ -9,6 +10,8 @@ namespace Data.Repositories
 {
     public class AtendenteRepository : IAtendenteRepository
     {
+
+
         public Atendente BuscarAtendente(string nome)
         {
             var sql = @"SELECT

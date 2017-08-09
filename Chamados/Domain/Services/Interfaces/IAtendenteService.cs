@@ -9,5 +9,6 @@ namespace Domain.Services.Interfaces
         Atendente BuscarAtendente(int codigo);
         IEnumerable<Atendente> BuscarTodosAtendete();
         IEnumerable<Atendente> BuscarPorNivel(string nivel);
+
     }
 }

@@ -169,7 +169,27 @@ namespace Data.Repositories
             sql += _iCategoriaRepository.InserirSql(chamado);
             sql += _iEventoRepository.InserirPorChamado(chamado.Eventos);
 
-            sql += @"IF @@ERROR <> 0
+            if (chamado.Imagens!=null)
+            {
+                foreach (var imagem in chamado.Imagens)
+                {
+                    sql += @"
+                            INSERT INTO [Chamados].[dbo].[CHAMADO_IMAGEM]
+                                                       ([CODIGO_CHAMADO]
+                                                       ,[PATH_IMAGEM]
+                                                       ,[NOME_IMAGEM])
+                                                 VALUES
+                                                       (@CODIGO_CHAMADO
+                                                       ,'C:\TEMP\'
+                                                       ,'"+imagem+"') ";
+                }
+            }
+
+
+
+
+            sql += @"
+                        IF @@ERROR <> 0
                         ROLLBACK
                         ELSE
                         BEGIN
@@ -327,6 +347,12 @@ namespace Data.Repositories
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        public List<string> BuscarImagensPorChamado(int codigo)
+        {
+            var sql = @"select nome_imagem from chamado_imagem where codigo_chamado =@CHAMADO";
+            return ChamadosDb.Conecection().Query<string>(sql, new {@CHAMADO =codigo}).ToList();
         }
     }
 }

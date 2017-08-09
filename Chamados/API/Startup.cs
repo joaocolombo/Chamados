@@ -60,6 +60,7 @@ namespace API
             services.AddScoped<IFilialService, FilialService>();
             services.AddScoped<IFilialRepository, FilialRepository>();
             services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+            services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             services.AddScoped<ICategoriaService, CategoriaServise>();
             services.AddScoped<IFilaService, FilaService>();
             services.AddScoped<IFilaRepository, FilaRepository>();
@@ -67,6 +68,7 @@ namespace API
             services.AddScoped<IChamadoValidate, ChamadoValidate>();
             services.AddScoped<IAtendenteRepository, AtendenteRepository>();
             services.AddScoped<IAtendenteService, AtendenteService>();
+            services.AddScoped<IUsuarioService, UsuarioService>();
 
         }
 

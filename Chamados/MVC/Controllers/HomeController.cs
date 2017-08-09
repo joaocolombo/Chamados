@@ -4,13 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MVC.ViewModel;
 using MVC.ViewModel.Evento;
@@ -22,7 +25,11 @@ namespace MVC.Controllers
     public class HomeController : Controller
     {
         private string url = "http://10.1.0.4";
-       
+
+
+        private 
+
+
 
         [HttpGet]
         public IActionResult Novo()
@@ -43,7 +50,6 @@ namespace MVC.Controllers
         }
 
         [HttpGet]
-
         public IActionResult AlterarCategoria(string id, IEnumerable<int> categorias)
         {
             return PartialView("_AlterarCategoria", new AlterarCategoriaViewModel() { Id = id, Categorias = categorias });
@@ -62,46 +68,54 @@ namespace MVC.Controllers
             return PartialView("_Finalizar", new FinalizarViewModel() { Id = id, NomeAtendente = nomeAtendente });
         }
 
-        //[HttpGet]
-        //public IActionResult Imagem(string id)
-        //{
-
-        //    return PartialView("_Imagem");
-        //}
-
-        //[HttpPost]
-        //public async Task<IActionResult> Imagem(IFormFile file)
-        //{
-        //    // full path to file in temp location
-        //    var filePath = Path.GetTempFileName();
-
-        //    if (file.Length > 0)
-        //    {
-        //        using (var stream = new FileStream("c:\\temp\\" + file.FileName, FileMode.Create))
-        //        {
-        //            await file.CopyToAsync(stream);
-
-        //        }
-
-        //    }// process uploaded files
-        //    // Don't rely on or trust the FileName property without validation.
-
-        //    return Ok(new { filePath, file.Name, file.FileName });
-        //}
-
-
 
 
         [HttpGet]
+        //[Route("")]
+        //[Route("/{usuario?}/{senha?}")]
+        //public IActionResult Index(string usuario, string senha)
         public IActionResult Index()
         {
-            //#if debug
+            //if (!string.IsNullOrEmpty(usuario))
+            //{
+            //    usuario = Request.Cookies[usuario];
+            //    senha = Request.Cookies[senha];
+            //}
+
+
+
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, "Joao", ClaimValueTypes.String),
+                new Claim(ClaimTypes.Country, "UK", ClaimValueTypes.String),
+                new Claim("ChildhoodHero", "Ronnie James Dio", ClaimValueTypes.String),
+                new Claim(ClaimTypes.Email, "joao.co@hotmail.com", ClaimValueTypes.String),
+                new Claim(ClaimTypes.Role, "pinto", ClaimValueTypes.String)
+            };
+
+            var userIdentity = new ClaimsIdentity(claims, "CookieAutentication");
+
+            var userPrincipal = new ClaimsPrincipal(userIdentity);
+
+            HttpContext.Authentication.SignInAsync("CookieAutentication", userPrincipal,
+                 new AuthenticationProperties
+                 {
+                     ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
+                     IsPersistent = false,
+                     AllowRefresh = false
+                 });
+
+
+
+
+#if DEBUG
             CookieOptions cookies = new CookieOptions();
             cookies.Expires = DateTime.Now.AddDays(1);
             Response.Cookies.Append("3B0A953170186B25414F47C59F15137B", "33");
 
             //3B0A953170186B25414F47C59F15137B
-            //#else
+#endif
 
             using (var client = new HttpClient())
             {
@@ -122,6 +136,7 @@ namespace MVC.Controllers
             }
         }
         [HttpGet]
+        [Authorize(Roles = "pinto")]
         public IActionResult Visualizar(string id)
         {
 
@@ -178,31 +193,10 @@ namespace MVC.Controllers
             };
         }
 
-        //==POST==   
 
-
-        //[HttpPost]
-        //public async Task<IActionResult> Imagem(IFormFile file)
-        //{
-        //    // full path to file in temp location
-        //    var filePath = Path.GetTempFileName();
-
-        //    if (file.Length > 0)
-        //    {
-        //        using (var stream = new FileStream("c:\\temp\\" + file.FileName, FileMode.Create))
-        //        {
-        //            await file.CopyToAsync(stream);
-
-        //        }
-
-        //    }// process uploaded files
-        //    // Don't rely on or trust the FileName property without validation.
-
-        //    return Ok(new { filePath, file.Name, file.FileName });
-        //}
         public async Task<IActionResult> AdicionarImagemAsync(IFormFile file, int id)
         {
-           
+
             var nomeArquivo = Guid.NewGuid() + file.FileName;
             if (file.Length > 0)
             {
@@ -221,12 +215,12 @@ namespace MVC.Controllers
 
             using (var client = new HttpClient())
             {
-                
+
                 client.BaseAddress = new Uri(url + "/api/Chamado/AdicionarImagem/{nomeArquivo}/{id}");
                 var contentType = new MediaTypeWithQualityHeaderValue("application/json");
                 client.DefaultRequestHeaders.Accept.Add(contentType);
                 var response =
-                    client.PutAsync(url + "/api/Chamado/AdicionarImagem/" + nomeArquivo + "/" +id, new StringContent(json, Encoding.UTF8, "application/json"))
+                    client.PutAsync(url + "/api/Chamado/AdicionarImagem/" + nomeArquivo + "/" + id, new StringContent(json, Encoding.UTF8, "application/json"))
                         .Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -292,7 +286,6 @@ namespace MVC.Controllers
                 Atendente = new Atendente()
                 {
                     Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
-
                 },
                 Status = inserirChamadoViewModel.Status
 
@@ -457,6 +450,7 @@ namespace MVC.Controllers
 
             }
         }
+
 
         [HttpPost]
         public IActionResult AlterarFilial(AlterarFilialViewModel alterarFilial)

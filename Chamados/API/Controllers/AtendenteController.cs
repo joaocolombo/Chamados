@@ -52,6 +52,7 @@ namespace API.Controllers
 
         }
 
+
         [HttpGet("BuscarPorId/{id}")]
         [EnableCors("LiberarAcessoExterno")]
         public IActionResult BuscarPorNome(int id)

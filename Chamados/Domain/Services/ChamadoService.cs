@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Domain.Entities;
 using Domain.Repositories;
 using Domain.Services.Interfaces;
@@ -121,7 +122,23 @@ namespace Domain.Services
             {
                 evento.Abertura = DateTime.Now;
             }
-            return _iChamadoRepository.Inserir(chamado);
+            try
+            {
+                return _iChamadoRepository.Inserir(chamado);
+
+            }
+            catch (Exception e)
+            {
+                if (chamado.Imagens != null)
+                {
+                    foreach (var imagem in chamado.Imagens)
+                    {
+                        System.IO.File.Delete(@"C:\temp\" + imagem);
+                    }
+
+                }
+                return 0;
+            }
         }
 
         public Chamado BuscarPorIdEvento(int codigoEvento)
@@ -162,12 +179,12 @@ namespace Domain.Services
         public Chamado AdicionarImagem(int codigo, string nomeArquivo, Atendente atendente)
         {
             var chamado = _iChamadoRepository.BuscarPorId(codigo);
-            var erro=_iChamadoValidate.AtendenteCorrente(chamado, atendente);
+            var erro = _iChamadoValidate.AtendenteCorrente(chamado, atendente);
             if (!string.IsNullOrEmpty(erro))
             {
                 throw new Exception(erro);
             }
-            _iChamadoRepository.AdicionarImagem(codigo,nomeArquivo);
+            _iChamadoRepository.AdicionarImagem(codigo, nomeArquivo);
             return _iChamadoRepository.BuscarPorId(codigo);
 
         }
