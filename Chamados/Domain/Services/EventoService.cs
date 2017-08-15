@@ -8,6 +8,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using Domain.Services.Interfaces;
 using Domain.Services.Interfaces.Validates;
+using Domain.Services.Validates;
 
 namespace Domain.Services
 {
@@ -46,7 +47,7 @@ namespace Domain.Services
 
             if (!string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
 
             evento.Abertura = DateTime.Now;
@@ -61,7 +62,7 @@ namespace Domain.Services
             erro += _iEventoValidate.PermiteAlterarStatus(evento, atendente, status);
             if (string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
             evento.Status = status;
 
@@ -77,7 +78,7 @@ namespace Domain.Services
             erro += _iEventoValidate.PermiteAlterarDescricao(evento, atendente, descricao);
             if (string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
             evento.Descricao = descricao;
 
@@ -118,7 +119,7 @@ namespace Domain.Services
             erro = _iChamadoValidate.PermiteAssumir(chamado);
             if (!string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
 
             _iChamadoService.RemoverFila(chamado.Codigo);
@@ -136,7 +137,7 @@ namespace Domain.Services
 
             if (!string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
 
             Finalizar(chamado.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());

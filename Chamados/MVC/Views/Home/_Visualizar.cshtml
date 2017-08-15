@@ -2,15 +2,6 @@
 
     <div class="form-group">
         <div class="row">
-            <div class="offset-lg-9 col-lg-1">
-                <button type="button" data-url="@Url.Action("Finalizar","Home", new{id =Model.Codigo, nomeAtendente =Model.Atendente.Nome})" data-toggle="slidePanel" class="btn btn-lg btn-primary waves-effect waves-light">
-                    Finalizar
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="row">
             <div class="col-lg-3">
                 <h4>Codigo</h4>
                 <label>@Model.Codigo</label>
@@ -20,12 +11,29 @@
                 <label>@Model.Status</label>
             </div>
             <div class="col-lg-3">
+                <h4>Atendente</h4>
+                <label>@Model.Atendente.NomeExibicao</label>
+            </div>
+            <div class="col-lg-1">
+                <button type="button" data-url="@Url.Action("Finalizar", "Home", new {id = Model.Codigo, nomeAtendente = Model.Atendente.Nome})" data-toggle="slidePanel" class="btn btn-lg btn-primary waves-effect waves-light">
+                    Finalizar
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-lg-4">
                 <h4>Nivel</h4>
                 <label>@Model.Nivel</label>
             </div>
-            <div class="col-lg-3">
-                <h4>Atendente</h4>
-                <label>@Model.Atendente.NomeExibicao</label>
+            <div class="col-lg-4">
+                <h4>Minutos Previstos</h4>
+                <label>@Model.MinutosPrevistos</label>
+            </div>
+            <div class="col-lg-4">
+                <h4>Minutos Gastos</h4>
+                <label>@Model.MinutosRealizados</label>
             </div>
         </div>
     </div>

@@ -7,6 +7,7 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
 using Domain.Services.Interfaces;
+using Domain.Services.Validates;
 using Microsoft.AspNetCore.Cors;
 using Newtonsoft.Json;
 
@@ -20,7 +21,7 @@ namespace API.Controllers
         private readonly IChamadoService _iChamadoService;
         private readonly IEventoService _iEventoService;
         private readonly IAtendenteService _iAtendenteService;
-
+       
         public ChamadoController(IChamadoService iChamadoService, IEventoService iEventoService, IAtendenteService iAtendenteService)
         {
             _iChamadoService = iChamadoService;
@@ -59,6 +60,7 @@ namespace API.Controllers
         [HttpGet("BuscarPorId/{id}")]
         public IActionResult Get(int id)
         {
+            
             return Ok(_iChamadoService.BuscarPorId(id));
         }
 
@@ -74,11 +76,15 @@ namespace API.Controllers
                 {
                     evento.Atendente = _iAtendenteService.BuscarAtendente(evento.Atendente.Codigo);
                 }
-              return Ok(_iChamadoService.Inserir(value));
+                return Ok(_iChamadoService.Inserir(value));
+            }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
             }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message );
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -92,11 +98,14 @@ namespace API.Controllers
                 atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
                 _iChamadoService.Finalizar(id, atendente);
                 return Ok();
-
+            }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
             }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message );
+                return StatusCode(500, ex.Message);
 
             }
 
@@ -108,15 +117,22 @@ namespace API.Controllers
         {
             try
             {
+
+                
+
                 var filial = JsonConvert.DeserializeObject<Filial>(value[0].ToString());
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
                 atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
 
                 return Ok(_iChamadoService.AlterarFilial(id, filial, atendente));
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message);
+                return StatusCode(500, ex.Message);
             }
 
         }
@@ -127,42 +143,46 @@ namespace API.Controllers
         {
             try
             {
-
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
                 atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
-
                 return Ok(_iChamadoService.AlterarAssunto(Convert.ToInt32(id), assunto, atendente));
-
+            }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
             }
             catch (Exception ex)
             {
-                return StatusCode(422,ex.Message );
+                return StatusCode(500, ex.Message);
             }
 
 
         }
         [HttpPut("AlterarSolicitante/{solicitante}/{id}")]
         [EnableCors("LiberarAcessoExterno")]
-        public IActionResult AlterarSolicitante([FromBody]object value, string solicitante ,int id)
+        public IActionResult AlterarSolicitante([FromBody]object value, string solicitante, int id)
         {
             try
             {
-               
+
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
                 atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
 
                 return Ok(_iChamadoService.AlterarSolicitante(id, solicitante, atendente));
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422,  ex.Message );
+                return StatusCode(500, ex.Message);
             }
 
         }
 
         [HttpPut("AlterarCategoria/{id}")]
         [EnableCors("LiberarAcessoExterno")]
-
         public IActionResult AlterarCategoria([FromBody]List<object> value, int id)
         {
             try
@@ -173,9 +193,13 @@ namespace API.Controllers
 
                 return Ok(_iChamadoService.AlterarCategoria(id, categorias, atendente));
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message );
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -185,26 +209,29 @@ namespace API.Controllers
         {
             try
             {
-               
+
                 var fila = JsonConvert.DeserializeObject<Fila>(value[0].ToString());
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
                 atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
                 _iChamadoService.AlterarFila(id, fila, atendente);
 
                 var evento = JsonConvert.DeserializeObject<Evento>(value[2].ToString());
-                var e =_iEventoService.AdicionarEventoFila(id, evento);
+                var e = _iEventoService.AdicionarEventoFila(id, evento);
 
                 return Ok(e);
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
         [HttpPut("Encaminhar/{id}")]
         [EnableCors("LiberarAcessoExterno")]
         public IActionResult EncaminharOutroAtendente([FromBody]List<object> value, int id)
-
         {
             try
             {
@@ -215,26 +242,33 @@ namespace API.Controllers
                 var evento = JsonConvert.DeserializeObject<Evento>(value[1].ToString());
                 evento.Atendente = _iAtendenteService.BuscarAtendente(evento.Atendente.Nome);
                 var e = _iEventoService.AdicionarEventoOutroAtendente(id, evento, atendente);
-                
+
                 return Ok(e);
+            }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
             }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
 
         [HttpPut("AdicionarImagem/{nomeArquivo}/{id}")]
         [EnableCors("LiberarAcessoExterno")]
-        public IActionResult AdicionaImagem([FromBody] object value,string nomeArquivo, int id)
+        public IActionResult AdicionaImagem([FromBody] object value, string nomeArquivo, int id)
         {
             try
             {
-
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value.ToString());
                 atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
-                
+
                 return Ok(_iChamadoService.AdicionarImagem(id, nomeArquivo, atendente));
+            }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
             }
             catch (Exception ex)
             {
@@ -253,22 +287,26 @@ namespace API.Controllers
                 var atendenteNovo = JsonConvert.DeserializeObject<Atendente>(value.ToString());
                 atendenteNovo = _iAtendenteService.BuscarAtendente(atendenteNovo.Codigo);
 
-                _iEventoService.AssumirChamado(id ,atendenteNovo);
+                _iEventoService.AssumirChamado(id, atendenteNovo);
                 _iChamadoService.RemoverFila(id);
                 return Ok();
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
         [HttpGet("Tabela/{tabela}/{draw}/{start}/{length}/{sortColumn}/{sortColumnDir}/{searchFilter}")]
         [EnableCors("LiberarAcessoExterno")]
-        public IActionResult TabelaChamados(string tabela,string draw,string start,string length, 
-            string sortColumn, string sortColumnDir, string searchFilter )
+        public IActionResult TabelaChamados(string tabela, string draw, string start, string length,
+            string sortColumn, string sortColumnDir, string searchFilter)
         {
-            
-            
+
+
             //var draw = values("draw").FirstOrDefault(); //qtd linhas da tabela
             //var start = Request.Form.GetValues("start").FirstOrDefault(); //primeira linha
             //var length = Request.Form.GetValues("length").FirstOrDefault();//qtd total de registros
@@ -281,7 +319,7 @@ namespace API.Controllers
             var skip = start != null ? Convert.ToInt32(start) : 0;
 
 
-            var data = _iChamadoService.SelectGenerico(tabela, searchFilter,draw, sortColumn, sortColumnDir);
+            var data = _iChamadoService.SelectGenerico(tabela, searchFilter, draw, sortColumn, sortColumnDir);
 
             var recordsTotal = _iChamadoService.TotalRegistros(tabela, searchFilter);//total de linas na tabela 
 

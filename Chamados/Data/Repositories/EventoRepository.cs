@@ -18,7 +18,7 @@ namespace Data.Repositories
         {
             _iAtendenteRepository = iAtendenteRepository;
         }
-         
+
         public Evento Adicionar(Chamado chamado, Evento evento)
         {
             if (evento.Encerramento == DateTime.MinValue)
@@ -32,14 +32,18 @@ namespace Data.Repositories
                                    ,[ENCERRAMENTO]
                                    ,[ATENDENTE]
                                    ,[DESCRICAO]
-                                   ,[CODIGO_CHAMADO])
+                                   ,[CODIGO_CHAMADO]
+                                   ,[MINUTOS_PREVISTOS]
+                                   ,[MINUTOS_REALIZADOS])
                              VALUES
                                    ((SELECT CODIGO FROM EVENTO_STATUS WHERE DESCRICAO =@STATUS)
                                    , CONVERT(DATETIME,@ABERTURA,103)
                                    , CONVERT(DATETIME,@ENCERRAMENTO,103)
                                    ,@ATENDENTE
                                    ,@DESCRICAO
-                                   ,@CODIGO_CHAMADO)
+                                   ,@CODIGO_CHAMADO
+                                   ,@MINUTOS_PREVISTOS
+                                   ,@MINUTOS_REALIZADOS)
                                     SELECT SCOPE_IDENTITY ()";
             var comando = new SqlCommand(sql);
             comando.Parameters.AddWithValue("@STATUS", evento.Status);
@@ -48,6 +52,8 @@ namespace Data.Repositories
             comando.Parameters.AddWithValue("@ATENDENTE", evento.Atendente.Nome);
             comando.Parameters.AddWithValue("@DESCRICAO", evento.Descricao);
             comando.Parameters.AddWithValue("@CODIGO_CHAMADO", chamado.Codigo);
+            comando.Parameters.AddWithValue("@MINUTOS_PREVISTOS", evento.MinutosPrevistos);
+            comando.Parameters.AddWithValue("@MINUTOS_REALIZADOS", evento.MinutosRealizados);
             var dr = ChamadosDb.DataReader(comando);
             dr.Read();
             evento.Codigo = Convert.ToInt32(dr[0]);
@@ -67,12 +73,16 @@ namespace Data.Repositories
                             SET [CODIGO_STATUS] = (SELECT CODIGO FROM EVENTO_STATUS WHERE DESCRICAO =@STATUS)
                                 ,[ENCERRAMENTO] = @ENCERRAMENTO
                                 ,[DESCRICAO] = @DESCRICAO
+                                ,[MINUTOS_PREVISTOS]=@MINUTOS_PREVISTOS
+                                ,[MINUTOS_REALIZADOS]=@MINUTOS_REALIZADOS
                             WHERE [CODIGO]=@CODIGO";
             var comando = new SqlCommand(sql);
             comando.Parameters.AddWithValue("@CODIGO", evento.Codigo);
             comando.Parameters.AddWithValue("@STATUS", evento.Status);
             comando.Parameters.AddWithValue("@ENCERRAMENTO", evento.Encerramento);
             comando.Parameters.AddWithValue("@DESCRICAO", evento.Descricao);
+            comando.Parameters.AddWithValue("@MINUTOS_PREVISTOS", evento.MinutosPrevistos);
+            comando.Parameters.AddWithValue("@MINUTOS_REALIZADOS", evento.MinutosRealizados);
             ChamadosDb.ExecuteQueries(comando);
             ChamadosDb.CloseConnection();
 
@@ -86,7 +96,10 @@ namespace Data.Repositories
                       ,[ABERTURA]
                       ,[ENCERRAMENTO]
                       ,[DESCRICAO]
+                      ,[MINUTOS_PREVISTOS] as MINUTOSPREVISTOS
+                      ,[MINUTOS_REALIZADOS] AS MINUTOSREALIZADOS
                       ,[ATENDENTE] AS NOME
+
                   FROM [CHAMADOS].[dbo].[EVENTO]
                 WHERE [CODIGO_CHAMADO] =(SELECT CODIGO_CHAMADO FROM EVENTO WHERE CODIGO =@CODIGO)";
 
@@ -95,7 +108,7 @@ namespace Data.Repositories
             {
                 ev.Atendente = at;
                 return ev;
-            }, new {CODIGO= e.Codigo}, splitOn: "NOME").ToList();
+            }, new { CODIGO = e.Codigo }, splitOn: "NOME").ToList();
 
             foreach (var evento in eventos)
                 evento.Atendente = _iAtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
@@ -110,7 +123,10 @@ namespace Data.Repositories
                       ,[ABERTURA]
                       ,[ENCERRAMENTO]
                       ,[DESCRICAO]
+                      ,[MINUTOS_PREVISTOS] as MINUTOSPREVISTOS
+                      ,[MINUTOS_REALIZADOS] AS MINUTOSREALIZADOS
                       ,[ATENDENTE] AS NOME
+
                   FROM [CHAMADOS].[dbo].[EVENTO]
                 WHERE [CODIGO_CHAMADO]  =@CODIGO";
 
@@ -136,10 +152,13 @@ namespace Data.Repositories
                         ,[ENCERRAMENTO]
                         ,[ABERTURA]
                         ,[DESCRICAO]
+                      ,[MINUTOS_PREVISTOS] as MINUTOSPREVISTOS
+                      ,[MINUTOS_REALIZADOS] AS MINUTOSREALIZADOS
                         ,[ATENDENTE] AS NOME
+
                             FROM[CHAMADOS].[dbo].[EVENTO]
                             WHERE CODIGO = @CODIGO";
-            var evento = ChamadosDb.Conecection().Query<Evento,Atendente, Evento> (sql, (ev, at) =>
+            var evento = ChamadosDb.Conecection().Query<Evento, Atendente, Evento>(sql, (ev, at) =>
             {
                 ev.Atendente = at;
                 return ev;
@@ -157,8 +176,8 @@ namespace Data.Repositories
             var sql = @"SELECT CODIGO
 	                           ,DESCRICAO
 		                        FROM EVENTO_STATUS";
-            return  ChamadosDb.Conecection().Query(sql).Select(x => new {id = x.DESCRICAO, text = x.DESCRICAO});
-         }
+            return ChamadosDb.Conecection().Query(sql).Select(x => new { id = x.DESCRICAO, text = x.DESCRICAO });
+        }
 
         public string InserirPorChamado(IEnumerable<Evento> eventos)
         {
@@ -176,15 +195,19 @@ namespace Data.Repositories
                 ,[ENCERRAMENTO]
                 ,[ATENDENTE]
                 ,[DESCRICAO]
-                ,[CODIGO_CHAMADO])
+                ,[CODIGO_CHAMADO]
+                ,[MINUTOS_PREVISTOS]
+                ,[MINUTOS_REALIZADOS])
                 VALUES
                 ((SELECT CODIGO FROM EVENTO_STATUS WHERE DESCRICAO ='" + evento.Status + "')" +
-                                    ", \n  CONVERT(DATETIME,'" + evento.Abertura +"',103)" +
+                                    ", \n  CONVERT(DATETIME,'" + evento.Abertura + "',103)" +
                                     ", \n CONVERT(DATETIME,'" + evento.Encerramento + "',103)" +
                                     ", \n'" + evento.Atendente.Nome +
                                     "', \n'" + evento.Descricao +
-                    "',@CODIGO_CHAMADO) \n" +
-                                   " ");
+                                            "\n ',@CODIGO_CHAMADO" +
+                                            "\n ," + evento.MinutosPrevistos +
+                                            "\n ," + evento.MinutosRealizados +
+                                   ") ");
             }
             return result;
         }

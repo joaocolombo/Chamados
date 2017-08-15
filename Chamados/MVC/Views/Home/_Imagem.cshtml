@@ -1,208 +1,21 @@
 ﻿
-<div id="return"></div>
-<form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="AdicionarImagemAsync">
-    @*<form asp-controller="Home"enctype="multipart/form-data"  asp-action="AdicionarImagemAsync" method="POST" data-ajax-failure="onFailure" data-ajax-success="onSuccess" data-ajax="true" data-ajax-mode="replace" data-ajax-update="#render-chamado">*@
-    
 
-    <div class="form-group">
-        <div class="col-md-10">
-            <p>Upload one or more files using this form:</p>
-            <input name="id" id="id" value="@ViewBag.Id" hidden="" />
-            <input type="file" name="file" multiple />
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-md-10">
+
+<div class="jumbotron" style="  background: gray;
+                                      border: black dashed 3px;
+                                      width: 200px;
+                                      padding: 50px;
+                                      text-align: center;
+                                      color: white;">
+    <form asp-action="AdicionarImagemAsync" method="post" enctype="multipart/form-data" class="dropzone" id="dropzoneForm" style="width: 50px; background: none; border: none;">
+        <div class="fallback">
+            <input name="file" type="file" multiple />
             <input type="submit" value="Upload" />
-            <div class="row">
-                <div class="col-lg-10">
-                    <a href="\images/01.jpg" target="_blank">
-                        <img alt="" src="\images/01.jpg" />
-                    </a>
-                </div>
-                <div class="col-lg-1">
-                    <button type="button" data-url="@Url.Action("Finalizar", "Home", new {id = Model.Codigo, nomeAtendente = Model.Atendente.Nome})" data-toggle="slidePanel" class="btn btn-lg btn-danger waves-effect waves-light">
-                        X
-                    </button>
-                </div>
-            </div>
         </div>
-    </div>
-</form>
-<div class="panel panel-transparent">
-    <div class="panel-heading">
-        <h3 class="panel-title px-0">
-            jQuery File Upload
-            <small>
-                <a class="example-plugin-link" href="https://blueimp.github.io/jQuery-File-Upload/"
-                   target="_blank">official website</a>
-            </small>
-        </h3>
-    </div>
-    <form class="upload-form" id="exampleUploadForm" method="POST">
-        <input type="file" id="inputUpload" name="files[]" multiple="" />
-        <div class="uploader-inline">
-            <p class="upload-instructions">Click Or Drop Files To Upload.</p>
-        </div>
-        <div class="file-wrap container-fluid">
-            <div class="file-list row"></div>
-        </div>
+        <input name="id" value="@ViewBag.Id" id="id" hidden="" />
     </form>
 </div>
-@section scripts{
 
 
-    <script>
-        (function(document, window, $) {
-            'use strict';
-
-            var Site = window.Site;
-
-            $(document).ready(function($) {
-                Site.run();
-            });
-
-            // Example File Upload
-            // -------------------
-            $('#exampleUploadForm').fileupload({
-                url: '../../server/fileupload/',
-                dropzone: $('#exampleUploadForm'),
-                filesContainer: $('.file-list'),
-                uploadTemplateId: false,
-                downloadTemplateId: false,
-                uploadTemplate: tmpl(
-                    '{% for (var i=0, file; file=o.files[i]; i++) { %}' +
-                    '<div class="file-item-wrap template-upload fade col-lg-2 col-md-4 col-sm-6 {%=file.type.search("image") !== -1? "image" : "other-file"%}">' +
-                    '<div class="file-item">' +
-                    '<div class="preview vertical-align">' +
-                    '<div class="file-action-wrap">' +
-                    '<div class="file-action">' +
-                    '{% if (!i && !o.options.autoUpload) { %}' +
-                    '<i class="icon md-upload start" data-toggle="tooltip" data-original-title="Upload file" aria-hidden="true"></i>' +
-                    '{% } %}' +
-                    '{% if (!i) { %}' +
-                    '<i class="icon md-close cancel" data-toggle="tooltip" data-original-title="Stop upload file" aria-hidden="true"></i>' +
-                    '{% } %}' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>' +
-                    '<div class="info-wrap">' +
-                    '<div class="title">{%=file.name%}</div>' +
-                    '</div>' +
-                    '<div class="progress progress-striped active" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" role="progressbar">' +
-                    '<div class="progress-bar progress-bar-success" style="width:0%;"></div>' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>' +
-                    '{% } %}'
-                ),
-                downloadTemplate: tmpl(
-                    '{% for (var i=0, file; file=o.files[i]; i++) { %}' +
-                    '<div class="file-item-wrap template-download fade col-lg-2 col-md-4 col-sm-6 {%=file.type.search("image") !== -1? "image" : "other-file"%}">' +
-                    '<div class="file-item">' +
-                    '<div class="preview vertical-align">' +
-                    '<div class="file-action-wrap">' +
-                    '<div class="file-action">' +
-                    '<i class="icon md-delete delete" data-toggle="tooltip" data-original-title="Delete files" aria-hidden="true"></i>' +
-                    '</div>' +
-                    '</div>' +
-                    '<img src="{%=file.url%}"/>' +
-                    '</div>' +
-                    '<div class="info-wrap">' +
-                    '<div class="title">{%=file.name%}</div>' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>' +
-                    '{% } %}'
-                ),
-                forceResize: true,
-                previewCanvas: false,
-                previewMaxWidth: false,
-                previewMaxHeight: false,
-                previewThumbnail: false
-            }).on('fileuploadprocessalways',
-                function(e, data) {
-                    var length = data.files.length;
-
-                    for (var i = 0; i < length; i++) {
-                        if (!data.files[i].type.match(/^image\/(gif|jpeg|png|svg\+xml)$/)) {
-                            data.files[i].filetype = 'other-file';
-                        } else {
-                            data.files[i].filetype = 'image';
-                        }
-                    }
-                }).on('fileuploadadded',
-                function(e) {
-                    var $this = $(e.target);
-
-                    if ($this.find('.file-item-wrap').length > 0) {
-                        $this.addClass('has-file');
-                    } else {
-                        $this.removeClass('has-file');
-                    }
-                }).on('fileuploadfinished',
-                function(e) {
-                    var $this = $(e.target);
-
-                    if ($this.find('.file-item-wrap').length > 0) {
-                        $this.addClass('has-file');
-                    } else {
-                        $this.removeClass('has-file');
-                    }
-                }).on('fileuploaddestroyed',
-                function(e) {
-                    var $this = $(e.target);
-
-                    if ($this.find('.file-item-wrap').length > 0) {
-                        $this.addClass('has-file');
-                    } else {
-                        $this.removeClass('has-file');
-                    }
-                }).on('click',
-                function(e) {
-                    if ($(e.target).parents('.file-item-wrap').length === 0) $('#inputUpload').trigger('click');
-                });
-
-            $(document).bind('dragover',
-                function(e) {
-                    var dropZone = $('#exampleUploadForm'),
-                        timeout = window.dropZoneTimeout;
-                    if (!timeout) {
-                        dropZone.addClass('in');
-                    } else {
-                        clearTimeout(timeout);
-                    }
-                    var found = false,
-                        node = e.target;
-                    do {
-                        if (node === dropZone[0]) {
-                            found = true;
-                            break;
-                        }
-                        node = node.parentNode;
-                    } while (node !== null);
-                    if (found) {
-                        dropZone.addClass('hover');
-                    } else {
-                        dropZone.removeClass('hover');
-                    }
-                    window.dropZoneTimeout = setTimeout(function() {
-                            window.dropZoneTimeout = null;
-                            dropZone.removeClass('in hover');
-                        },
-                        100);
-                });
-
-            $('#inputUpload').on('click',
-                function(e) {
-                    e.stopPropagation();
-                });
-
-            $('#uploadlink').on('click',
-                function(e) {
-                    e.stopPropagation();
-                });
-        })(document, window, jQuery);
 
 
-    </script>}

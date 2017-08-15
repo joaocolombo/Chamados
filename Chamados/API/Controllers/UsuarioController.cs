@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Services.Interfaces;
+using Domain.Services.Validates;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,9 +26,14 @@ namespace API.Controllers
             {
                 return Ok(_iUsuarioService.Autenticar(Convert.ToInt32(usuario), senha));
             }
-            catch (Exception e)
+
+            catch (RnException ex)
             {
-                return StatusCode(403, e.Message);
+                return StatusCode(403, ex);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
             }
         }
     }

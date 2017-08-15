@@ -3,8 +3,9 @@ using System;
 using Domain.Entities;
 using Domain.Repositories;
 using Domain.Services.Interfaces;
+using Domain.Services.Validates;
 
-namespace Domain.Services.Validates
+namespace Domain.Services
 {
     public class UsuarioService:IUsuarioService
     {
@@ -19,11 +20,10 @@ namespace Domain.Services.Validates
         {
             if (id==0 || string.IsNullOrEmpty(senha))
             {
-                throw new Exception("Usuario ou senha não preenchido");
+                throw new RnException("Usuario ou senha não preenchido");
             }
             return _iUsuarioRepository.Autenticar(id, senha);
+
         }
-
-
     }
 }

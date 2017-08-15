@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Domain.Entities;
 using Domain.Services.Interfaces;
+using Domain.Services.Validates;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -41,13 +42,15 @@ namespace API.Controllers
         {
             try
             {
-               
                 return Ok(_iAtendenteService.BuscarAtendente(nome));
+            }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
             }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message);
-
+                return StatusCode(500, ex);
             }
 
         }
@@ -61,10 +64,14 @@ namespace API.Controllers
             {
                 return Ok(_iAtendenteService.BuscarAtendente(id));
             }
+
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message);
-
+                return StatusCode(500, ex);
             }
 
         }

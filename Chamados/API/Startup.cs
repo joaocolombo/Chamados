@@ -21,8 +21,11 @@ namespace API
 {
     public class Startup
     {
+
+
         public Startup(IHostingEnvironment env)
         {
+     
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -30,6 +33,10 @@ namespace API
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
 
+            if (env.IsDevelopment())
+            {
+                
+            }
 
         }
 

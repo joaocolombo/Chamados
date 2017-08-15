@@ -15,33 +15,51 @@ namespace Domain.Entities
         public string Solicitante { get; set; }
         public List<Categoria> Categorias { get; set; }
         public List<string> Imagens { get; set; }
-        private bool finalizado;
-
-        public bool Finalizado
+        public int MinutosPrevistos
         {
-            get { return finalizado; }
-            set
+            get
             {
-                if (Finalizado)
-                {
-                    throw new Exception("Chamado ja finalizado nao pode ser reaberto");
-                }
-                finalizado = value;
+                return Eventos.Any() ? Eventos.Sum(x => x.MinutosPrevistos) : 0;
+            }
+        }
+        public int MinutosRealizados
+        {
+            get
+            {
+                return Eventos.Any() ? Eventos.Sum(x => x.MinutosRealizados) : 0;
             }
         }
 
-        public string Nivel => Atendente.Nivel;
+        private bool _finalizado;
+        public bool Finalizado
+        {
+            get { return _finalizado; }
+            set
+            {
+                if (Finalizado)
+                    throw new Exception("Chamado ja finalizado nao pode ser reaberto");
+                _finalizado = value;
+            }
+        }
 
+        private string _nivel;
+        public string Nivel
+        {
+            get
+            {
+                return Atendente?.Nivel;
+            }
+            set { _nivel = value; }
+        }
         public Atendente Atendente
         {
             get
-            {   
+            {
                 if (!Eventos.Any()) return null;
                 var a = Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
                 return a.Atendente;
             }
         }
-
 
     }
 }

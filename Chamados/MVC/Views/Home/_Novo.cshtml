@@ -69,9 +69,25 @@
                                 <label asp-for="Categorias" class="form-control-label"></label>
                                 <select asp-for="Categorias" class="form-control form-control-lg" data-plugin="select2Ajax" data-ajax--url="//10.1.0.4/api/categoria/select2/BuscarTodos"></select>
                             </div>
+                            <div class="row">
+                                <label class="offset-lg-3 col-lg-6">__________________</label>
+                                <h4 class="col-lg-12">EVENTO</h4><br/>
+                            </div>
                             <div class="form-group">
                                 <label asp-for="Descricao" class="form-control-label"></label>
                                 <textarea asp-for="Descricao" class="form-control" id="textareaDefault" rows="5"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label asp-for="MinutosPrevistos" class="form-control-label">Previsão em Minutos</label>
+                                        <input asp-for="MinutosPrevistos" type="number"min="0" class="form-control col-lg-4">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label asp-for="MinutosRealizados" class="form-control-label">Tempo Gasto em Minutos</label>
+                                        <input asp-for="MinutosRealizados" type="number" min="0" class="form-control col-lg-4">
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label asp-for="Status" class="form-control-label"></label>

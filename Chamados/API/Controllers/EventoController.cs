@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Repositories;
 using Domain.Services.Interfaces;
+using Domain.Services.Validates;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -40,9 +41,13 @@ namespace API.Controllers
                 evento.Atendente= _iAtendenteService.BuscarAtendente(evento.Atendente.Codigo);
                 return Ok(_iEventoService.Adicionar(chamado, evento, atendente));
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message );
+                return StatusCode(500, ex.Message );
             }
 
         }
@@ -64,9 +69,13 @@ namespace API.Controllers
                 return Ok(retorno);
 
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message );
+                return StatusCode(500, ex.Message );
             }
         }
 
@@ -81,9 +90,13 @@ namespace API.Controllers
 
                 return Ok(_iEventoService.AlterarDescricao(id, descricao, atendente));
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422,ex.Message );
+                return StatusCode(500,ex.Message );
             }
         }
 
@@ -98,9 +111,13 @@ namespace API.Controllers
 
                 return Ok(_iEventoService.AlterarStatus(id, status, atendente));
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422,  ex.Message );
+                return StatusCode(500,  ex.Message );
             }
         }
         // GET: api/Evento/5
@@ -111,9 +128,13 @@ namespace API.Controllers
             {
                 return Ok(_iEventoService.BuscarPorId(id));
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422,ex.Message );
+                return StatusCode(500,ex.Message );
             }
         }
 

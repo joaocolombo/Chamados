@@ -6,6 +6,7 @@ using Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
+using Domain.Services.Validates;
 
 
 namespace API.Controllers
@@ -21,9 +22,7 @@ namespace API.Controllers
         {
             _iFilaService = iFilaService;
         }
-
-
-
+        
         // GET: api/Fila
         [HttpGet("select2/BuscarTodos")]
         [EnableCors("LiberarAcessoExterno")]
@@ -46,12 +45,16 @@ namespace API.Controllers
             try
             {
                 var filas = _iFilaService.BuscarFila().Select(x =>
-                    new {Codigo = x.Codigo, Descricao = x.Descricao, Quantidade = x.Lista.Count});
+                    new { Codigo = x.Codigo, Descricao = x.Descricao, Quantidade = x.Lista.Count });
                 return Ok(filas);
+            }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
             }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message);
+                return StatusCode(500, ex);
             }
         }
 
@@ -63,9 +66,13 @@ namespace API.Controllers
             {
                 return Ok(_iFilaService.BuscarFila());
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message);
+                return StatusCode(500, ex);
             }
         }
         [HttpGet("BuscarPorId/{id}")]
@@ -76,9 +83,13 @@ namespace API.Controllers
             {
                 return Ok(_iFilaService.BuscarPorId(id));
             }
+            catch (RnException ex)
+            {
+                return StatusCode(422, ex);
+            }
             catch (Exception ex)
             {
-                return StatusCode(422, ex.Message);
+                return StatusCode(500, ex);
             }
         }
 

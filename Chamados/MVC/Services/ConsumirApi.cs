@@ -13,7 +13,7 @@ namespace MVC.Services
     public class ConsumirApi : IConsumirApi
 
     {
-        private string url = "";
+        private string url = "http://10.1.0.4";
 
         public HttpResponseMessage GetMethod(string uri, string uriParametros)
         {
@@ -27,12 +27,19 @@ namespace MVC.Services
             };
         }
 
-        public HttpResponseMessage PostMethod(string uri, string uriParametros, string json)
+        public HttpResponseMessage PostMethod(string uri,  string json)
         {
-            throw new NotImplementedException();
+            using (var client = new HttpClient())
+            {
+
+                client.BaseAddress = new Uri(url + uri);
+                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
+                client.DefaultRequestHeaders.Accept.Add(contentType);
+                return client.PostAsync(url + uri,new StringContent(json, Encoding.UTF8, "application/json")).Result;
+            }
         }
 
-        public HttpResponseMessage PutMethod(string uri, string uriParametros, string json)
+            public HttpResponseMessage PutMethod(string uri, string uriParametros, string json)
         {
             using (var client = new HttpClient())
             {

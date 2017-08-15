@@ -7,43 +7,56 @@ using MVC.ViewModel.Evento;
 
 namespace MVC.ViewModel.Home
 {
-        public class ChamadoViewModel
+    public class ChamadoViewModel
+    {
+        public int Codigo { get; set; }
+        public Domain.Entities.Fila Fila { get; set; }
+        public string Status { get; set; }
+        public List<AdicionarEventoViewModel> Eventos { get; set; }
+        public Filial Filial { get; set; }
+        public string Assunto { get; set; }
+        public string Solicitante { get; set; }
+        public List<Categoria> Categorias { get; set; }
+
+        public int MinutosPrevistos
         {
-            public int Codigo { get; set; }
-            public Domain.Entities.Fila Fila { get; set; }
-            public string Status { get; set; }
-            public List<AdicionarEventoViewModel> Eventos { get; set; }
-            public Filial Filial { get; set; }
-            public string Assunto { get; set; }
-            public string Solicitante { get; set; }
-            public List<Categoria> Categorias { get; set; }
-            private bool finalizado;
+            get { return Eventos.Any() ? Eventos.Sum(x => x.MinutosPrevistos) : 0; }
+        }
 
-            public bool Finalizado
+        public int MinutosRealizados
+        {
+            get { return Eventos.Any() ? Eventos.Sum(x => x.MinutosRealizados) : 0; }
+        }
+
+        private bool _finalizado;
+
+        public bool Finalizado
+        {
+            get { return _finalizado; }
+            set
             {
-                get { return finalizado; }
-                set
-                {
-                    if (Finalizado)
-                    {
-                        throw new Exception("Chamado ja finalizado nao pode ser reaberto");
-                    }
-                    finalizado = value;
-                }
+                if (Finalizado)
+                    throw new Exception("Chamado ja finalizado nao pode ser reaberto");
+                _finalizado = value;
             }
+        }
 
-            public string Nivel => Atendente.Nivel;
+        private string _nivel;
 
-            public Atendente Atendente
+        public string Nivel
+        {
+            get { return Atendente?.Nivel; }
+            set { _nivel = value; }
+        }
+
+        public Atendente Atendente
+        {
+            get
             {
-                get
-                {
-                    if (!Eventos.Any()) return null;
-                    var a = Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
-                    return a.Atendente;
-                }
+                if (!Eventos.Any()) return null;
+                var a = Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
+                return a.Atendente;
             }
-
-
         }
     }
+}

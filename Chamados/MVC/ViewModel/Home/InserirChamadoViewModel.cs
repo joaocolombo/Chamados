@@ -16,6 +16,8 @@ namespace MVC.ViewModel.Home
         public string Status { get; set; }
         public string NomeAtendente { get; set; }
         public bool Geral { get; set; }
+        public int MinutosRealizados { get; set; }
+        public int MinutosPrevistos { get; set; }
 
     }
 }

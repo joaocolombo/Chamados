@@ -57,7 +57,7 @@ namespace MVC
             }
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
             {
-                AuthenticationScheme = "CookieAutentication",
+                AuthenticationScheme = "CookieAuthentication",
                 LoginPath = new PathString("/Account/Unauthorized/"),
                 AccessDeniedPath = new PathString("/Account/Forbidden/"),
                 AutomaticAuthenticate = true,

@@ -19,16 +19,28 @@
                             @Html.AntiForgeryToken()
                             @Html.ValidationSummary(true, "", new { @class = "alert alert-danger", role = "alert" })<div class="form-group form-material">
                                 <div class="radio-custom radio-success radio-inline">
-                                    <input type="radio"  checked="" asp-for="Direcao" value="1" onchange="Adicionar('encaminharAtendente','status','encaminharFila')">
+                                    <input type="radio"  checked="" asp-for="Direcao" value="1" onchange="Adicionar('encaminharAtendente','status','encaminharFila','tempo')">
                                     <label for="inputAdicionar">Adicionar</label>
                                 </div>
                                 <div class="radio-custom radio-warning radio-inline">
-                                    <input type="radio" asp-for="Direcao" value="2"  onchange="EncaminharN2('encaminharAtendente','status','encaminharFila')">
+                                    <input type="radio" asp-for="Direcao" value="2"  onchange="EncaminharN2('encaminharAtendente','status','encaminharFila','tempo')">
                                     <label for="inputEncN2">Encaminhar para fila</label>
                                 </div>
                                 <div class="radio-custom radio-warning radio-inline">
-                                    <input type="radio" asp-for="Direcao" value="3"  onchange="EncaminharAtendente('encaminharAtendente','status','encaminharFila')">
+                                    <input type="radio" asp-for="Direcao" value="3"  onchange="EncaminharAtendente('encaminharAtendente','status','encaminharFila','tempo')">
                                     <label for="inputEncAtendente">Encaminhar para outro Atendente</label>
+                                </div>
+                            </div>
+                            <div class="form-group" id="tempo" style="display: block">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label asp-for="MinutosPrevistos" class="form-control-label">Previsão em Minutos</label>
+                                        <input asp-for="MinutosPrevistos" type="number" min="0" class="form-control col-lg-4">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label asp-for="MinutosRealizados" class="form-control-label">Tempo Gasto em Minutos</label>
+                                        <input asp-for="MinutosRealizados" type="number" min="0" class="form-control col-lg-4">
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -72,25 +84,30 @@
 </div>
 
 <script>
-    function Adicionar(encaminharAtendente, status, encaminharFila) {
+    function Adicionar(encaminharAtendente, status, encaminharFila,tempo) {
 
         document.getElementById(encaminharAtendente).style.display = 'none';
         document.getElementById(status).style.display = 'block';
         document.getElementById(encaminharFila).style.display = 'none';
+        document.getElementById(tempo).style.display = 'block';
+
 
     }
-    function EncaminharAtendente(encaminharAtendente, status, encaminharFila) {
+    function EncaminharAtendente(encaminharAtendente, status, encaminharFila, tempo) {
 
         document.getElementById(encaminharAtendente).style.display = 'block';
         document.getElementById(status).style.display = 'none';
         document.getElementById(encaminharFila).style.display = 'none';
+        document.getElementById(tempo).style.display = 'none';
 
     }
-    function EncaminharN2(encaminharAtendente, status, encaminharFila) {
+    function EncaminharN2(encaminharAtendente, status, encaminharFila, tempo) {
 
         document.getElementById(encaminharAtendente).style.display = 'none';
         document.getElementById(status).style.display = 'none';
         document.getElementById(encaminharFila).style.display = 'block';
+        document.getElementById(tempo).style.display = 'none';
+
 
 
     }

@@ -19,5 +19,7 @@ namespace MVC.ViewModel.Evento
         public int Direcao { get; set; }
         public DateTime Abertura { get; set; }
         public Atendente Atendente { get; set; }
+        public int MinutosPrevistos { get; set; }
+        public int MinutosRealizados { get; set; }
     }
 }

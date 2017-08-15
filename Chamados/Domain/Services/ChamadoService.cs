@@ -5,6 +5,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using Domain.Services.Interfaces;
 using Domain.Services.Interfaces.Validates;
+using Domain.Services.Validates;
 
 namespace Domain.Services
 {
@@ -30,7 +31,7 @@ namespace Domain.Services
             var erro = _iChamadoValidate.PermiteAlterarAssunto(chamado, atendente, assunto);
             if (!string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
             chamado.Assunto = assunto;
             return _iChamadoRepository.Alterar(chamado);
@@ -42,7 +43,7 @@ namespace Domain.Services
             var erro = _iChamadoValidate.PermiteAlterarSolicitante(chamado, atendente, solicitante);
             if (!string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
             chamado.Solicitante = solicitante;
             return _iChamadoRepository.Alterar(chamado);
@@ -54,7 +55,7 @@ namespace Domain.Services
             var erro = _iChamadoValidate.PermiteAlterarCategoria(chamado, atendente, categorias);
             if (!string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
             chamado.Categorias = categorias;
             return _iChamadoRepository.Alterar(chamado);
@@ -68,7 +69,7 @@ namespace Domain.Services
 
             if (!string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
             chamado.Filial = filial;
             return _iChamadoRepository.Alterar(chamado);
@@ -80,7 +81,7 @@ namespace Domain.Services
             var erro = _iChamadoValidate.PermiteAlterarFila(chamado, atendente, fila);
             if (!string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
 
             _iChamadoRepository.AdicionarNaFila(codigo, fila);
@@ -98,7 +99,7 @@ namespace Domain.Services
             var erro = _iChamadoValidate.PermiteFinalizar(c, atendente);
             if (!string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
             c.Status = "FINALIZADO";
             c.Finalizado = true;
@@ -114,7 +115,7 @@ namespace Domain.Services
             }
             if (!erro.Equals(""))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
 
             chamado.Status = "ABERTO";
@@ -137,7 +138,7 @@ namespace Domain.Services
                     }
 
                 }
-                return 0;
+                throw e;
             }
         }
 
@@ -182,7 +183,7 @@ namespace Domain.Services
             var erro = _iChamadoValidate.AtendenteCorrente(chamado, atendente);
             if (!string.IsNullOrEmpty(erro))
             {
-                throw new Exception(erro);
+                throw new RnException(erro);
             }
             _iChamadoRepository.AdicionarImagem(codigo, nomeArquivo);
             return _iChamadoRepository.BuscarPorId(codigo);

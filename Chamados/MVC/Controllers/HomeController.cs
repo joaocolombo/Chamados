@@ -2,21 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Authentication;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using MVC.Interfaces;
-using MVC.ViewModel;
 using MVC.ViewModel.Evento;
 using MVC.ViewModel.Home;
 
@@ -68,52 +62,39 @@ namespace MVC.Controllers
         {
             return PartialView("_Finalizar", new FinalizarViewModel() { Id = id, NomeAtendente = nomeAtendente });
         }
-
-
-
-        [HttpGet]
+        
         //[Route("")]
         //[Route("/{usuario?}/{senha?}")]
-        //public IActionResult Index(string usuario, string senha)
+        //public IActionResult Index(string usuarioId, string senha){
+        //if (!string.IsNullOrEmpty(usuario))
+        //{
+        //    usuario = Request.Cookies[usuario];
+        //    senha = Request.Cookies[senha];
+        //}
+        [HttpGet]
         public IActionResult Index()
         {
-            //if (!string.IsNullOrEmpty(usuario))
-            //{
-            //    usuario = Request.Cookies[usuario];
-            //    senha = Request.Cookies[senha];
-            //}
 
+          //  var retornoUsuario = _iConsumirApi.GetMethod("/api/usuario/Autenticar/{usuario}/{senha}",
+          //"/api/usuario/autenticar/33/757F66AC07CF22BD36BC793B4B2F360E");
 
+          //  if (retornoUsuario.IsSuccessStatusCode)
+          //  {
+          //      var usuario = JsonConvert.DeserializeObject<Usuario>(retornoUsuario.Content.ReadAsStringAsync().Result);
+          //      var claims = new List<Claim>
+          //      {
+          //          new Claim(ClaimTypes.Name, usuario.NomeExibicao, ClaimValueTypes.String),
+          //          new Claim(ClaimTypes.NameIdentifier, usuario.Login, ClaimValueTypes.String),
+          //          new Claim(ClaimTypes.SerialNumber, usuario.Id.ToString(), ClaimValueTypes.String),
+          //          new Claim(ClaimTypes.Email, usuario.Email, ClaimValueTypes.String),
+          //      };
+          //      foreach (var grupo in usuario.Grupos)
+          //          claims.Add(new Claim(ClaimTypes.Role, grupo, ClaimValueTypes.String));
 
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, "Joao", ClaimValueTypes.String),
-                new Claim(ClaimTypes.Country, "UK", ClaimValueTypes.String),
-                new Claim("ChildhoodHero", "Ronnie James Dio", ClaimValueTypes.String),
-                new Claim(ClaimTypes.Email, "joao.co@hotmail.com", ClaimValueTypes.String),
-                new Claim(ClaimTypes.Role, "pinto", ClaimValueTypes.String)
-            };
-
-            var userIdentity = new ClaimsIdentity(claims, "CookieAutentication");
-
-            var userPrincipal = new ClaimsPrincipal(userIdentity);
-
-            HttpContext.Authentication.SignInAsync("CookieAutentication", userPrincipal,
-                new AuthenticationProperties
-                {
-                    ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
-                    IsPersistent = false,
-                    AllowRefresh = false
-                });
-
-#if DEBUG
-            CookieOptions cookies = new CookieOptions();
-            cookies.Expires = DateTime.Now.AddDays(1);
-            Response.Cookies.Append("3B0A953170186B25414F47C59F15137B", "33");
-
-            //3B0A953170186B25414F47C59F15137B
-#endif
+          //      ClaimsPrincipal principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
+          //      HttpContext.Authentication.SignInAsync("CookieAuthentication", principal);
+          //  }
+          //  var atendenteId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value;
 
             var retoro = _iConsumirApi.GetMethod("/api/chamado/buscarporatendente",
                 "/api/chamado/buscarporatendente/" + 33 + "/1");
@@ -122,11 +103,8 @@ namespace MVC.Controllers
             return StatusCode(422, retoro.Content.ReadAsStringAsync().Result);
         }
 
-
-
         [HttpGet]
-        [Authorize(Roles = "pinto")]
-        public IActionResult Visualizar(string id)
+       public IActionResult Visualizar(string id)
         {
             var response = _iConsumirApi.GetMethod("/api/chamado/buscarporid/{id}", "/api/chamado/buscarporid/" + id);
             if (response.IsSuccessStatusCode)
@@ -147,8 +125,9 @@ namespace MVC.Controllers
                     Atendente = evento.Atendente,
                     Codigo = evento.Codigo,
                     ChamadoId = chamado.Codigo,
-                    FilaId = evento.Codigo
-
+                    FilaId = evento.Codigo,
+                    MinutosPrevistos = evento.MinutosPrevistos,
+                    MinutosRealizados = evento.MinutosRealizados
                 });
             }
             return new ChamadoViewModel()
@@ -163,10 +142,9 @@ namespace MVC.Controllers
                 Eventos = eventos
             };
         }
-
-
-        public async Task<IActionResult> AdicionarImagemAsync(IFormFile file, int id)
+        public async Task<string> AdicionarImagemAsync(IFormFile file, int id)
         {
+            var ida = ViewBag.Id;
             var nomeArquivo = Guid.NewGuid() + file.FileName;
             if (file.Length > 0)
             {
@@ -177,23 +155,23 @@ namespace MVC.Controllers
             }
             var json = JsonConvert.SerializeObject(new Atendente()
             {
-                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+                Codigo = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
             });
 
             var response = _iConsumirApi.PutMethod("/api/Chamado/AdicionarImagem/{nomeArquivo}/{id}", "/api/Chamado/AdicionarImagem/" + nomeArquivo + "/" + id, json);
             if (response.IsSuccessStatusCode)
-                return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
-            return StatusCode(422, response.Content.ReadAsStringAsync().Result);
+                return "sucesso";
+            return "Erro ao Inserir";
         }
 
         [HttpPost]
         public IActionResult AlterarSolicitante(AlterarSolicitanteViewModel alterarSolicitante)
-        {
+ {
             if (string.IsNullOrEmpty(alterarSolicitante.Solicitante))
                 return StatusCode(422, "Prencha o Solicitante");
             var json = JsonConvert.SerializeObject(new Atendente()
             {
-                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+                Codigo = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
             });
             var response = _iConsumirApi.PutMethod("/api/Chamado/AlterarSolicitante/{assunto}/{id}",
                 "/api/Chamado/AlterarSolicitante/" + alterarSolicitante.Solicitante + "/" + alterarSolicitante.Id,
@@ -212,10 +190,11 @@ namespace MVC.Controllers
                 Descricao = inserirChamadoViewModel.Descricao,
                 Atendente = new Atendente()
                 {
-                    Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+                    Codigo = 33//Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
                 },
-                Status = inserirChamadoViewModel.Status
-
+                Status = inserirChamadoViewModel.Status,
+                MinutosPrevistos = inserirChamadoViewModel.MinutosPrevistos,
+                MinutosRealizados = inserirChamadoViewModel.MinutosRealizados,
             };
             if (inserirChamadoViewModel.Geral)
                 inserirChamadoViewModel.CodigoFilial = "000000";
@@ -228,8 +207,8 @@ namespace MVC.Controllers
                 Categorias = categorias,
                 Eventos = new List<Evento>() { evento },
                 Solicitante = inserirChamadoViewModel.Solicitante
-            };
-            var response = _iConsumirApi.PostMethod("/api/Chamado", "/api/Chamado", JsonConvert.SerializeObject(chamado));
+                };
+            var response = _iConsumirApi.PostMethod("/api/Chamado", JsonConvert.SerializeObject(chamado));
             if (response.IsSuccessStatusCode)
                 return RedirectToAction("Visualizar", new { id = response.Content.ReadAsStringAsync().Result });
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
@@ -240,7 +219,7 @@ namespace MVC.Controllers
         {
             var json = JsonConvert.SerializeObject(new Atendente()
             {
-                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+                Codigo = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
             });
             var response = _iConsumirApi.PutMethod("/api/Chamado/Finalizar/{id}", "/api/Chamado/Finalizar/" + finalizar.Id, json);
             if (response.IsSuccessStatusCode)
@@ -254,7 +233,7 @@ namespace MVC.Controllers
             List<Categoria> listaCategoria = new List<Categoria>();
             var atendente = new Atendente()
             {
-                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+                Codigo = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
             };
             if (alterarCategoria.Categorias != null)
                 foreach (var codigo in alterarCategoria.Categorias)
@@ -267,42 +246,21 @@ namespace MVC.Controllers
                 return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
-        
+
         [HttpPost]
         public IActionResult AlterarAssunto(AlterarAssuntoViewModel alterarAssunto)
         {
             var json = JsonConvert.SerializeObject(new Atendente()
             {
-                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
-
-
+                Codigo = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
             });
             if (string.IsNullOrEmpty(alterarAssunto.Assunto))
-            {
                 return StatusCode(422, "Prencha o Assunto");
-            }
 
-            using (var client = new HttpClient())
-            {
-
-                client.BaseAddress = new Uri(url + "/api/Chamado/AlterarAssunto/{assunto}/{id}");
-                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response =
-                    client.PutAsync(url + "/api/Chamado/AlterarAssunto/" + alterarAssunto.Assunto + "/" + alterarAssunto.Id, new StringContent(json, Encoding.UTF8, "application/json"))
-                        .Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result));
-                    return PartialView("_Visualizar", chamadoVM);
-                }
-                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                {
-                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                }
-                return Error(response.Content.ReadAsStringAsync().Result);
-
-            }
+            var response = _iConsumirApi.PutMethod("/api/Chamado/AlterarAssunto/{assunto}/{id}", "/api/Chamado/AlterarAssunto/" + alterarAssunto.Assunto + "/" + alterarAssunto.Id, json);
+            if (response.IsSuccessStatusCode)
+                return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+            return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
 
@@ -311,36 +269,17 @@ namespace MVC.Controllers
         {
             var atendente = new Atendente()
             {
-                Codigo = Convert.ToInt32(Request.Cookies["3B0A953170186B25414F47C59F15137B"])
+                Codigo = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
             };
             var filial = new Filial() { Codigo = alterarFilial.Filial };
-            List<object> lista = new List<object>();
-            lista.Add(filial);
-            lista.Add(atendente);
+            List<object> lista = new List<object>() { filial, atendente };
             var json = JsonConvert.SerializeObject(lista);
+            var response = _iConsumirApi.PutMethod("/api/Chamado/AlterarFilial/{id}",
+                    "/api/Chamado/AlterarFilial/" + alterarFilial.Id, json);
+            if (response.IsSuccessStatusCode)
+                return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+            return StatusCode(422, response.Content.ReadAsStringAsync().Result);
 
-            using (var client = new HttpClient())
-            {
-                //client.PostAsync(url+ "/api/Chamado", new StringContent(json, Encoding.UTF8, "application/json"));
-
-                client.BaseAddress = new Uri(url + "/api/Chamado/AlterarFilial/{id}");
-                var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-                client.DefaultRequestHeaders.Accept.Add(contentType);
-                var response =
-                    client.PutAsync(url + "/api/Chamado/AlterarFilial/" + alterarFilial.Id, new StringContent(json, Encoding.UTF8, "application/json"))
-                        .Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var chamadoVM = ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result));
-                    return PartialView("_Visualizar", chamadoVM);
-                }
-                if (response.ReasonPhrase.Equals("Unprocessable Entity"))
-                {
-                    return StatusCode(422, response.Content.ReadAsStringAsync().Result);
-                }
-                return Error(response.Content.ReadAsStringAsync().Result);
-
-            }
 
         }
 
