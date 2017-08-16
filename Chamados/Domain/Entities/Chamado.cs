@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 
 namespace Domain.Entities
 {
@@ -17,35 +19,27 @@ namespace Domain.Entities
         public string Solicitante { get; private set; }
         public List<Categoria> Categorias { get; private set; }
         public List<string> Imagens { get; set; }
+        public bool Finalizado { get; private set; }
+
+        public string Nivel
+        {
+            get
+            {
+               return  Eventos.FirstOrDefault(x =>x.Encerramento== Eventos.Max(y=>y.Encerramento)).Atendente.Nivel;
+            }
+        }
 
         public int MinutosPrevistos
         {
             get
-            {
-                return Eventos.Any() ? Eventos.Sum(x => x.MinutosPrevistos) : 0;
-            }
+            { return Eventos.Any() ? Eventos.Sum(x => x.MinutosPrevistos) : 0; }
         }
         public int MinutosRealizados
         {
             get
-            {
-                return Eventos.Any() ? Eventos.Sum(x => x.MinutosRealizados) : 0;
-            }
+            { return Eventos.Any() ? Eventos.Sum(x => x.MinutosRealizados) : 0; }
         }
 
-        private bool _finalizado;
-        public bool Finalizado
-        {
-            get => _finalizado;
-            set
-            {
-                if (Finalizado)
-                    throw new ArgumentException("Chamado ja finalizado nao pode ser reaberto");
-                _finalizado = value;
-            }
-        }
-
-        public string Nivel => Atendente?.Nivel;
 
         public Atendente Atendente
         {
@@ -68,6 +62,14 @@ namespace Domain.Entities
             SetSolicitante(solicitante);
         }
 
+        public void SetFinalziado(bool finalizado)
+        {
+            {
+                if (Finalizado)
+                    throw new ArgumentException("Chamado ja finalizado nao pode ser reaberto");
+                Finalizado = finalizado;
+            }
+        }
         public void SetCodigo(int coodigo)
         {
             if (Codigo != 0) throw new AggregateException("O codigo do Chamado nunca pode ser alterado");
