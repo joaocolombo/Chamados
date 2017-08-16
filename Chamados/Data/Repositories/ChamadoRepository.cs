@@ -78,15 +78,15 @@ namespace Data.Repositories
             var chamados = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
                 (ch, fi) =>
                 {
-                    ch.Filial = fi;
+                    ch.SetFilial(fi);
                     return ch;
                 }, new { ATENDENTE = atendente.Nome, FINALIZADO = finalizado }, splitOn: "FILIAL").ToList();
 
             foreach (var chamado in chamados)
             {
-                chamado.Filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
-                chamado.Eventos = _iEventoRepository.BuscarEventosPorChamado(chamado.Codigo);
-                chamado.Categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo);
+                chamado.SetFilial(_iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo));
+                chamado.SetEventos(_iEventoRepository.BuscarEventosPorChamado(chamado.Codigo));
+                chamado.SetCategoria(_iCategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo));
 
             }
             ChamadosDb.CloseConnection();
@@ -108,7 +108,6 @@ namespace Data.Repositories
                               ,[SOLICITANTE]
                               ,'-'as '-'
                               ,[CODIGO_FILIAL] AS CODIGO
-
                               
                           FROM[CHAMADOS].[dbo].[CHAMADO]
                         WHERE [CODIGO] = @CODIGO";
@@ -119,22 +118,22 @@ namespace Data.Repositories
             var chamado = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
                 (ch, fi) =>
                 {
-                    ch.Filial = fi;
+                    ch.SetFilial(fi);
                     return ch;
                 },
              new { CODIGO = codigo }, splitOn:"-").FirstOrDefault();
             var eventos = _iEventoRepository.BuscarEventosPorChamado(codigo);
             var categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(codigo);
             var filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
-            chamado.Filial = filial;
-            chamado.Eventos = eventos;
-            chamado.Categorias = categorias;
+            chamado.SetFilial(filial);
+            chamado.SetEventos(eventos);
+            chamado.SetCategoria(categorias);
             ChamadosDb.CloseConnection();
 
             return chamado;
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                
                 return null;
@@ -234,7 +233,7 @@ namespace Data.Repositories
             var chamados = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
                 (ch, fi) =>
                 {
-                    ch.Filial = fi;
+                    ch.SetFilial(fi);
                     return ch;
                 },
              new { FILA = fila.Codigo }, splitOn: "-");
@@ -244,9 +243,9 @@ namespace Data.Repositories
                 var eventos = _iEventoRepository.BuscarEventosPorChamado(chamado.Codigo);
                 var categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo);
                 var filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
-                chamado.Filial = filial;
-                chamado.Eventos = eventos;
-                chamado.Categorias = categorias;
+                chamado.SetFilial(filial);
+                chamado.SetEventos(eventos);
+                chamado.SetCategoria(categorias);
             }
 
             ChamadosDb.CloseConnection();

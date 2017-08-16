@@ -33,7 +33,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            chamado.Assunto = assunto;
+            chamado.SetAssunto(assunto);
             return _iChamadoRepository.Alterar(chamado);
 
         }
@@ -45,7 +45,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            chamado.Solicitante = solicitante;
+            chamado.SetSolicitante(solicitante);
             return _iChamadoRepository.Alterar(chamado);
         }
 
@@ -57,7 +57,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            chamado.Categorias = categorias;
+            chamado.SetCategoria(categorias);
             return _iChamadoRepository.Alterar(chamado);
         }
 
@@ -71,7 +71,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            chamado.Filial = filial;
+            chamado.SetFilial(filial);
             return _iChamadoRepository.Alterar(chamado);
         }
 
@@ -101,7 +101,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            c.Status = "FINALIZADO";
+            c.SetStatus("FINALIZADO");
             c.Finalizado = true;
             _iChamadoRepository.Alterar(c);
         }
@@ -118,10 +118,10 @@ namespace Domain.Services
                 throw new RnException(erro);
             }
 
-            chamado.Status = "ABERTO";
+            chamado.SetStatus("ABERTO");
             foreach (var evento in chamado.Eventos)
             {
-                evento.Abertura = DateTime.Now;
+                evento.SetAbertura(DateTime.Now);
             }
             try
             {

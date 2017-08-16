@@ -62,7 +62,7 @@ namespace MVC.Controllers
         {
             return PartialView("_Finalizar", new FinalizarViewModel() { Id = id, NomeAtendente = nomeAtendente });
         }
-        
+
         //[Route("")]
         //[Route("/{usuario?}/{senha?}")]
         //public IActionResult Index(string usuarioId, string senha){
@@ -75,26 +75,26 @@ namespace MVC.Controllers
         public IActionResult Index()
         {
 
-          //  var retornoUsuario = _iConsumirApi.GetMethod("/api/usuario/Autenticar/{usuario}/{senha}",
-          //"/api/usuario/autenticar/33/757F66AC07CF22BD36BC793B4B2F360E");
+            //  var retornoUsuario = _iConsumirApi.GetMethod("/api/usuario/Autenticar/{usuario}/{senha}",
+            //"/api/usuario/autenticar/33/757F66AC07CF22BD36BC793B4B2F360E");
 
-          //  if (retornoUsuario.IsSuccessStatusCode)
-          //  {
-          //      var usuario = JsonConvert.DeserializeObject<Usuario>(retornoUsuario.Content.ReadAsStringAsync().Result);
-          //      var claims = new List<Claim>
-          //      {
-          //          new Claim(ClaimTypes.Name, usuario.NomeExibicao, ClaimValueTypes.String),
-          //          new Claim(ClaimTypes.NameIdentifier, usuario.Login, ClaimValueTypes.String),
-          //          new Claim(ClaimTypes.SerialNumber, usuario.Id.ToString(), ClaimValueTypes.String),
-          //          new Claim(ClaimTypes.Email, usuario.Email, ClaimValueTypes.String),
-          //      };
-          //      foreach (var grupo in usuario.Grupos)
-          //          claims.Add(new Claim(ClaimTypes.Role, grupo, ClaimValueTypes.String));
+            //  if (retornoUsuario.IsSuccessStatusCode)
+            //  {
+            //      var usuario = JsonConvert.DeserializeObject<Usuario>(retornoUsuario.Content.ReadAsStringAsync().Result);
+            //      var claims = new List<Claim>
+            //      {
+            //          new Claim(ClaimTypes.Name, usuario.NomeExibicao, ClaimValueTypes.String),
+            //          new Claim(ClaimTypes.NameIdentifier, usuario.Login, ClaimValueTypes.String),
+            //          new Claim(ClaimTypes.SerialNumber, usuario.Id.ToString(), ClaimValueTypes.String),
+            //          new Claim(ClaimTypes.Email, usuario.Email, ClaimValueTypes.String),
+            //      };
+            //      foreach (var grupo in usuario.Grupos)
+            //          claims.Add(new Claim(ClaimTypes.Role, grupo, ClaimValueTypes.String));
 
-          //      ClaimsPrincipal principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
-          //      HttpContext.Authentication.SignInAsync("CookieAuthentication", principal);
-          //  }
-          //  var atendenteId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value;
+            //      ClaimsPrincipal principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
+            //      HttpContext.Authentication.SignInAsync("CookieAuthentication", principal);
+            //  }
+            //  var atendenteId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value;
 
             var retoro = _iConsumirApi.GetMethod("/api/chamado/buscarporatendente",
                 "/api/chamado/buscarporatendente/" + 33 + "/1");
@@ -104,7 +104,7 @@ namespace MVC.Controllers
         }
 
         [HttpGet]
-       public IActionResult Visualizar(string id)
+        public IActionResult Visualizar(string id)
         {
             var response = _iConsumirApi.GetMethod("/api/chamado/buscarporid/{id}", "/api/chamado/buscarporid/" + id);
             if (response.IsSuccessStatusCode)
@@ -166,7 +166,7 @@ namespace MVC.Controllers
 
         [HttpPost]
         public IActionResult AlterarSolicitante(AlterarSolicitanteViewModel alterarSolicitante)
- {
+        {
             if (string.IsNullOrEmpty(alterarSolicitante.Solicitante))
                 return StatusCode(422, "Prencha o Solicitante");
             var json = JsonConvert.SerializeObject(new Atendente()
@@ -185,29 +185,24 @@ namespace MVC.Controllers
         public IActionResult Novo(InserirChamadoViewModel inserirChamadoViewModel)
         {
             List<Categoria> categorias = inserirChamadoViewModel.Categorias.Select(categoria => new Categoria() { Codigo = categoria }).ToList();
-            var evento = new Evento()
+            var evento = new Evento(0, inserirChamadoViewModel.Descricao, new Atendente(){Codigo = 33})
             {
-                Descricao = inserirChamadoViewModel.Descricao,
-                Atendente = new Atendente()
-                {
-                    Codigo = 33//Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
-                },
-                Status = inserirChamadoViewModel.Status,
                 MinutosPrevistos = inserirChamadoViewModel.MinutosPrevistos,
                 MinutosRealizados = inserirChamadoViewModel.MinutosRealizados,
             };
+            evento.SetStatus(inserirChamadoViewModel.Status);
             if (inserirChamadoViewModel.Geral)
                 inserirChamadoViewModel.CodigoFilial = "000000";
-            var chamado = new Chamado()
-            {
-                Assunto = inserirChamadoViewModel.Assunto,
-                Status = "ABERTO",
-                Filial = new Filial() { Codigo = inserirChamadoViewModel.CodigoFilial },
-                Finalizado = false,
-                Categorias = categorias,
-                Eventos = new List<Evento>() { evento },
-                Solicitante = inserirChamadoViewModel.Solicitante
-                };
+
+            var chamado = new Chamado(0, "ABERTO", inserirChamadoViewModel.Assunto,
+                inserirChamadoViewModel.Solicitante)
+            { Finalizado = false };
+
+            chamado.SetFilial(new Filial() { Codigo = inserirChamadoViewModel.CodigoFilial });
+            chamado.SetCategoria(categorias);
+            chamado.SetEventos(new List<Evento>() { evento });
+            chamado.SetSolicitante(inserirChamadoViewModel.Solicitante);
+
             var response = _iConsumirApi.PostMethod("/api/Chamado", JsonConvert.SerializeObject(chamado));
             if (response.IsSuccessStatusCode)
                 return RedirectToAction("Visualizar", new { id = response.Content.ReadAsStringAsync().Result });

@@ -7,14 +7,17 @@ namespace Domain.Entities
 {
     public class Chamado
     {
-        public int Codigo { get; set; }
-        public string Status { get; set; }
-        public List<Evento> Eventos { get; set; }
-        public Filial Filial { get; set; }
-        public string Assunto { get; set; }
-        public string Solicitante { get; set; }
-        public List<Categoria> Categorias { get; set; }
+
+
+        public int Codigo { get; private set; }
+        public string Status { get; private set; }
+        public List<Evento> Eventos { get; private set; }
+        public Filial Filial { get; private set; }
+        public string Assunto { get; private set; }
+        public string Solicitante { get; private set; }
+        public List<Categoria> Categorias { get; private set; }
         public List<string> Imagens { get; set; }
+
         public int MinutosPrevistos
         {
             get
@@ -33,24 +36,17 @@ namespace Domain.Entities
         private bool _finalizado;
         public bool Finalizado
         {
-            get { return _finalizado; }
+            get => _finalizado;
             set
             {
                 if (Finalizado)
-                    throw new Exception("Chamado ja finalizado nao pode ser reaberto");
+                    throw new ArgumentException("Chamado ja finalizado nao pode ser reaberto");
                 _finalizado = value;
             }
         }
 
-        private string _nivel;
-        public string Nivel
-        {
-            get
-            {
-                return Atendente?.Nivel;
-            }
-            set { _nivel = value; }
-        }
+        public string Nivel => Atendente?.Nivel;
+
         public Atendente Atendente
         {
             get
@@ -60,6 +56,71 @@ namespace Domain.Entities
                 return a.Atendente;
             }
         }
+
+
+        #region Validacao
+
+        public Chamado(int codigo, string status, string assunto, string solicitante)
+        {
+            Codigo = codigo;
+            SetStatus(status);
+            SetAssunto(assunto);
+            SetSolicitante(solicitante);
+        }
+
+        public void SetCodigo(int coodigo)
+        {
+            if (Codigo != 0) throw new AggregateException("O codigo do Chamado nunca pode ser alterado");
+            Codigo = Codigo;
+        }
+
+
+        public void SetStatus(string status)
+        {
+            if (status.Length < 3 || string.IsNullOrEmpty(status))
+                throw new ArgumentException("Preencha o status com no minino 3 caracteres");
+            Status = status;
+        }
+
+        public void SetAssunto(string assunto)
+        {
+            if (assunto.Length < 3 || string.IsNullOrEmpty(assunto))
+                throw new ArgumentException("Preencha o assunto com no minino 3 caracteres");
+            Assunto = assunto;
+        }
+
+        public void SetSolicitante(string solicitante)
+        {
+            if (solicitante.Length < 3 || string.IsNullOrEmpty(solicitante))
+                throw new ArgumentException("Preencha o solicitante com no minino 3 caracteres");
+            Solicitante = solicitante;
+        }
+
+        public void SetEventos(List<Evento> eventos)
+        {
+            if (!eventos.Any())
+                throw new ArgumentException("Lista de Eventos vazia");
+            Eventos = eventos;
+        }
+
+        public void SetFilial(Filial filial)
+        {
+            if (filial == null || string.IsNullOrEmpty(filial.Codigo))
+                throw new ArgumentException("Filial Invalida");
+            Filial = filial;
+
+        }
+        public void SetCategoria(List<Categoria> categorias)
+        {
+            if (!categorias.Any())
+                throw new ArgumentException("Lista de Categorias esta vazia");
+
+            if (categorias.Any(categoria => categoria.Codigo != 0))
+                throw new ArgumentException("Exite uma categoria invalida");
+            Categorias = categorias;
+        }
+
+        #endregion
 
     }
 }
