@@ -20,14 +20,7 @@ namespace Domain.Entities
         public List<Categoria> Categorias { get; private set; }
         public List<string> Imagens { get; set; }
         public bool Finalizado { get; private set; }
-
-        public string Nivel
-        {
-            get
-            {
-               return  Eventos.FirstOrDefault(x =>x.Encerramento== Eventos.Max(y=>y.Encerramento)).Atendente.Nivel;
-            }
-        }
+        public string Nivel => Atendente?.Nivel;
 
         public int MinutosPrevistos
         {
@@ -39,8 +32,6 @@ namespace Domain.Entities
             get
             { return Eventos.Any() ? Eventos.Sum(x => x.MinutosRealizados) : 0; }
         }
-
-
         public Atendente Atendente
         {
             get
