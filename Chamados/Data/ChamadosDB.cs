@@ -12,7 +12,7 @@ namespace Data
         {
             try
             {
-                con = new SqlConnection("Server=10.1.0.4;Database=Chamados;User Id=joao.colombo;Password=991240; Max Pool Size=8000;");
+                con = new SqlConnection("Server=10.1.0.4;Database=Chamados;User Id=joao.colombo;Password=; Max Pool Size=8000;");
                 con.Open();
             }
             catch (Exception )
