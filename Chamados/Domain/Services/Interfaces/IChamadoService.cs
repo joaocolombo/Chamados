@@ -20,8 +20,10 @@ namespace Domain.Services.Interfaces
         IEnumerable<Chamado> BuscarPorFilial(Filial filial);
         void AlterarFila(int codigo, Fila fila, Atendente atendente);
         void RemoverFila(int codigo);
-        IEnumerable<object> SelectGenerico(string tabela, string parametros, string draw, string orderby, string orderbyDirecao);
-        int TotalRegistros(string tabela, string parametros);
 
+        IEnumerable<object> SelectGenerico(string tabela, string parametros, string draw, string orderby,
+            string orderbyDirecao, string start, string length);
+        int TotalRegistros(string tabela, string parametros);
+        IEnumerable<Chamado> BuscarTodos();
     }
 }

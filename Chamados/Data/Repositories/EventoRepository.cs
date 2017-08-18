@@ -23,7 +23,7 @@ namespace Data.Repositories
         {
             if (evento.Encerramento == DateTime.MinValue)
             {
-                evento.Encerramento = new DateTime(1900, 01, 01);
+                evento.Encerramento=new DateTime(1900, 01, 01);
             }
 
             var sql = @"INSERT INTO [CHAMADOS].[dbo].[EVENTO]
@@ -56,7 +56,7 @@ namespace Data.Repositories
             comando.Parameters.AddWithValue("@MINUTOS_REALIZADOS", evento.MinutosRealizados);
             var dr = ChamadosDb.DataReader(comando);
             dr.Read();
-            evento.Codigo = Convert.ToInt32(dr[0]);
+            evento.Codigo=Convert.ToInt32(dr[0]);
             ChamadosDb.CloseConnection();
 
             return evento;
@@ -106,12 +106,12 @@ namespace Data.Repositories
 
             var eventos = ChamadosDb.Conecection().Query<Evento, Atendente, Evento>(sql, (ev, at) =>
             {
-                ev.Atendente = at;
+                ev.Atendente=at;
                 return ev;
             }, new { CODIGO = e.Codigo }, splitOn: "NOME").ToList();
 
             foreach (var evento in eventos)
-                evento.Atendente = _iAtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
+                evento.Atendente=_iAtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
             ChamadosDb.CloseConnection();
             return eventos;
 
@@ -138,7 +138,7 @@ namespace Data.Repositories
             }, new { CODIGO = codigoChamado }, splitOn: "NOME").ToList();
 
             foreach (var evento in eventos)
-                evento.Atendente = _iAtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
+                evento.Atendente=_iAtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
             ChamadosDb.CloseConnection();
             return eventos;
 
@@ -160,12 +160,12 @@ namespace Data.Repositories
                             WHERE CODIGO = @CODIGO";
             var evento = ChamadosDb.Conecection().Query<Evento, Atendente, Evento>(sql, (ev, at) =>
             {
-                ev.Atendente = at;
+                ev.Atendente=at;
                 return ev;
             },
             new { CODIGO = codigo }, splitOn: "NOME").FirstOrDefault();
 
-            evento.Atendente = _iAtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
+            evento.Atendente=_iAtendenteRepository.BuscarAtendente(evento.Atendente.Nome);
             ChamadosDb.CloseConnection();
 
             return evento;
@@ -186,7 +186,7 @@ namespace Data.Repositories
             {
                 if (evento.Encerramento == DateTime.MinValue)
                 {
-                    evento.Encerramento = new DateTime(1900, 01, 01);
+                    evento.Encerramento=new DateTime(1900, 01, 01);
                 }
 
                 result = result + (@" INSERT INTO[CHAMADOS].[dbo].[EVENTO]

@@ -12,18 +12,20 @@
     <environment names="Development">
         <link rel="apple-touch-icon" href="http://static.bischoffgroup.com.br/resources/images/apple-touch-icon.png">
         <link rel="shortcut icon" href="http://static.bischoffgroup.com.br/resources/images/favicon.ico">
-
         <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/css/fonts.bundle.css">
         <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/css/base.bundle.css">
         <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/css/plugins.bundle.css">
+        <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/plugins/datatables/datatables.min.css">
+
     </environment>
     <environment names="Staging,Production">
         <link rel="apple-touch-icon" href="http://static.bischoffgroup.com.br/resources/images/apple-touch-icon.png">
         <link rel="shortcut icon" href="http://static.bischoffgroup.com.br/resources/images/favicon.ico">
-
         <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/css/fonts.bundle.css">
         <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/css/base.bundle.css">
         <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/css/plugins.bundle.css">
+        <link rel="stylesheet" href="http://static.bischoffgroup.com.br/resources/plugins/datatables/datatables.min.css">
+
     </environment>
     @RenderSection("pluginsStyle", false)
 
@@ -57,6 +59,8 @@
     <script src="http://static.bischoffgroup.com.br/resources/plugins/base.bundle.js"></script>
     <script src="http://static.bischoffgroup.com.br/resources/plugins/core.bundle.js"></script>
 
+
+
     @RenderSection("plugins", false)
 
     <script src="http://static.bischoffgroup.com.br/resources/js/scripts.bundle.js"></script>
@@ -85,6 +89,7 @@
     <environment names="Staging,Production">
         <script src="http://static.bischoffgroup.com.br/resources/plugins/base.bundle.js"></script>
         <script src="http://static.bischoffgroup.com.br/resources/plugins/core.bundle.js"></script>
+        <script src="http://static.bischoffgroup.com.br/resources/plugins/datatables/jquery.datatables.min.js"></script>
 
         @RenderSection("plugins", false)
 

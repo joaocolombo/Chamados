@@ -14,10 +14,12 @@ namespace Data.Repositories
         public Usuario Autenticar(int id, string senha)
         {
             var sql = @"select  usuario Login,
-                                nome NomeExibicao,
-                                idUsuario Id,
-	                            email Email  from usr.Usuario 
-                                where idUsuario = @USUARIO and senha= @SENHA";
+                                b.nome NomeExibicao,
+                                a.idUsuario Codigo,
+	                            b.email Email  
+	                            from usr.Usuario as a
+								join usr.UsuarioPerfil as b on a.idUsuario=b.idUsuario
+                                where a.idUsuario  = @USUARIO and a.senha= @SENHA";
             var usuario =
                 SgbcDB.Conecection()
                     .Query<Usuario>(sql, new {@USUARIO = id.ToString(), @SENHA = senha})

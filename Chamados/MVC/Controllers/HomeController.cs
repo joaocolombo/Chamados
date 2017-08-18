@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Authentication;
 using MVC.Interfaces;
+using MVC.Mapper;
 using MVC.ViewModel.Evento;
 using MVC.ViewModel.Home;
 
@@ -63,44 +64,64 @@ namespace MVC.Controllers
             return PartialView("_Finalizar", new FinalizarViewModel() { Id = id, NomeAtendente = nomeAtendente });
         }
 
-        //[Route("")]
-        //[Route("/{usuario?}/{senha?}")]
-        //public IActionResult Index(string usuarioId, string senha){
-        //if (!string.IsNullOrEmpty(usuario))
-        //{
-        //    usuario = Request.Cookies[usuario];
-        //    senha = Request.Cookies[senha];
-        //}
+
+        public async Task<IActionResult> Login()
+        {
+
+            var usuarioId = HttpContext.Request.Query["ucc"].ToString();
+            var senha = HttpContext.Request.Query["scc"].ToString();
+
+            if (!string.IsNullOrEmpty(usuarioId))
+            {
+                usuarioId = Request.Cookies[usuarioId];
+                senha = Request.Cookies[senha];
+            }
+#if DEBUG
+            //osiel
+            //usuarioId = "39";
+            //senha = "14EA3982F2D057A119545EE743524077";
+
+            usuarioId = "33";
+            senha = "757F66AC07CF22BD36BC793B4B2F360E";
+
+#endif
+
+            var retornoUsuario = _iConsumirApi.GetMethod("/api/usuario/Autenticar/{usuario}/{senha}",
+          $"/api/usuario/autenticar/{usuarioId}/{senha}");
+
+            if (retornoUsuario.IsSuccessStatusCode)
+            {
+                var usuario = JsonConvert.DeserializeObject<Usuario>(retornoUsuario.Content.ReadAsStringAsync().Result);
+
+                var claims = new List<Claim>
+                  {
+                      new Claim(ClaimTypes.Name, usuario.NomeExibicao, ClaimValueTypes.String),
+                      new Claim(ClaimTypes.NameIdentifier, usuario.Login, ClaimValueTypes.String),
+                      new Claim(ClaimTypes.SerialNumber, usuario.Codigo.ToString(), ClaimValueTypes.String),
+                      new Claim(ClaimTypes.Email, usuario.Email, ClaimValueTypes.String),
+                  };
+                foreach (var grupo in usuario.Grupos)
+                    claims.Add(new Claim(ClaimTypes.Role, grupo, ClaimValueTypes.String));
+
+                var principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
+
+                await HttpContext.Authentication.SignInAsync("CookieAuthentication", principal);
+            }
+            //var codigo = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value;
+
+            return RedirectToAction("Index");
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
+           var codigo = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value;
+            var retorno = _iConsumirApi.GetMethod("/api/chamado/buscartodos",
+                "/api/chamado/buscartodos");
 
-            //  var retornoUsuario = _iConsumirApi.GetMethod("/api/usuario/Autenticar/{usuario}/{senha}",
-            //"/api/usuario/autenticar/33/757F66AC07CF22BD36BC793B4B2F360E");
-
-            //  if (retornoUsuario.IsSuccessStatusCode)
-            //  {
-            //      var usuario = JsonConvert.DeserializeObject<Usuario>(retornoUsuario.Content.ReadAsStringAsync().Result);
-            //      var claims = new List<Claim>
-            //      {
-            //          new Claim(ClaimTypes.Name, usuario.NomeExibicao, ClaimValueTypes.String),
-            //          new Claim(ClaimTypes.NameIdentifier, usuario.Login, ClaimValueTypes.String),
-            //          new Claim(ClaimTypes.SerialNumber, usuario.Id.ToString(), ClaimValueTypes.String),
-            //          new Claim(ClaimTypes.Email, usuario.Email, ClaimValueTypes.String),
-            //      };
-            //      foreach (var grupo in usuario.Grupos)
-            //          claims.Add(new Claim(ClaimTypes.Role, grupo, ClaimValueTypes.String));
-
-            //      ClaimsPrincipal principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
-            //      HttpContext.Authentication.SignInAsync("CookieAuthentication", principal);
-            //  }
-            //  var atendenteId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value;
-
-            var retoro = _iConsumirApi.GetMethod("/api/chamado/buscarporatendente",
-                "/api/chamado/buscarporatendente/" + 33 + "/1");
-            if (retoro.IsSuccessStatusCode)
-                return View(JsonConvert.DeserializeObject<List<Chamado>>(retoro.Content.ReadAsStringAsync().Result));
-            return StatusCode(422, retoro.Content.ReadAsStringAsync().Result);
+            if (retorno.IsSuccessStatusCode)
+                return View(JsonConvert.DeserializeObject<List<Chamado>>(retorno.Content.ReadAsStringAsync().Result));
+            return StatusCode(422, retorno.Content.ReadAsStringAsync().Result);
         }
 
         [HttpGet]
@@ -108,43 +129,13 @@ namespace MVC.Controllers
         {
             var response = _iConsumirApi.GetMethod("/api/chamado/buscarporid/{id}", "/api/chamado/buscarporid/" + id);
             if (response.IsSuccessStatusCode)
-                return View(ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+                return View(ChamadoTo.ChamadoViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
-        private ChamadoViewModel ConvertChamadoToViewModel(Chamado chamado)
-        {
-            List<AdicionarEventoViewModel> eventos = new List<AdicionarEventoViewModel>();
-            foreach (var evento in chamado.Eventos)
-            {
-                eventos.Add(new AdicionarEventoViewModel()
-                {
-                    Descricao = evento.Descricao,
-                    Status = evento.Status,
-                    Abertura = evento.Abertura,
-                    Atendente = evento.Atendente,
-                    Codigo = evento.Codigo,
-                    ChamadoId = chamado.Codigo,
-                    FilaId = evento.Codigo,
-                    MinutosPrevistos = evento.MinutosPrevistos,
-                    MinutosRealizados = evento.MinutosRealizados
-                });
-            }
-            return new ChamadoViewModel()
-            {
-                Assunto = chamado.Assunto,
-                Codigo = chamado.Codigo,
-                Categorias = chamado.Categorias,
-                Filial = chamado.Filial,
-                Finalizado = chamado.Finalizado,
-                Solicitante = chamado.Solicitante,
-                Status = chamado.Status,
-                Eventos = eventos
-            };
-        }
+
         public async Task<string> AdicionarImagemAsync(IFormFile file, int id)
         {
-            var ida = ViewBag.Id;
             var nomeArquivo = Guid.NewGuid() + file.FileName;
             if (file.Length > 0)
             {
@@ -177,7 +168,7 @@ namespace MVC.Controllers
                 "/api/Chamado/AlterarSolicitante/" + alterarSolicitante.Solicitante + "/" + alterarSolicitante.Id,
                 json);
             if (response.IsSuccessStatusCode)
-                return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+                return PartialView("_Visualizar", ChamadoTo.ChamadoViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
@@ -185,23 +176,27 @@ namespace MVC.Controllers
         public IActionResult Novo(InserirChamadoViewModel inserirChamadoViewModel)
         {
             List<Categoria> categorias = inserirChamadoViewModel.Categorias.Select(categoria => new Categoria() { Codigo = categoria }).ToList();
-            var evento = new Evento(0, inserirChamadoViewModel.Descricao, new Atendente(){Codigo = 33})
+            var evento = new Evento(0, inserirChamadoViewModel.Descricao, new Atendente()
+            {
+                Codigo =Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
+            })
             {
                 MinutosPrevistos = inserirChamadoViewModel.MinutosPrevistos,
                 MinutosRealizados = inserirChamadoViewModel.MinutosRealizados,
+                Status = inserirChamadoViewModel.Status,
             };
-            evento.SetStatus(inserirChamadoViewModel.Status);
             if (inserirChamadoViewModel.Geral)
                 inserirChamadoViewModel.CodigoFilial = "000000";
 
             var chamado = new Chamado(0, "ABERTO", inserirChamadoViewModel.Assunto,
                 inserirChamadoViewModel.Solicitante)
-            { Finalizado = false };
-
-            chamado.SetFilial(new Filial() { Codigo = inserirChamadoViewModel.CodigoFilial });
-            chamado.SetCategoria(categorias);
-            chamado.SetEventos(new List<Evento>() { evento });
-            chamado.SetSolicitante(inserirChamadoViewModel.Solicitante);
+            {
+                Finalizado = false,
+                Filial = new Filial() { Codigo = inserirChamadoViewModel.CodigoFilial },
+                Categorias = categorias,
+                Eventos = new List<Evento>() { evento },
+                Solicitante = inserirChamadoViewModel.Solicitante
+            };
 
             var response = _iConsumirApi.PostMethod("/api/Chamado", JsonConvert.SerializeObject(chamado));
             if (response.IsSuccessStatusCode)
@@ -238,7 +233,7 @@ namespace MVC.Controllers
             var response = _iConsumirApi.PutMethod("/api/Chamado/AlterarCategoria/{id}",
                 "/api/Chamado/AlterarCategoria/" + alterarCategoria.Id, JsonConvert.SerializeObject(lista));
             if (response.IsSuccessStatusCode)
-                return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+                return PartialView("_Visualizar", ChamadoTo.ChamadoViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
@@ -254,7 +249,7 @@ namespace MVC.Controllers
 
             var response = _iConsumirApi.PutMethod("/api/Chamado/AlterarAssunto/{assunto}/{id}", "/api/Chamado/AlterarAssunto/" + alterarAssunto.Assunto + "/" + alterarAssunto.Id, json);
             if (response.IsSuccessStatusCode)
-                return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+                return PartialView("_Visualizar", ChamadoTo.ChamadoViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
@@ -272,7 +267,7 @@ namespace MVC.Controllers
             var response = _iConsumirApi.PutMethod("/api/Chamado/AlterarFilial/{id}",
                     "/api/Chamado/AlterarFilial/" + alterarFilial.Id, json);
             if (response.IsSuccessStatusCode)
-                return PartialView("_Visualizar", ConvertChamadoToViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
+                return PartialView("_Visualizar", ChamadoTo.ChamadoViewModel(JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
 
 

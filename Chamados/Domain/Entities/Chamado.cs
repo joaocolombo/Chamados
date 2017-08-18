@@ -10,108 +10,143 @@ namespace Domain.Entities
     public class Chamado
     {
 
+        
+        private int codigo;
+        private string status;
+        private List<Evento> eventos;
+        private Filial filial;
+        private string assunto;
+        private string solicitante;
+        private List<Categoria> categorias;
+        private bool finalizado;
 
-        public int Codigo { get; private set; }
-        public string Status { get; private set; }
-        public List<Evento> Eventos { get; private set; }
-        public Filial Filial { get; private set; }
-        public string Assunto { get; private set; }
-        public string Solicitante { get; private set; }
-        public List<Categoria> Categorias { get; private set; }
+
         public List<string> Imagens { get; set; }
-        public bool Finalizado { get; private set; }
         public string Nivel => Atendente?.Nivel;
 
         public int MinutosPrevistos
         {
             get
-            { return Eventos.Any() ? Eventos.Sum(x => x.MinutosPrevistos) : 0; }
+            { return eventos.Any() ? eventos.Sum(x => x.MinutosPrevistos) : 0; }
         }
         public int MinutosRealizados
         {
             get
-            { return Eventos.Any() ? Eventos.Sum(x => x.MinutosRealizados) : 0; }
+            { return eventos.Any() ? eventos.Sum(x => x.MinutosRealizados) : 0; }
         }
         public Atendente Atendente
         {
             get
             {
-                if (!Eventos.Any()) return null;
-                var a = Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
+                if (!eventos.Any()) return null;
+                var a = eventos.OrderByDescending(x => x.Abertura).FirstOrDefault();
                 return a.Atendente;
             }
         }
 
 
-        #region Validacao
-
+        #region Validacao/Sets
+        
         public Chamado(int codigo, string status, string assunto, string solicitante)
         {
             Codigo = codigo;
-            SetStatus(status);
-            SetAssunto(assunto);
-            SetSolicitante(solicitante);
+            Status=status;
+            Assunto =assunto;
+            Solicitante=solicitante;
         }
 
-        public void SetFinalziado(bool finalizado)
+        private Chamado()
         {
+            
+        }
+        public bool Finalizado
+        {
+            get { return finalizado; }
+            set
             {
-                if (Finalizado)
+                if (finalizado)
                     throw new ArgumentException("Chamado ja finalizado nao pode ser reaberto");
-                Finalizado = finalizado;
+                finalizado = value;
             }
         }
-        public void SetCodigo(int coodigo)
+
+        public int Codigo
         {
-            if (Codigo != 0) throw new AggregateException("O codigo do Chamado nunca pode ser alterado");
-            Codigo = Codigo;
+            get { return codigo; }
+            set
+            {
+                if (codigo != 0) throw new AggregateException("O codigo do Chamado nunca pode ser alterado");
+                codigo = value;
+            }
         }
 
-
-        public void SetStatus(string status)
+        public string Status
         {
-            if (status.Length < 3 || string.IsNullOrEmpty(status))
-                throw new ArgumentException("Preencha o status com no minino 3 caracteres");
-            Status = status;
+            get { return status; }
+            set
+            {
+                if (value.Length < 3 || string.IsNullOrEmpty(value))
+                    throw new ArgumentException("Preencha o status com no minino 3 caracteres");
+                status = value;
+            }
+        }
+        public string Assunto
+        {
+            get { return assunto; }
+            set
+            {
+                if (value.Length < 3 || string.IsNullOrEmpty(value))
+                    throw new ArgumentException("Preencha o assunto com no minino 3 caracteres");
+                assunto = value;
+            }
+        }
+        public string Solicitante
+        {
+            get { return solicitante; }
+            set
+            {
+                if (value.Length < 3 || string.IsNullOrEmpty(value))
+                    throw new ArgumentException("Preencha o solicitante com no minino 3 caracteres");
+                solicitante = value;
+            }
         }
 
-        public void SetAssunto(string assunto)
+        public List<Evento> Eventos
         {
-            if (assunto.Length < 3 || string.IsNullOrEmpty(assunto))
-                throw new ArgumentException("Preencha o assunto com no minino 3 caracteres");
-            Assunto = assunto;
+            get { return eventos; }
+            set
+            {
+                if (!value.Any())
+                    throw new ArgumentException("Lista de Eventos vazia");
+                eventos = value;
+            }
+        }
+        
+        public Filial Filial
+        {
+            get { return filial; }
+            set
+            {
+                if (value == null || string.IsNullOrEmpty(value.Codigo))
+                    throw new ArgumentException("Filial Invalida");
+                filial = value;
+            }
         }
 
-        public void SetSolicitante(string solicitante)
+        public List<Categoria> Categorias
         {
-            if (solicitante.Length < 3 || string.IsNullOrEmpty(solicitante))
-                throw new ArgumentException("Preencha o solicitante com no minino 3 caracteres");
-            Solicitante = solicitante;
+            get { return categorias; }
+            set
+            {
+                if (!value.Any())
+                    throw new ArgumentException("Lista de Categorias esta vazia");
+
+                if (value.Any(categoria => categoria.Codigo == 0))
+                    throw new ArgumentException("Exite uma categoria invalida");
+                categorias = value;
+            }
         }
 
-        public void SetEventos(List<Evento> eventos)
-        {
-            if (!eventos.Any())
-                throw new ArgumentException("Lista de Eventos vazia");
-            Eventos = eventos;
-        }
-
-        public void SetFilial(Filial filial)
-        {
-            if (filial == null || string.IsNullOrEmpty(filial.Codigo))
-                throw new ArgumentException("Filial Invalida");
-            Filial = filial;
-
-        }
-        public void SetCategoria(List<Categoria> categorias)
-        {
-            if (!categorias.Any())
-                throw new ArgumentException("Lista de Categorias esta vazia");
-
-            if (categorias.Any(categoria => categoria.Codigo != 0))
-                throw new ArgumentException("Exite uma categoria invalida");
-            Categorias = categorias;
-        }
 
         #endregion
 

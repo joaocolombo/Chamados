@@ -1,0 +1,99 @@
+﻿@model List<Domain.Entities.Chamado>
+<div class="panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">Lista de Chamados Abertos</h3>
+    </div>
+    <div class="panel-body">
+        <div class=" table-responsive">
+            <table class="table table-hover dataTable table-striped w-full" id="table">
+                <thead>
+                    <tr>
+                        <th>Numero Chamado</th>
+                        <th>Solicitante</th>
+                        <th>Atendente</th>
+                        <th>Assunto</th>
+                        <th>Loja</th>
+                        <th>Nivel</th>
+                        <th>Finalizado ?</th>
+
+                        <th hidden="">#</th>
+                        <th hidden=""></th>
+                        <th hidden=""></th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Numero Chamado</th>
+                        <th>Solicitante</th>
+                        <th>Atendente</th>
+                        <th>Assunto</th>
+                        <th>Loja</th>
+                        <th>Nivel</th>
+                        <th>Finalizado</th>
+                        <th hidden="">#</th>
+                        <th hidden=""></th>
+                        <th hidden=""></th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    @foreach (var chamado in Model)
+                    {
+                        <tr>
+                            <td>
+                                @chamado.Codigo
+                            </td>
+                            <td>
+                                @chamado.Solicitante
+                            </td>
+                            <td>
+                                @chamado.Atendente.NomeExibicao
+                            </td>
+                            <td>
+                                @chamado.Assunto
+                            </td>
+                            <td>
+                                @chamado.Filial.Nome
+                            </td>
+                            <td>
+                                @chamado.Atendente.Nivel
+                            </td>
+                            <td>
+                                @{
+                                    var finalizado = "Não";
+                                    if (chamado.Finalizado)
+                                    {
+                                        finalizado = "Sim";
+                                    }
+                                }
+                                @finalizado
+                            </td>
+                            <td>
+                                <a class="btn btn-info" asp-controller="Home" asp-action="Visualizar" asp-route-id="@chamado.Codigo">Visualizar</a>
+                            </td>
+                            <td hidden="">
+                                @{
+                                    var descricoes = "";
+                                    foreach (var evento in @chamado.Eventos)
+                                    {
+                                        descricoes += evento.Descricao + evento.Atendente + evento.Status;
+                                    }
+                                    @descricoes
+                                }
+                            </td>
+                            <td hidden="">
+                                @{
+                                    var categorias = "";
+                                    foreach (var categoria in @chamado.Categorias)
+                                    {
+                                        categorias += categoria.Descricao + categoria.Grupo;
+                                    }
+                                    @categorias
+                                }
+                            </td>
+                        </tr>
+                                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

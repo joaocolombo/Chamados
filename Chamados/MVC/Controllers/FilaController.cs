@@ -6,6 +6,7 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MVC.Interfaces;
+using MVC.Mapper;
 using MVC.ViewModel.Evento;
 using MVC.ViewModel.Fila;
 using MVC.ViewModel.Home;
@@ -13,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace MVC.Controllers
 {
-    [Authorize(Roles = "asd")]
+
     public class FilaController : Controller
     {
         private readonly IConsumirApi _iConsumirApi;
@@ -50,8 +51,8 @@ namespace MVC.Controllers
         {
             var response = _iConsumirApi.GetMethod("/Api/Chamado/BuscarPorId/{id}", "/Api/Chamado/BuscarPorId/" + id);
             if (response.IsSuccessStatusCode)
-                return View("Visualizar",
-                    JsonConvert.DeserializeObject<ChamadoViewModel>(response.Content.ReadAsStringAsync().Result));
+                return View("Visualizar",ChamadoTo.ChamadoViewModel(
+                    JsonConvert.DeserializeObject<Chamado>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
@@ -66,7 +67,7 @@ namespace MVC.Controllers
         {
             var json = JsonConvert.SerializeObject(new Atendente()
             {
-                Codigo = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
+                Codigo =Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
             });
             var response = _iConsumirApi.PutMethod("/Api/Chamado/AssumirChamado/{id}", "/Api/Chamado/AssumirChamado/"
                                                                                        +

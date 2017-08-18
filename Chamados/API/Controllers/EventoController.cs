@@ -38,7 +38,7 @@ namespace API.Controllers
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
                 atendente = _iAtendenteService.BuscarAtendente(atendente.Codigo);
                 var evento = JsonConvert.DeserializeObject<Evento>(value[2].ToString());
-                evento.Atendente= _iAtendenteService.BuscarAtendente(evento.Atendente.Codigo);
+                evento.Atendente=_iAtendenteService.BuscarAtendente(evento.Atendente.Codigo);
                 return Ok(_iEventoService.Adicionar(chamado, evento, atendente));
             }
             catch (RnException ex)

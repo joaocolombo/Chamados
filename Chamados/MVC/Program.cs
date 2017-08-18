@@ -17,6 +17,7 @@ namespace MVC
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
+                 .UseUrls("http://localhost:5001/")
                 .Build();
 
             host.Run();

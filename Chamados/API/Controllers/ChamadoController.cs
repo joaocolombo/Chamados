@@ -21,7 +21,7 @@ namespace API.Controllers
         private readonly IChamadoService _iChamadoService;
         private readonly IEventoService _iEventoService;
         private readonly IAtendenteService _iAtendenteService;
-       
+
         public ChamadoController(IChamadoService iChamadoService, IEventoService iEventoService, IAtendenteService iAtendenteService)
         {
             _iChamadoService = iChamadoService;
@@ -36,6 +36,13 @@ namespace API.Controllers
 
             var a = _iAtendenteService.BuscarAtendente(atendente);
             return _iChamadoService.BuscarPorAtendente(a, finalizado);
+        }
+
+        [HttpGet("BuscarTodos")]
+        public IEnumerable<Chamado> BuscarTodos()
+        {
+
+           return _iChamadoService.BuscarTodos();
         }
 
         [HttpGet("BuscarPorStatus/{status}", Name = "GetPorStatus")]
@@ -60,7 +67,7 @@ namespace API.Controllers
         [HttpGet("BuscarPorId/{id}")]
         public IActionResult Get(int id)
         {
-            
+
             return Ok(_iChamadoService.BuscarPorId(id));
         }
 
@@ -117,8 +124,6 @@ namespace API.Controllers
         {
             try
             {
-
-                
 
                 var filial = JsonConvert.DeserializeObject<Filial>(value[0].ToString());
                 var atendente = JsonConvert.DeserializeObject<Atendente>(value[1].ToString());
@@ -300,12 +305,25 @@ namespace API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpGet("Tabela/{tabela}/{draw}/{start}/{length}/{sortColumn}/{sortColumnDir}/{searchFilter}")]
+        //[HttpGet("Tabela/{tabela}/{draw}/{start}/{length}/{sortColumn}/{sortColumnDir}/{searchFilter}")]
+        //string draw, string start, string length, string sortColumn, string sortColumnDir, string searchFilter
         [EnableCors("LiberarAcessoExterno")]
-        public IActionResult TabelaChamados(string tabela, string draw, string start, string length,
-            string sortColumn, string sortColumnDir, string searchFilter)
+        [HttpPost("Tabela")]
+        public IActionResult TabelaChamados()
         {
 
+            var teste = Request.Form;
+
+            var draw = HttpContext.Request.Form["draw"].FirstOrDefault();
+            var start = HttpContext.Request.Form["start"].FirstOrDefault();
+            var length = HttpContext.Request.Form["length"].FirstOrDefault();
+            var sortColumn =
+                HttpContext.Request.Form["columns[" + HttpContext.Request.Form["order[0][column]"].FirstOrDefault() +
+                                       "][name]"].FirstOrDefault();
+            var sortColumnDir = Request.Form["order[0][dir]"].FirstOrDefault();
+            var searchFilter = Request.Form["search[value]"].FirstOrDefault();
+
+            var tabela = "chamado";
 
             //var draw = values("draw").FirstOrDefault(); //qtd linhas da tabela
             //var start = Request.Form.GetValues("start").FirstOrDefault(); //primeira linha
@@ -319,7 +337,7 @@ namespace API.Controllers
             var skip = start != null ? Convert.ToInt32(start) : 0;
 
 
-            var data = _iChamadoService.SelectGenerico(tabela, searchFilter, draw, sortColumn, sortColumnDir);
+            var data = _iChamadoService.SelectGenerico(tabela, searchFilter, draw, sortColumn, sortColumnDir, start, length);
 
             var recordsTotal = _iChamadoService.TotalRegistros(tabela, searchFilter);//total de linas na tabela 
 
@@ -327,11 +345,31 @@ namespace API.Controllers
             {
                 draw,
                 recordsTotal,
-                recordsFiltered = recordsTotal,
+                recordsFiltered = data.Count(),
                 data = data
             });
         }
 
+        [HttpGet("Tabela2")]
+        [EnableCors("LiberarAcessoExterno")]
+        public IActionResult TabelaChamadosa()
+        {
+            List<object> data = new List<object>();
+            var obj1 = new
+            { name = "Tiger Nixon",
+                position = "System Architect",
+                salary = "$3,120",
+                start_date = "2011/04/25",
+                office = "Edinburgh",
+                extn = "5421"
+            };
+            for (int i = 0; i < 30; i++)
+            {
+                data.Add(obj1);
+            }
+
+            return Ok(data);
+        }
 
     }
 }

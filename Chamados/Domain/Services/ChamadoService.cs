@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using Domain.Entities;
 using Domain.Repositories;
@@ -33,7 +34,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            chamado.SetAssunto(assunto);
+            chamado.Assunto=assunto;
             return _iChamadoRepository.Alterar(chamado);
 
         }
@@ -45,7 +46,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            chamado.SetSolicitante(solicitante);
+            chamado.Solicitante =solicitante;
             return _iChamadoRepository.Alterar(chamado);
         }
 
@@ -57,7 +58,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            chamado.SetCategoria(categorias);
+            chamado.Categorias =categorias;
             return _iChamadoRepository.Alterar(chamado);
         }
 
@@ -71,7 +72,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            chamado.SetFilial(filial);
+            chamado.Filial =filial;
             return _iChamadoRepository.Alterar(chamado);
         }
 
@@ -101,8 +102,8 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            c.SetStatus("FINALIZADO");
-            c.Finalizado = true;
+            c.Status= "FINALIZADO";
+            c.Finalizado=true;
             _iChamadoRepository.Alterar(c);
         }
 
@@ -118,10 +119,10 @@ namespace Domain.Services
                 throw new RnException(erro);
             }
 
-            chamado.SetStatus("ABERTO");
+            chamado.Status="ABERTO";
             foreach (var evento in chamado.Eventos)
             {
-                evento.SetAbertura(DateTime.Now);
+                evento.Abertura = DateTime.Now;
             }
             try
             {
@@ -167,14 +168,14 @@ namespace Domain.Services
             return _iChamadoRepository.BuscarPorStatus(status);
         }
 
-        public IEnumerable<object> SelectGenerico(string tabela, string parametros, string draw, string orderby, string orderbyDirecao)
+        public IEnumerable<object> SelectGenerico(string tabela, string parametros, string draw, string orderby, string orderbyDirecao, string start, string length)
         {
-            return _iChamadoRepository.SelectGenerico(tabela, parametros, draw, orderby, orderbyDirecao);
+            return _iChamadoRepository.SelectGenerico(tabela, parametros, draw, orderby, orderbyDirecao,  start,  length);
         }
 
         public int TotalRegistros(string tabela, string parametros)
         {
-            return 100;
+            return _iChamadoRepository.TotalRegistros(tabela, parametros);
         }
 
         public Chamado AdicionarImagem(int codigo, string nomeArquivo, Atendente atendente)
@@ -188,6 +189,11 @@ namespace Domain.Services
             _iChamadoRepository.AdicionarImagem(codigo, nomeArquivo);
             return _iChamadoRepository.BuscarPorId(codigo);
 
+        }
+
+        public IEnumerable<Chamado> BuscarTodos()
+        {
+            return _iChamadoRepository.BuscarTodos();
         }
     }
 }

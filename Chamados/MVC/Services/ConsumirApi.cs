@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using MVC.Interfaces;
-using Newtonsoft.Json;
+
 
 namespace MVC.Services
 {
@@ -15,14 +13,14 @@ namespace MVC.Services
     {
         private string url = "http://10.1.0.4";
 
-        public HttpResponseMessage GetMethod(string uri, string uriParametros)
+        public  HttpResponseMessage GetMethod(string uri, string uriParametros)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(url + uri);
                 var contentType = new MediaTypeWithQualityHeaderValue("application/json");
                 client.DefaultRequestHeaders.Accept.Add(contentType);
-                return  client.GetAsync(uriParametros).Result;
+                return client.GetAsync(uriParametros).Result;
 
             };
         }

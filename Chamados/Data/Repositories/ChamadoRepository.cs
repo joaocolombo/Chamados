@@ -75,18 +75,18 @@ namespace Data.Repositories
                         FROM W_ULTIMO_EVENTO_CHAMADO AS A
                         WHERE ATENDENTE =@ATENDENTE
                         AND FINALIZADO =@FINALIZADO";
+           
             var chamados = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
-                (ch, fi) =>
-                {
-                    ch.SetFilial(fi);
-                    return ch;
-                }, new { ATENDENTE = atendente.Nome, FINALIZADO = finalizado }, splitOn: "FILIAL").ToList();
+                    (ch, fi) =>
+                    {
+                        ch.Filial = _iFilialRepository.BuscarPorCodigo(fi.Codigo);
+                        return ch;
+                    }, new {ATENDENTE = atendente.Nome, FINALIZADO = finalizado}, splitOn: "FILIAL").ToList();
 
             foreach (var chamado in chamados)
             {
-                chamado.SetFilial(_iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo));
-                chamado.SetEventos(_iEventoRepository.BuscarEventosPorChamado(chamado.Codigo));
-                chamado.SetCategoria(_iCategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo));
+                chamado.Eventos = _iEventoRepository.BuscarEventosPorChamado(chamado.Codigo);
+                chamado.Categorias =_iCategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo);
 
             }
             ChamadosDb.CloseConnection();
@@ -118,16 +118,16 @@ namespace Data.Repositories
             var chamado = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
                 (ch, fi) =>
                 {
-                    ch.SetFilial(fi);
+                    ch.Filial=fi;
                     return ch;
                 },
              new { CODIGO = codigo }, splitOn:"-").FirstOrDefault();
             var eventos = _iEventoRepository.BuscarEventosPorChamado(codigo);
             var categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(codigo);
             var filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
-            chamado.SetFilial(filial);
-            chamado.SetEventos(eventos);
-            chamado.SetCategoria(categorias);
+            chamado.Filial=filial;
+            chamado.Eventos=eventos;
+            chamado.Categorias=categorias;
             ChamadosDb.CloseConnection();
 
             return chamado;
@@ -233,7 +233,7 @@ namespace Data.Repositories
             var chamados = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
                 (ch, fi) =>
                 {
-                    ch.SetFilial(fi);
+                    ch.Filial=fi;
                     return ch;
                 },
              new { FILA = fila.Codigo }, splitOn: "-");
@@ -243,9 +243,9 @@ namespace Data.Repositories
                 var eventos = _iEventoRepository.BuscarEventosPorChamado(chamado.Codigo);
                 var categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo);
                 var filial = _iFilialRepository.BuscarPorCodigo(chamado.Filial.Codigo);
-                chamado.SetFilial(filial);
-                chamado.SetEventos(eventos);
-                chamado.SetCategoria(categorias);
+                chamado.Filial=filial;
+                chamado.Eventos=eventos;
+                chamado.Categorias=categorias;
             }
 
             ChamadosDb.CloseConnection();
@@ -265,35 +265,6 @@ namespace Data.Repositories
                               JOIN EVENTO AS B ON A.CODIGO=B.CODIGO_CHAMADO 
                               WHERE B.CODIGO=@CODIGOEVENTO";
             return ChamadosDb.Conecection().Query<Chamado>(sql, new {CODIGOEVENTO = codigoEvento}).FirstOrDefault();
-        }
-
-        //------
-
-        public IEnumerable<object> SelectGenerico(string tabela, string parametros, string draw, string orderby, string orderbyDirecao )
-        {
-            var sql =@"select COLUNA.name from SYS.columns AS COLUNA
-                        JOIN SYS.tables AS TABELA ON COLUNA.object_id = TABELA.object_id WHERE TABELA.name ='"+ tabela+"'";
-
-            var colunas = ChamadosDb.Conecection().Query<string>(sql);
-            
-            sql = "SELECT top("+draw+") * FROM " + tabela;
-
-            if (!string.IsNullOrEmpty(parametros))
-            {
-                sql += " where ";
-                foreach (var coluna in colunas)
-                {
-                    sql += coluna + " like '%" + parametros + "%' or ";
-                }
-                sql += " 0=1";
-            }
-
-            return ChamadosDb.Conecection().Query(sql);
-        }
-
-        public int TotalRegistros(string tabela, string parametros)
-        {
-            throw new NotImplementedException();
         }
 
         public Chamado AdicionarNaFila(int codigo, Fila fila)
@@ -352,6 +323,80 @@ namespace Data.Repositories
         {
             var sql = @"select nome_imagem from chamado_imagem where codigo_chamado =@CHAMADO";
             return ChamadosDb.Conecection().Query<string>(sql, new {@CHAMADO =codigo}).ToList();
+        }
+
+
+
+
+        public IEnumerable<object> SelectGenerico(string tabela, string parametros, string draw, string orderby, string orderbyDirecao, string start, string length)
+        {
+            var sql = @"select COLUNA.name from SYS.columns AS COLUNA
+                        JOIN SYS.tables AS TABELA ON COLUNA.object_id = TABELA.object_id WHERE TABELA.name ='" + tabela + "'";
+
+            var colunas = ChamadosDb.Conecection().Query<string>(sql);
+
+            //  sql = "SELECT top("+draw+") * FROM " + tabela;
+
+            sql = $@"WITH tabela AS
+                 (SELECT ROW_NUMBER() OVER(ORDER BY {orderby} {orderbyDirecao}) AS linha,*
+                 FROM {tabela})
+                SELECT* FROM  tabela
+                WHERE   linha >= {start} and linha <= {Convert.ToInt32(start)+Convert.ToInt32(length)} and (";
+
+
+
+            if (!string.IsNullOrEmpty(parametros))
+            {
+                
+                foreach (var coluna in colunas)
+                {
+                    sql += coluna + " like '%" + parametros + "%' or ";
+                }
+                sql += " 0=1)";
+            }
+
+            return ChamadosDb.Conecection().Query(sql);
+        }
+
+        public int TotalRegistros(string tabela, string parametros)
+        {
+
+            var sql = "SELECT count(*) FROM " + tabela;
+
+
+            return ChamadosDb.Conecection().Query<int>(sql).FirstOrDefault();
+
+        }
+
+        public IEnumerable<Chamado> BuscarTodos()
+        {
+            var sql = @"SELECT
+                        A.CODIGO
+                        ,A.ASSUNTO
+                        ,A.FINALIZADO
+                        ,A.STATUS
+                        ,A.SOLICITANTE
+                        ,'FILIAL' AS FILIAL
+                        , A.CODIGO_FILIAL AS CODIGO
+                        FROM W_ULTIMO_EVENTO_CHAMADO AS A
+                        order by a.codigo desc";
+
+            var chamados = ChamadosDb.Conecection().Query<Chamado, Filial, Chamado>(sql,
+                    (ch, fi) =>
+                    {
+                        ch.Filial = _iFilialRepository.BuscarPorCodigo(fi.Codigo);
+                        return ch;
+                    }, splitOn: "FILIAL").ToList();
+
+            foreach (var chamado in chamados)
+            {
+                chamado.Eventos = _iEventoRepository.BuscarEventosPorChamado(chamado.Codigo);
+                chamado.Categorias = _iCategoriaRepository.BuscarCategoriasPorChamado(chamado.Codigo);
+
+            }
+            ChamadosDb.CloseConnection();
+
+            return chamados;
         }
     }
 }

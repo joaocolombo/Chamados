@@ -32,7 +32,7 @@ namespace Domain.Services
         public Evento AdicionarEventoFila(int codigoChamado, Evento evento)
         {
             var chamado = _iChamadoService.BuscarPorId(codigoChamado);
-            evento.SetAbertura(DateTime.Now);
+            evento.Abertura =DateTime.Now;
             return _iEventoRepository.Adicionar(chamado, evento);
         }
 
@@ -50,7 +50,7 @@ namespace Domain.Services
                 throw new RnException(erro);
             }
 
-            evento.SetAbertura(DateTime.Now);
+            evento.Abertura = DateTime.Now;
             return _iEventoRepository.Adicionar(chamado, evento);
         }
 
@@ -64,7 +64,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            evento.SetStatus(status);
+            evento.Status= status;
 
             return _iEventoRepository.Alterar(evento);
         }
@@ -80,7 +80,7 @@ namespace Domain.Services
             {
                 throw new RnException(erro);
             }
-            evento.SetDescricao(descricao);
+            evento.Descricao=descricao;
 
             return _iEventoRepository.Alterar(evento);
         }
@@ -97,7 +97,7 @@ namespace Domain.Services
 
         public Evento Finalizar(Evento evento)
         {
-            evento.SetEncerramento(DateTime.Now);
+            evento.Encerramento = DateTime.Now;
             return _iEventoRepository.Alterar(evento);
         }
 
@@ -110,8 +110,8 @@ namespace Domain.Services
         {
             var chamado = _iChamadoService.BuscarPorId(codigoChamado);
             var evento = new Evento(0, "Chamado Foi Assumido", atendente);
-            evento.SetAbertura(DateTime.Now);
-            evento.SetStatus("ENCAMINHAR");
+            evento.Abertura = DateTime.Now;
+            evento.Status="ENCAMINHAR";
             erro = _iChamadoValidate.PermiteAssumir(chamado);
             if (!string.IsNullOrEmpty(erro))
             {
@@ -136,7 +136,7 @@ namespace Domain.Services
 
 
             Finalizar(chamado.Eventos.OrderByDescending(x => x.Abertura).FirstOrDefault());
-            evento.SetAbertura(DateTime.Now);
+            evento.Abertura=DateTime.Now;
             return _iEventoRepository.Adicionar(chamado, evento);
         }
     }

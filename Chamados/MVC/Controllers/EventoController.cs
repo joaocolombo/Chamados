@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using MVC.Interfaces;
+using MVC.Mapper;
 using MVC.ViewModel.Evento;
 using Newtonsoft.Json;
 
@@ -27,29 +28,13 @@ namespace MVC.Controllers
             return PartialView("_AdicionarEvento", new AdicionarEventoViewModel() { ChamadoId = id });
         }
 
-        private AdicionarEventoViewModel ConvertEventoToViewModel(Evento evento)
-        {
-            return new AdicionarEventoViewModel()
-            {
-                Descricao = evento.Descricao,
-                Status = evento.Status,
-                Abertura = evento.Abertura,
-                Atendente = evento.Atendente,
-                Codigo = evento.Codigo,
-                FilaId = evento.Codigo,
-                MinutosPrevistos = evento.MinutosPrevistos,
-                MinutosRealizados = evento.MinutosRealizados
-                
-
-            };
-        }
 
         [HttpGet]
         public IActionResult Visualizar(string id)
         {
             var response = _iConsumirApi.GetMethod("/api/Evento/BuscarPorId/{id}", "/api/Evento/BuscarPorId/" + id);
             if (response.IsSuccessStatusCode)
-                return View(ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
+                return View(EventoTo.AdicionarEventoViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
 
             ViewData["Error"] = response.Content.ReadAsStringAsync().Result;
             return View("error");
@@ -80,7 +65,7 @@ namespace MVC.Controllers
                 alterarDescricao.Id, json);
 
             if (response.IsSuccessStatusCode)
-                return PartialView("~/Views/Evento/_Visualizar.cshtml", ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
+                return PartialView("~/Views/Evento/_Visualizar.cshtml", EventoTo.AdicionarEventoViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
@@ -95,7 +80,7 @@ namespace MVC.Controllers
                 "/api/Evento/AlterarStatus/" + alterarStatus.Status + "/" +
                 alterarStatus.Id, json);
             if (response.IsSuccessStatusCode)
-                return PartialView("~/Views/Evento/_Visualizar.cshtml", ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
+                return PartialView("~/Views/Evento/_Visualizar.cshtml", EventoTo.AdicionarEventoViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
@@ -119,15 +104,9 @@ namespace MVC.Controllers
             {
                 Codigo = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
             };
-            var evento = new Evento()
-            {
-                Descricao = eventoViewModel.Descricao,
-                Atendente = new Atendente()
-                {
-                    Nome = eventoViewModel.Atendente.Nome
-                },
-                Status = "ENCAMINHAR"
-            };
+            var evento = new Evento(0, eventoViewModel.Descricao, new Atendente() { Nome = eventoViewModel.Atendente.Nome });
+            evento.Status="ENCAMINHAR";
+
             var fila = new Fila() { Codigo = eventoViewModel.FilaId };
             List<object> lista = new List<object>() { fila, atendente, evento };
 
@@ -135,7 +114,7 @@ namespace MVC.Controllers
                     "/api/Chamado/AlterarFila/" + eventoViewModel.ChamadoId, JsonConvert.SerializeObject(lista));
 
             if (response.IsSuccessStatusCode)
-                return PartialView("~/Views/Evento/_Evento.cshtml", ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
+                return PartialView("~/Views/Evento/_Evento.cshtml", EventoTo.AdicionarEventoViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
         [HttpPost]
@@ -145,19 +124,13 @@ namespace MVC.Controllers
             {
                 Codigo = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
             };
-            var evento = new Evento()
-            {
-                Descricao = eventoViewModel.Descricao,
-                Atendente = new Atendente()
-                {
-                    Nome = eventoViewModel.NomeAtendenteNovo
-                },
-                Status = "ENCAMINHAR"
-            };
+            var evento = new Evento(0, eventoViewModel.Descricao,
+                new Atendente() { Nome = eventoViewModel.NomeAtendenteNovo });
+            evento.Status="ENCAMINHAR";
             List<object> lista = new List<object>() { atendente, evento };
             var response = _iConsumirApi.PutMethod("/api/Chamado/Encaminhar/{id}", "/api/Chamado/Encaminhar/" + eventoViewModel.ChamadoId, JsonConvert.SerializeObject(lista));
             if (response.IsSuccessStatusCode)
-                return PartialView("~/Views/Evento/_Evento.cshtml", ConvertEventoToViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
+                return PartialView("~/Views/Evento/_Evento.cshtml", EventoTo.AdicionarEventoViewModel(JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
 
@@ -170,20 +143,19 @@ namespace MVC.Controllers
             }
             var atendente = new Atendente()
             {
-                Codigo = 33//Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
+                Codigo = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber).Value)
             };
-            var evento = new Evento()
+            var evento = new Evento(0, adicionarEvento.Descricao, atendente)
             {
-                Descricao = adicionarEvento.Descricao,
-                Atendente = atendente,
-                Status = adicionarEvento.Status,
                 MinutosPrevistos = adicionarEvento.MinutosPrevistos,
                 MinutosRealizados = adicionarEvento.MinutosRealizados
             };
+            evento.Status=adicionarEvento.Status;
+
             List<object> lista = new List<object>() { adicionarEvento.ChamadoId, atendente, evento };
             var response = _iConsumirApi.PostMethod("/api/Evento/Adicionar", JsonConvert.SerializeObject(lista));
             if (response.IsSuccessStatusCode)
-                return PartialView("~/Views/Evento/_Evento.cshtml", ConvertEventoToViewModel(
+                return PartialView("~/Views/Evento/_Evento.cshtml", EventoTo.AdicionarEventoViewModel(
                         JsonConvert.DeserializeObject<Evento>(response.Content.ReadAsStringAsync().Result)));
             return StatusCode(422, response.Content.ReadAsStringAsync().Result);
         }
